@@ -823,6 +823,16 @@
           "format": "uuid"
         }
       },
+      "email_variant_id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "The UUID of the email. If your email has translations, this is the ID of a specific language variant.\n",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
       "component_id": {
         "name": "id",
         "in": "path",
@@ -848,6 +858,16 @@
         "in": "path",
         "required": true,
         "description": "The UUID of the inbox message. If the message has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "version_id": {
+        "name": "version_id",
+        "in": "path",
+        "required": true,
+        "description": "The UUID of the version.",
         "schema": {
           "type": "string",
           "format": "uuid"
@@ -125661,7 +125681,7 @@
           },
           "publish_id": {
             "type": "string",
-            "description": "An opaque ID to poll for completion with [Get publish status](/integrations/api/app/tag/design-studio/getPublishStatus/). Present when `status` is `pending`."
+            "description": "An opaque ID to poll for completion with [Get publish status](/integrations/api/app/tag/design-studio-emails/getPublishStatus/). Present when `status` is `pending`."
           },
           "status": {
             "type": "string",
@@ -125768,6 +125788,1321 @@
         },
         "example": {
           "has_unpublished_changes": true
+        }
+      },
+      "EmailRenderResponse": {
+        "type": "object",
+        "properties": {
+          "amp": {
+            "type": "string",
+            "description": "AMP HTML variant. Omitted unless you added an AMP version when you [created the email](/integrations/api/app/tag/design-studio-emails/createEmail/)."
+          },
+          "html": {
+            "type": "string",
+            "description": "Full HTML with liquid tags left intact."
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code if the node is a translation (for example, `\"es\"`). Omitted for default-language nodes."
+          },
+          "node_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The UUID of the rendered email node."
+          },
+          "node_type": {
+            "type": "string",
+            "enum": [
+              "EMAIL"
+            ],
+            "description": "Always `\"EMAIL\"`."
+          },
+          "text": {
+            "type": "string",
+            "description": "Plain text version of the email. Omitted unless you added a plain text version when you [created the email](/integrations/api/app/tag/design-studio-emails/createEmail/)."
+          }
+        },
+        "example": {
+          "html": "<!doctype html>\n<html lang=\"und\">...\n<p>{{customer.first_name}}, welcome!</p>\n...\n</html>",
+          "node_id": "1a0cbb4e-09d3-402e-949e-f6732f021650",
+          "node_type": "EMAIL",
+          "text": "<html><head></head><body style=\"margin:0\"><div style=\"font-size:16px;line-height:1.5;font-family:Arial,Helvetica,sans-serif;white-space:pre-wrap;padding:10px;\">{{customer.first_name}}, welcome!</div></body></html>"
+        }
+      },
+      "EmailPreviewRequest": {
+        "type": "object",
+        "properties": {
+          "campaign": {
+            "type": "object",
+            "description": "Campaign metadata for `{{campaign.*}}`."
+          },
+          "customer": {
+            "type": "object",
+            "description": "Customer profile attributes for `{{customer.*}}` variables."
+          },
+          "event": {
+            "type": "object",
+            "description": "Event attributes for `{{event.*}}`."
+          },
+          "journey": {
+            "type": "object",
+            "description": "Journey metadata for `{{journey.*}}`."
+          },
+          "lax": {
+            "type": "boolean",
+            "default": false,
+            "description": "Set to `true` if you want undefined variables to resolve to an empty string instead of reporting an error; this can help you focus on more important errors when you don't provide sample data or fallback values. Liquid *syntax* errors (like broken tags and invalid filters) are always reported as errors.\n"
+          },
+          "message": {
+            "type": "object",
+            "description": "Message metadata for `{{message.*}}`."
+          },
+          "objects": {
+            "type": "object",
+            "description": "Related objects for `{{objects.*}}`."
+          },
+          "trigger": {
+            "type": "object",
+            "description": "Trigger data for `{{trigger.*}}`."
+          }
+        },
+        "example": {
+          "customer": {
+            "first_name": "Jane",
+            "email": "jane@example.com",
+            "plan": "enterprise"
+          },
+          "event": {
+            "name": "order_completed",
+            "total": 149.99
+          }
+        }
+      },
+      "EmailPreviewResponse": {
+        "type": "object",
+        "properties": {
+          "amp": {
+            "type": "string",
+            "description": "AMP HTML variant with liquid evaluated. Omitted if the email doesn't have an AMP version."
+          },
+          "errors": {
+            "type": "object",
+            "description": "Per-field Liquid error arrays. All 15 fields are always present; an empty array means no errors for that field.",
+            "properties": {
+              "bcc": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "BCC field Liquid errors."
+              },
+              "body": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "HTML body Liquid errors."
+              },
+              "body_amp": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "AMP body Liquid errors."
+              },
+              "body_plain": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Plain-text body Liquid errors."
+              },
+              "cc": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "CC field Liquid errors."
+              },
+              "event": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Event data Liquid errors."
+              },
+              "from": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "From address Liquid errors."
+              },
+              "layout": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Layout template errors."
+              },
+              "message": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Message-level errors."
+              },
+              "preheader_text": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Preheader Liquid errors."
+              },
+              "reply_to": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Reply-to address Liquid errors."
+              },
+              "snippets": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Snippet rendering errors."
+              },
+              "subject": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Subject line Liquid errors."
+              },
+              "to": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Recipient field Liquid errors, for example `\"undefined variable: customer.email\"`.\n"
+              },
+              "trigger": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Trigger data Liquid errors."
+              }
+            }
+          },
+          "from": {
+            "type": "string",
+            "description": "Resolved from address, for example `\"Name <email>\"`. Omitted when the email doesn't include a from address."
+          },
+          "headers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Errors in the header name."
+                },
+                "value": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Errors in the header value."
+                }
+              }
+            },
+            "description": "One entry per custom header that has Liquid errors. Omitted when there are none."
+          },
+          "html": {
+            "type": "string",
+            "description": "Final HTML with Liquid evaluated, the preheader injected, and dangerous tags removed."
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code if the node is a translation. Omitted for default-language nodes."
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "errors": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Problems with this link, like a relative URL or liquid tags that were URL-encoded. Empty when the link is fine."
+                },
+                "text": {
+                  "type": "string",
+                  "description": "The link's visible text."
+                },
+                "tracked": {
+                  "type": "boolean",
+                  "description": "Whether Customer.io rewrites this link for click tracking when you send the email."
+                },
+                "url": {
+                  "type": "string",
+                  "description": "The link URL after liquid evaluation."
+                }
+              }
+            },
+            "description": "Every link in the evaluated HTML body, with any per-link problems."
+          },
+          "node_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The UUID of the previewed email node."
+          },
+          "node_type": {
+            "type": "string",
+            "enum": [
+              "EMAIL"
+            ],
+            "description": "Always `\"EMAIL\"`."
+          },
+          "plaintext_body": {
+            "type": "string",
+            "description": "The plain-text part a recipient would get—your plain text version with HTML tags stripped, or text generated from the final HTML if the email doesn't have one. Omitted when empty."
+          },
+          "preheader_text": {
+            "type": "string",
+            "description": "Evaluated preheader text. Omitted when the email doesn't include preheaders."
+          },
+          "subject": {
+            "type": "string",
+            "description": "Evaluated subject line."
+          },
+          "text": {
+            "type": "string",
+            "description": "Plain-text body with liquid evaluated. Omitted if the email doesn't have a plain text version."
+          }
+        },
+        "example": {
+          "errors": {
+            "bcc": [],
+            "body": [],
+            "body_amp": [],
+            "body_plain": [],
+            "cc": [],
+            "event": [],
+            "from": [],
+            "layout": [],
+            "message": [],
+            "preheader_text": [],
+            "reply_to": [],
+            "snippets": [],
+            "subject": [],
+            "to": [],
+            "trigger": []
+          },
+          "from": "\"No reply\" <noreply@example.com>",
+          "html": "<!DOCTYPE html>...<p>Purchase info</p>...",
+          "links": [
+            {
+              "errors": [],
+              "text": "View your order",
+              "tracked": true,
+              "url": "https://example.com/orders"
+            }
+          ],
+          "node_id": "1a0cbb4e-09d3-402e-949e-f6732f021650",
+          "node_type": "EMAIL",
+          "plaintext_body": "Thanks for your recent purchase!",
+          "subject": "Order Confirmation",
+          "text": "<html><head></head><body style=\"margin:0\"><div style=\"font-size:16px;line-height:1.5;font-family:Arial,Helvetica,sans-serif;white-space:pre-wrap;padding:10px;\">Thanks for your recent purchase!</div></body></html>"
+        }
+      },
+      "EmailPreviewErrors": {
+        "type": "object",
+        "description": "Per-field Liquid error arrays. All 15 fields are always present; an empty array means no errors for that field.",
+        "properties": {
+          "bcc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "BCC field Liquid errors."
+          },
+          "body": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "HTML body Liquid errors."
+          },
+          "body_amp": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "AMP body Liquid errors."
+          },
+          "body_plain": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Plain-text body Liquid errors."
+          },
+          "cc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "CC field Liquid errors."
+          },
+          "event": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Event data Liquid errors."
+          },
+          "from": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "From address Liquid errors."
+          },
+          "layout": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Layout template errors."
+          },
+          "message": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Message-level errors."
+          },
+          "preheader_text": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Preheader Liquid errors."
+          },
+          "reply_to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Reply-to address Liquid errors."
+          },
+          "snippets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Snippet rendering errors."
+          },
+          "subject": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Subject line Liquid errors."
+          },
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Recipient field Liquid errors, for example `\"undefined variable: customer.email\"`.\n"
+          },
+          "trigger": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Trigger data Liquid errors."
+          }
+        }
+      },
+      "EmailPreviewHeaderError": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Errors in the header name."
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Errors in the header value."
+          }
+        }
+      },
+      "EmailPreviewLink": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Problems with this link, like a relative URL or liquid tags that were URL-encoded. Empty when the link is fine."
+          },
+          "text": {
+            "type": "string",
+            "description": "The link's visible text."
+          },
+          "tracked": {
+            "type": "boolean",
+            "description": "Whether Customer.io rewrites this link for click tracking when you send the email."
+          },
+          "url": {
+            "type": "string",
+            "description": "The link URL after liquid evaluation."
+          }
+        }
+      },
+      "EmailReviewResponse": {
+        "type": "object",
+        "properties": {
+          "checks": {
+            "type": "object",
+            "description": "Per-check status, keyed by check name. See the endpoint description for the full list of checks.",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "description": "Present when `status` is `degraded` or `error`. Explains what was missing or what failed."
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "degraded",
+                    "error",
+                    "skipped"
+                  ],
+                  "description": "`complete`: findings are authoritative. `degraded`: the check ran on reduced input (for example, some URL validations failed) — its findings aren't authoritative. `error`: the check couldn't run and contributed no findings. `skipped`: the check has no server-side signal for API callers.\n"
+                }
+              }
+            }
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "check": {
+                  "type": "string",
+                  "description": "Which check produced this finding."
+                },
+                "details": {
+                  "type": "string",
+                  "description": "Explanation and suggested fix. Omitted when there's nothing more to add beyond the title."
+                },
+                "id": {
+                  "type": "string",
+                  "description": "Identifier for this finding, unique within the response."
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": [
+                    "error",
+                    "warning",
+                    "tip"
+                  ],
+                  "description": "Fix all errors to make sure your recipients get your email and you follow compliance requirements. Review warnings and tips to improve the quality of your email."
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "pass",
+                    "fail"
+                  ],
+                  "description": "Whether this finding represents an issue. Passing findings don't affect the score."
+                },
+                "summary": {
+                  "type": "string",
+                  "description": "Location context, for example \"In the email body\". Omitted when there's no additional context."
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Short human-readable title."
+                }
+              }
+            }
+          },
+          "node_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The UUID of the reviewed email node."
+          },
+          "score": {
+            "type": "object",
+            "description": "Readiness score. Omitted when `status` is `render_failed`.",
+            "properties": {
+              "counts": {
+                "type": "object",
+                "description": "Finding counts by severity across all checks.",
+                "properties": {
+                  "error": {
+                    "type": "integer",
+                    "description": "The number of failing `error` findings."
+                  },
+                  "tip": {
+                    "type": "integer",
+                    "description": "The number of failing `tip` findings."
+                  },
+                  "warning": {
+                    "type": "integer",
+                    "description": "The number of failing `warning` findings."
+                  }
+                }
+              },
+              "score": {
+                "type": "integer",
+                "description": "0–100 readiness estimate. Starts at 100 and is reduced per failing finding. An error drops the score to 60 or below; fix all errors to make sure your recipients get your email and you follow compliance requirements. See **findings** to locate errors.\n"
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "partial",
+              "render_failed"
+            ],
+            "description": "- `complete`: every check ran to completion. \n- `partial`: at least one check errored, ran on reduced input, or was skipped. `failed-components` is always skipped and doesn't [affect this status. If you get a `partial` status, send the request again after a few seconds to try to get a complete set of findings.\n- `render_failed`: the underlying render failed; no checks ran, `score` is omitted, and `findings` is empty. If it's a timeout, send the request again after a few seconds. If it's a content or compilation error, fix the email before sending the request again.\n"
+          }
+        },
+        "example": {
+          "checks": {
+            "liquid": {
+              "status": "complete"
+            },
+            "failed-components": {
+              "status": "skipped"
+            },
+            "source": {
+              "status": "complete"
+            },
+            "links": {
+              "status": "complete"
+            },
+            "images": {
+              "status": "complete"
+            },
+            "accessibility": {
+              "status": "complete"
+            },
+            "spam": {
+              "status": "complete"
+            },
+            "unsubscribe": {
+              "status": "complete"
+            },
+            "implied-links": {
+              "status": "complete"
+            },
+            "html-clip": {
+              "status": "complete"
+            },
+            "preheader": {
+              "status": "complete"
+            }
+          },
+          "findings": [
+            {
+              "check": "unsubscribe",
+              "details": "Add {% unsubscribe %} or use {% unsubscribe_url %} as the href.",
+              "id": "unsubscribe",
+              "severity": "warning",
+              "state": "fail",
+              "title": "No unsubscribe link"
+            },
+            {
+              "check": "preheader",
+              "details": "Add a short preheader to improve open rates.",
+              "id": "preheader",
+              "severity": "tip",
+              "state": "fail",
+              "title": "No preheader text"
+            }
+          ],
+          "node_id": "887d804e-9199-4a65-ae26-315e825344bc",
+          "score": {
+            "counts": {
+              "error": 0,
+              "tip": 1,
+              "warning": 1
+            },
+            "score": 86
+          },
+          "status": "complete"
+        }
+      },
+      "EmailReviewScore": {
+        "type": "object",
+        "description": "Readiness score. Omitted when `status` is `render_failed`.",
+        "properties": {
+          "counts": {
+            "type": "object",
+            "description": "Finding counts by severity across all checks.",
+            "properties": {
+              "error": {
+                "type": "integer",
+                "description": "The number of failing `error` findings."
+              },
+              "tip": {
+                "type": "integer",
+                "description": "The number of failing `tip` findings."
+              },
+              "warning": {
+                "type": "integer",
+                "description": "The number of failing `warning` findings."
+              }
+            }
+          },
+          "score": {
+            "type": "integer",
+            "description": "0–100 readiness estimate. Starts at 100 and is reduced per failing finding. An error drops the score to 60 or below; fix all errors to make sure your recipients get your email and you follow compliance requirements. See **findings** to locate errors.\n"
+          }
+        }
+      },
+      "EmailReviewCheckStatus": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Present when `status` is `degraded` or `error`. Explains what was missing or what failed."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "degraded",
+              "error",
+              "skipped"
+            ],
+            "description": "`complete`: findings are authoritative. `degraded`: the check ran on reduced input (for example, some URL validations failed) — its findings aren't authoritative. `error`: the check couldn't run and contributed no findings. `skipped`: the check has no server-side signal for API callers.\n"
+          }
+        }
+      },
+      "EmailReviewFinding": {
+        "type": "object",
+        "properties": {
+          "check": {
+            "type": "string",
+            "description": "Which check produced this finding."
+          },
+          "details": {
+            "type": "string",
+            "description": "Explanation and suggested fix. Omitted when there's nothing more to add beyond the title."
+          },
+          "id": {
+            "type": "string",
+            "description": "Identifier for this finding, unique within the response."
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warning",
+              "tip"
+            ],
+            "description": "Fix all errors to make sure your recipients get your email and you follow compliance requirements. Review warnings and tips to improve the quality of your email."
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "fail"
+            ],
+            "description": "Whether this finding represents an issue. Passing findings don't affect the score."
+          },
+          "summary": {
+            "type": "string",
+            "description": "Location context, for example \"In the email body\". Omitted when there's no additional context."
+          },
+          "title": {
+            "type": "string",
+            "description": "Short human-readable title."
+          }
+        }
+      },
+      "VersionSummary": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "integer",
+            "format": "Unix timestamp",
+            "description": "The date-time the version was created."
+          },
+          "created_on_publish": {
+            "type": "boolean",
+            "description": "`false` if you [saved the email](/integrations/api/app/tag/design-studio-emails/saveVersion/). `true` if  Design Studio created this version automatically when you [published the email](/integrations/api/app/tag/design-studio-emails/publishEmail/). You can't delete versions generated by Design Studio.\n"
+          },
+          "description": {
+            "type": "string",
+            "description": "Explanatory text you provided when creating a version. Omitted if no description."
+          },
+          "feedback": {
+            "type": "boolean",
+            "description": "`true` is you saved this version by creating a [round of feedback in Design Studio](/messaging/design-studio/collaboration/feedback/).\n"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the version."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name given to the version when it was saved."
+          },
+          "node_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the email node this version belongs to."
+          },
+          "node_type": {
+            "type": "string",
+            "enum": [
+              "EMAIL"
+            ],
+            "description": "Always `\"EMAIL\"`."
+          }
+        },
+        "example": {
+          "created": 1773856017,
+          "created_on_publish": false,
+          "feedback": false,
+          "id": "8f14e45f-ceea-4c67-9814-b8f0e0e1a6f0",
+          "name": "Before holiday redesign",
+          "node_id": "1a0cbb4e-09d3-402e-949e-f6732f021650",
+          "node_type": "EMAIL"
+        }
+      },
+      "VersionDependencyNode": {
+        "type": "object",
+        "description": "The code of the referenced custom component(s) in the node version.",
+        "properties": {
+          "component_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The component tag name when you saved this version."
+          },
+          "content": {
+            "type": "string",
+            "description": "HTML content as of the snapshot."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the component in Design Studio."
+          },
+          "node_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the component node."
+          },
+          "node_type": {
+            "type": "string",
+            "enum": [
+              "COMPONENT"
+            ],
+            "description": "Always `COMPONENT`."
+          }
+        },
+        "example": {
+          "component_name": "footer",
+          "content": "<script>...</script><template>...</template>",
+          "name": "Footer",
+          "node_id": "1abcbb4e-402e-949e-f6732f333",
+          "node_type": "COMPONENT"
+        }
+      },
+      "VersionNode": {
+        "type": "object",
+        "description": "The content and settings stored in the version.",
+        "properties": {
+          "amp": {
+            "type": "string",
+            "description": "AMP HTML body as of the snapshot. Omitted if the email had none."
+          },
+          "content": {
+            "type": "string",
+            "description": "HTML content as of the snapshot. For the content of any referenced custom component, see `dependencies`."
+          },
+          "envelope": {
+            "type": "object",
+            "properties": {
+              "bcc": {
+                "type": "string",
+                "description": "BCC email address."
+              },
+              "fake_bcc": {
+                "type": "boolean",
+                "description": "Whether to use fake BCC. Defaults to true if not provided."
+              },
+              "from": {
+                "type": "string",
+                "description": "The sender address associated with the from_id."
+              },
+              "from_id": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "Sender identity ID.\n"
+              },
+              "headers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "description": "Custom headers. Each item: { \"name\": \"string\", \"value\": \"string\" }.\n"
+              },
+              "recipient": {
+                "type": "string",
+                "description": "Recipient expression. Defaults to {{customer.email}} if not set."
+              },
+              "reply_to": {
+                "type": "string",
+                "description": "The reply-to address associated with the reply_to_id."
+              },
+              "reply_to_id": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "Reply-to identity ID. This matches one of the ids in *Workspace Settings > Email*.\n"
+              }
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name of the email in Design Studio. If the version is a language variant, the title ends in the language code like \"Onboarding email (fr)\"."
+          },
+          "node_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the node."
+          },
+          "node_type": {
+            "type": "string",
+            "enum": [
+              "EMAIL"
+            ],
+            "description": "Always `EMAIL` for the node."
+          },
+          "preheader_text": {
+            "type": "string",
+            "description": "Preview text as of the snapshot. Omitted if the email had none."
+          },
+          "subject": {
+            "type": "string",
+            "description": "Email subject line."
+          },
+          "text": {
+            "type": "string",
+            "description": "Plain text body as of the snapshot. Omitted if the email had none."
+          },
+          "transformers": {
+            "type": "object",
+            "description": "Automate repetitive actions like removing white space and inlining CSS with [transformers](/journeys/design-studio/emails/code-editor/overview/#transformers).",
+            "properties": {
+              "accessibility": {
+                "type": "object",
+                "description": "Applies a set of accessibility improvements to the email HTML. When no `language` is set, this falls back to the `lang` attribute on the `<html>` tag, or `\"und\"` (undetermined). The `dir` attribute is automatically derived from the language using RTL detection.\n",
+                "properties": {
+                  "add_dir_to_content": {
+                    "type": "boolean",
+                    "description": "Add `dir` attribute to direct children of `<body>`.\n",
+                    "default": true
+                  },
+                  "add_dir_to_html": {
+                    "type": "boolean",
+                    "description": "Add `dir` attribute (`ltr`, `rtl`, or `auto`) to the `<html>` element if not already present.\n",
+                    "default": true
+                  },
+                  "add_empty_alt_to_images": {
+                    "type": "boolean",
+                    "description": "Add `alt=\"\"` to `<img>` elements missing an `alt` attribute, preventing screen readers from reading the file name.\n",
+                    "default": true
+                  },
+                  "add_lang_to_content": {
+                    "type": "boolean",
+                    "description": "Add `lang` attribute to direct children of `<body>`.\n",
+                    "default": true
+                  },
+                  "add_lang_to_html": {
+                    "type": "boolean",
+                    "description": "Add `lang` attribute to the `<html>` element if not already present.\n",
+                    "default": true
+                  },
+                  "add_role_to_tables": {
+                    "type": "boolean",
+                    "description": "Add `role=\"presentation\"` to all `<table>` elements without an existing `role`, so screen readers skip table semantics for layout tables.\n",
+                    "default": true
+                  },
+                  "add_title_to_head": {
+                    "type": "boolean",
+                    "description": "Add a `<title>` tag to `<head>` using the email subject line (creates or replaces if empty).\n",
+                    "default": true
+                  },
+                  "add_vml_alt_text": {
+                    "type": "boolean",
+                    "description": "Add `alt` attribute to VML elements (used by Outlook’s Word rendering engine), derived from the element’s text content.\n",
+                    "default": true
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Enable accessibility fixes.\n",
+                    "default": false
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language code (for example, `\"en\"`, `\"fr\"`, or `\"ar\"`) used for `lang` and `dir` attributes.\n",
+                    "default": ""
+                  },
+                  "remove_button_role_from_links": {
+                    "type": "boolean",
+                    "description": "Remove `role=\"button\"` from `<a>` tags to restore proper link semantics for screen readers.\n",
+                    "default": true
+                  },
+                  "remove_zoom_meta_tag": {
+                    "type": "boolean",
+                    "description": "Remove viewport `<meta>` tags that restrict zoom (`user-scalable=0`, `user-scalable=no`, `maximum-scale=1`, or `maximum-scale=2`).\n",
+                    "default": true
+                  }
+                }
+              },
+              "css_inliner": {
+                "type": "object",
+                "description": "Moves CSS from `<style>` tags into inline `style` attributes on each element. Essential for email clients with limited `<style>` support (for example, older Gmail and some Outlook versions). Uses the `juice` library. Elements in `<style>` tags marked with `data-ignore-inlining` are skipped.\n",
+                "properties": {
+                  "apply_html_attributes": {
+                    "type": "object",
+                    "description": "Controls adding redundant HTML attributes alongside inlined CSS to different HTML elements.\n",
+                    "properties": {
+                      "apply_height_attributes": {
+                        "type": "boolean",
+                        "description": "Add redundant HTML `height` attributes alongside inlined CSS `height` on `<table>`, `<td>`, `<th>`, and `<img>` elements. Only applies to `px` values (and `%` on table elements). Needed for email clients that ignore CSS height.\n",
+                        "default": true
+                      },
+                      "apply_table_element_attributes": {
+                        "type": "boolean",
+                        "description": "Add redundant HTML attributes on table elements (`<table>`, `<th>`, `<tr>`, `<td>`, `<caption>`, `<colgroup>`, `<col>`, `<thead>`, `<tbody>`, `<tfoot>`): `background-color` → `bgcolor`, `background-image` → `background`, `text-align` → `align`, `vertical-align` → `valign`.\n",
+                        "default": true
+                      },
+                      "apply_width_attributes": {
+                        "type": "boolean",
+                        "description": "Add redundant HTML `width` attributes alongside inlined CSS `width` on `<table>`, `<td>`, `<th>`, and `<img>` elements. Only applies to `px` values (and `%` on table elements). Needed for email clients that ignore CSS width (for example, older Outlook).\n",
+                        "default": true
+                      },
+                      "enabled": {
+                        "type": "boolean",
+                        "description": "Enable adding redundant HTML attributes.\n",
+                        "default": true
+                      }
+                    }
+                  },
+                  "apply_style_tags": {
+                    "type": "boolean",
+                    "description": "Inline styles from `<style>` tags.\n",
+                    "default": true
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Enable CSS inlining.\n",
+                    "default": false
+                  },
+                  "inline_pseudo_elements": {
+                    "type": "boolean",
+                    "description": "Attempt to inline pseudo-element (`::before`, `::after`) styles.\n",
+                    "default": false
+                  },
+                  "preserve_font_faces": {
+                    "type": "boolean",
+                    "description": "Keep `@font-face` rules in `<style>` (cannot be inlined).\n",
+                    "default": true
+                  },
+                  "preserve_important": {
+                    "type": "boolean",
+                    "description": "Preserve `!important` declarations in inlined styles.\n",
+                    "default": false
+                  },
+                  "preserve_keyframes": {
+                    "type": "boolean",
+                    "description": "Keep `@keyframes` rules in `<style>` (cannot be inlined).\n",
+                    "default": true
+                  },
+                  "preserve_media_queries": {
+                    "type": "boolean",
+                    "description": "Keep `@media` rules in `<style>` (cannot be inlined).\n",
+                    "default": true
+                  },
+                  "preserve_pseudos": {
+                    "type": "boolean",
+                    "description": "Keep pseudo-selector rules (for example, `:hover`) in `<style>` (cannot be inlined).\n",
+                    "default": true
+                  },
+                  "remove_style_tags": {
+                    "type": "boolean",
+                    "description": "Remove `<style>` tags after inlining their rules.\n",
+                    "default": true
+                  }
+                }
+              },
+              "css_variables": {
+                "type": "object",
+                "description": "Resolves CSS custom properties (`var(--name)`) into their computed values. Required for email clients that do not support CSS custom properties (most email clients). Variables declared in one `<style>` tag are available in subsequent `<style>` tags.\n",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Enable CSS variable resolution.\n",
+                    "default": false
+                  },
+                  "preserve": {
+                    "type": "boolean",
+                    "description": "Keep original custom property declarations (`--name: value`) alongside the resolved values.\n",
+                    "default": false
+                  }
+                }
+              },
+              "encode_entities": {
+                "type": "object",
+                "description": "Encodes special characters (for example, `©`, `™`, and `—`) as their HTML entity equivalents. Improves rendering consistency across email clients with varying character encoding support. Only processes text nodes in the `<body>` and skips `<script>`, `<style>`, `<noscript>`, `<svg>`, and `<head>` elements. Preserves Liquid template tags and avoids double-encoding existing entities.\n",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Enable HTML entity encoding.\n",
+                    "default": false
+                  }
+                }
+              },
+              "formatter": {
+                "type": "object",
+                "description": "Controls the output formatting of the final HTML. Only one mode (`prettify` or `minify`) can be active at a time. Set to `\"none\"` to skip formatting entirely.\n",
+                "properties": {
+                  "minify": {
+                    "type": "object",
+                    "description": "Options used when `type` is `\"minify\"`. Reduces file size by stripping whitespace and comments.\n",
+                    "properties": {
+                      "line_length_limit": {
+                        "type": "integer",
+                        "description": "Maximum characters per line before inserting a line break.\n",
+                        "default": 500
+                      },
+                      "remove_css_comments": {
+                        "type": "boolean",
+                        "description": "Remove CSS comments (`/* ... */`) from `<style>` blocks.\n",
+                        "default": true
+                      },
+                      "remove_html_comments": {
+                        "type": "string",
+                        "description": "HTML comment removal level. `\"0\"` keeps all comments, `\"1\"` removes non-conditional comments (preserves MSO conditionals like `<!--[if mso]>`), and `\"2\"` removes all comments including conditional.\n",
+                        "enum": [
+                          "0",
+                          "1",
+                          "2"
+                        ],
+                        "default": "0"
+                      },
+                      "remove_indentations": {
+                        "type": "boolean",
+                        "description": "Remove leading whitespace indentation.\n",
+                        "default": true
+                      },
+                      "remove_line_breaks": {
+                        "type": "boolean",
+                        "description": "Remove all line breaks from the output.\n",
+                        "default": false
+                      }
+                    }
+                  },
+                  "prettify": {
+                    "type": "object",
+                    "description": "Options used when `type` is `\"prettify\"`. Produces human-readable, indented HTML output.\n",
+                    "properties": {
+                      "indent_character": {
+                        "type": "string",
+                        "description": "Character used for indentation.\n",
+                        "enum": [
+                          "spaces",
+                          "tabs"
+                        ],
+                        "default": "spaces"
+                      },
+                      "indent_size": {
+                        "type": "integer",
+                        "description": "Number of indent characters per level.\n",
+                        "default": 2
+                      },
+                      "wrap_attributes": {
+                        "type": "boolean",
+                        "description": "Wrap HTML attributes onto separate lines (`force-expand-multiline` mode).\n",
+                        "default": false
+                      }
+                    }
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Formatting mode to apply.\n",
+                    "enum": [
+                      "none",
+                      "prettify",
+                      "minify"
+                    ],
+                    "default": "none"
+                  }
+                }
+              },
+              "prevent_widows": {
+                "type": "object",
+                "description": "Replaces the last space in text blocks with a non-breaking space (`&nbsp;`) to prevent a single word from wrapping onto its own line (a “widow”). Only processes text nodes in the `<body>` and skips `<script>`, `<style>`, `<noscript>`, `<svg>`, and `<head>` elements. Preserves Liquid template tags (`{{ }} ` and `{% %}`).\n",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Enable widow word prevention.\n",
+                    "default": false
+                  }
+                }
+              },
+              "remove_unused_css": {
+                "type": "object",
+                "description": "Scans the HTML and removes any CSS selectors from `<style>` tags that are not referenced in the document. Reduces file size and helps avoid Gmail’s 102 KB clipping limit. HTML and CSS comments are always preserved by this step (comment removal is handled separately by the formatter object).\n",
+                "properties": {
+                  "backend_markers": {
+                    "type": "array",
+                    "description": "Template syntax delimiters (e.g., Liquid, Handlebars) that the CSS parser should skip over to avoid treating template expressions as invalid CSS.\n",
+                    "default": [
+                      {
+                        "heads": "",
+                        "tails": ""
+                      },
+                      {
+                        "heads": "{%",
+                        "tails": "%}"
+                      }
+                    ],
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "heads": {
+                          "type": "string",
+                          "description": "Opening delimiter.\n"
+                        },
+                        "tails": {
+                          "type": "string",
+                          "description": "Closing delimiter.\n"
+                        }
+                      }
+                    }
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Enable unused CSS removal.\n",
+                    "default": false
+                  },
+                  "uglify": {
+                    "type": "boolean",
+                    "description": "Shorten (uglify) CSS class names to reduce file size.\n",
+                    "default": false
+                  },
+                  "whitelist": {
+                    "type": "array",
+                    "description": "CSS selectors to always keep, even if they are not found in the HTML.\n  - .ReadMsgBody\n  - .ExternalClass\n  - .aBn\n  - .a6S\n  - .im\n  - .yshortcuts\n  - \"#outlook\"\n  - .MsoHyperlink\n  - .MsoHyperlinkFollowed\n",
+                    "items": {
+                      "type": "string",
+                      "description": "A CSS selector to always keep.\n"
+                    }
+                  }
+                }
+              },
+              "url_parameters": {
+                "type": "object",
+                "description": "Appends query string parameters to all absolute URLs in `<a>` and VML elements. Useful for adding UTM tracking or other analytics parameters. Skips `mailto:`, `tel:`, and `sms:` links. Elements marked with `data-ignore-params` are excluded.\n",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Enable URL parameter injection.\n",
+                    "default": false
+                  },
+                  "parameters": {
+                    "type": "array",
+                    "description": "List of parameters to append to URLs.\n",
+                    "default": [],
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string",
+                          "description": "Parameter name.\n"
+                        },
+                        "url_encode": {
+                          "type": "boolean",
+                          "description": "URL-encode the value before appending it to the URL.\n"
+                        },
+                        "value": {
+                          "type": "string",
+                          "description": "Parameter value. May contain template variables.\n"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "content": "<x-base>...</x-base>",
+          "envelope": {
+            "bcc": "",
+            "fake_bcc": true,
+            "from": "Customer.io <noreply@example.com>",
+            "from_id": 1,
+            "headers": [],
+            "recipient": "{{customer.email}}",
+            "reply_to": "",
+            "reply_to_id": null
+          },
+          "name": "Onboarding phase 1",
+          "node_id": "1a0cbb4e-09d3-402e-949e-f6732f021650",
+          "node_type": "EMAIL",
+          "preheader_text": "Get started in minutes",
+          "subject": "Welcome to Design Studio!",
+          "transformers": {
+            "prevent_widows": {
+              "enabled": false
+            }
+          }
         }
       },
       "liveNotificationFreeFormAttributes": {
@@ -152676,7 +154011,7 @@
     "/v1/design_studio/emails": {
       "get": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "List emails",
         "description": "Returns a paginated list of emails and a separate array of folders that the emails belong to.\n",
@@ -153101,7 +154436,7 @@
       },
       "post": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "Create an email",
         "description": "Create an email. Note, you can create an email without filling out all required fields for sending. You can fill in the envelope, like a to and from address, with this method, but that's not required until you link it to a workflow like an automation.",
@@ -154188,10 +155523,10 @@
     "/v1/design_studio/emails/{id}": {
       "get": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "Get an email",
-        "description": "Returns a single email including content, envelope details, and transformers. This endpoint returns only default emails; see [Email translations](/integrations/api/app/tag/design-studio/createEmailTranslation/) to access language variants.\n",
+        "description": "Returns a single email including content, envelope details, and transformers. This endpoint returns only default emails; see [Email translations](/integrations/api/app/tag/design-studio-emails/createEmailTranslation/) to access language variants.\n",
         "operationId": "getEmail",
         "parameters": [
           {
@@ -154788,7 +156123,7 @@
       },
       "put": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "Update an email",
         "description": "Update part of an email: an email's name, template status, folder, content, envelope, or transformers. Note, this does not publish your email; if the email is linked to a workflow like an automation, you still need to click publish to make the changes live.\n",
@@ -155391,7 +156726,7 @@
       },
       "delete": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "Delete an email",
         "description": "Delete an email. You cannot delete an email that is linked to a workflow (automation, broadcast, etc). This deletes the email and all translations.\n",
@@ -155544,7 +156879,7 @@
     "/v1/design_studio/emails/{id}/languages": {
       "get": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "List email translations",
         "description": "Returns all translations for an email. Each translation contains the email's content, envelope, and transformers for a specific language.\n",
@@ -156145,7 +157480,7 @@
       },
       "post": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "Create an email translation",
         "description": "Creates a new translation for an email. If content, envelope, and/or transformers are omitted, the values are copied from the default (parent) email.\n",
@@ -157271,7 +158606,7 @@
     "/v1/design_studio/emails/{id}/languages/{language}": {
       "get": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "Get an email translation",
         "description": "Returns a single email translation by language code, including content, envelope, and transformers.\n",
@@ -157878,7 +159213,7 @@
       },
       "put": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "Update an email translation",
         "description": "Update part of an email translation: the content, envelope, or transformers for a specific email translation. Note, this does not publish your email; if the email is linked to a workflow like an automation, you still need to click publish to make the changes live.\n",
@@ -158472,7 +159807,7 @@
       },
       "delete": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "Delete an email translation",
         "description": "Delete a specific language translation from an email. This fails if the email is linked to a workflow (automation, broadcast, etc).\n",
@@ -158634,10 +159969,10 @@
     "/v1/design_studio/emails/{id}/link": {
       "post": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "Link an email to a workflow",
-        "description": "Link a Design Studio email to a workflow: a transactional message, a newsletter, an automation, or an API-triggered broadcast. After you link an email, [publish it](/integrations/api/app/tag/design-studio/publishEmail/) to push the content live.\n\nYou can only link an email to one workflow or action at a time. If the workflow or action is already linked to a *different* Design Studio email, the request fails with a `409` unless you pass `\"force\": true`, which replaces (and unlinks) the other email.\n",
+        "description": "Link a Design Studio email to a workflow: a transactional message, a newsletter, an automation, or an API-triggered broadcast. After you link an email, [publish it](/integrations/api/app/tag/design-studio-emails/publishEmail/) to push the content live.\n\nYou can only link an email to one workflow or action at a time. If the workflow or action is already linked to a *different* Design Studio email, the request fails with a `409` unless you pass `\"force\": true`, which replaces (and unlinks) the other email.\n",
         "operationId": "linkEmail",
         "parameters": [
           {
@@ -158957,10 +160292,10 @@
     "/v1/design_studio/emails/{id}/publish": {
       "post": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "Publish an email",
-        "description": "Publish a linked Design Studio email. This pushes its current content to the workflow it's linked to. You must link an email to a workflow before you can publish it.\n\nPublishing pushes updates to all language variants: the default language and all of the translations. For a single-language email, the publish runs inline and returns `\"status\": \"done\"` with the resulting template version mappings. For a multi-language email, the publish may take longer; if it doesn't finish within the request window, the response returns `\"status\": \"pending\"` along with a `publish_id` you can poll with [Get publish status](/integrations/api/app/tag/design-studio/getPublishStatus/).\n",
+        "description": "Publish a linked Design Studio email. This pushes its current content to the workflow it's linked to. You must link an email to a workflow before you can publish it.\n\nPublishing pushes updates to all language variants: the default language and all of the translations. For a single-language email, the publish runs inline and returns `\"status\": \"done\"` with the resulting template version mappings. For a multi-language email, the publish may take longer; if it doesn't finish within the request window, the response returns `\"status\": \"pending\"` along with a `publish_id` you can poll with [Get publish status](/integrations/api/app/tag/design-studio-emails/getPublishStatus/).\n",
         "operationId": "publishEmail",
         "parameters": [
           {
@@ -159011,7 +160346,7 @@
                     },
                     "publish_id": {
                       "type": "string",
-                      "description": "An opaque ID to poll for completion with [Get publish status](/integrations/api/app/tag/design-studio/getPublishStatus/). Present when `status` is `pending`."
+                      "description": "An opaque ID to poll for completion with [Get publish status](/integrations/api/app/tag/design-studio-emails/getPublishStatus/). Present when `status` is `pending`."
                     },
                     "status": {
                       "type": "string",
@@ -159250,10 +160585,10 @@
     "/v1/design_studio/emails/{id}/publish_status": {
       "get": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "Get publish status",
-        "description": "Check the status of a multi-language publish that returned `\"status\": \"pending\"`. Pass the `publish_id` from the [Publish an email](/integrations/api/app/tag/design-studio/publishEmail/) response. When the publish is still running, the response returns `\"status\": \"pending\"`; when it finishes, it returns `\"status\": \"done\"` with the template version mappings.\n\nIf the publish fails, this endpoint returns an error rather than a status. You get the same error a single-language publish returns inline—a `422` for liquid errors, a `409` when the destination automation is backfilling, and so on.\n",
+        "description": "Check the status of a multi-language publish that returned `\"status\": \"pending\"`. Pass the `publish_id` from the [Publish an email](/integrations/api/app/tag/design-studio-emails/publishEmail/) response. When the publish is still running, the response returns `\"status\": \"pending\"`; when it finishes, it returns `\"status\": \"done\"` with the template version mappings.\n\nIf the publish fails, this endpoint returns an error rather than a status. You get the same error a single-language publish returns inline—a `422` for liquid errors, a `409` when the destination automation is backfilling, and so on.\n",
         "operationId": "getPublishStatus",
         "parameters": [
           {
@@ -159548,7 +160883,7 @@
     "/v1/design_studio/emails/{id}/unpublished_changes": {
       "get": {
         "tags": [
-          "Design Studio"
+          "Design Studio emails"
         ],
         "summary": "Check for unpublished changes",
         "description": "Check whether a linked email, or any of its translations, has content changes that haven't been published yet. Use this to decide whether you need to publish before changes go live.\n\nReturns `false` for emails that aren't linked to a workflow or that have no pending changes.\n",
@@ -159699,6 +161034,2463 @@
                       "status": "404"
                     }
                   ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/design_studio/emails/{id}/render": {
+      "get": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "Render an email",
+        "description": "Returns email-ready HTML. Use this endpoint to inspect your compiled markup.\n\nLiquid tags are left intact—`{{customer.first_name}}` stays in the output as written. To evaluate liquid against real profile data instead, use [Preview an email](/integrations/api/app/tag/design-studio-emails/previewEmail/).\n\nThe render, preview, review, link, and publish endpoints share a rate limit of 5 requests per second per workspace.\n",
+        "operationId": "renderEmail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the email. If your email has translations, this is the ID of a specific language variant.\n",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "amp": {
+                      "type": "string",
+                      "description": "AMP HTML variant. Omitted unless you added an AMP version when you [created the email](/integrations/api/app/tag/design-studio-emails/createEmail/)."
+                    },
+                    "html": {
+                      "type": "string",
+                      "description": "Full HTML with liquid tags left intact."
+                    },
+                    "language": {
+                      "type": "string",
+                      "description": "Language code if the node is a translation (for example, `\"es\"`). Omitted for default-language nodes."
+                    },
+                    "node_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "The UUID of the rendered email node."
+                    },
+                    "node_type": {
+                      "type": "string",
+                      "enum": [
+                        "EMAIL"
+                      ],
+                      "description": "Always `\"EMAIL\"`."
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "Plain text version of the email. Omitted unless you added a plain text version when you [created the email](/integrations/api/app/tag/design-studio-emails/createEmail/)."
+                    }
+                  },
+                  "example": {
+                    "html": "<!doctype html>\n<html lang=\"und\">...\n<p>{{customer.first_name}}, welcome!</p>\n...\n</html>",
+                    "node_id": "1a0cbb4e-09d3-402e-949e-f6732f021650",
+                    "node_type": "EMAIL",
+                    "text": "<html><head></head><body style=\"margin:0\"><div style=\"font-size:16px;line-height:1.5;font-family:Arial,Helvetica,sans-serif;white-space:pre-wrap;padding:10px;\">{{customer.first_name}}, welcome!</div></body></html>"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible reasons:\n  - The `design_studio_api_manage` feature isn't enabled for this workspace\n  - The email node doesn't exist\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/design_studio/emails/{id}/preview": {
+      "post": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "Preview an email",
+        "description": "Returns an email with liquid fully evaluated against data you provide. The response includes the final HTML as a recipient would see it, along with liquid errors.\n\nOmit the body or send `{}` to render your fallback values: a variable with a `default` filter renders its fallback, and each variable without one reports an error in the response's `errors` object.\n\nThe render, preview, review, link, and publish endpoints share a rate limit of 5 requests per second per workspace.\n",
+        "operationId": "previewEmail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the email. If your email has translations, this is the ID of a specific language variant.\n",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "description": "All fields are optional.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "campaign": {
+                    "type": "object",
+                    "description": "Campaign metadata for `{{campaign.*}}`."
+                  },
+                  "customer": {
+                    "type": "object",
+                    "description": "Customer profile attributes for `{{customer.*}}` variables."
+                  },
+                  "event": {
+                    "type": "object",
+                    "description": "Event attributes for `{{event.*}}`."
+                  },
+                  "journey": {
+                    "type": "object",
+                    "description": "Journey metadata for `{{journey.*}}`."
+                  },
+                  "lax": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set to `true` if you want undefined variables to resolve to an empty string instead of reporting an error; this can help you focus on more important errors when you don't provide sample data or fallback values. Liquid *syntax* errors (like broken tags and invalid filters) are always reported as errors.\n"
+                  },
+                  "message": {
+                    "type": "object",
+                    "description": "Message metadata for `{{message.*}}`."
+                  },
+                  "objects": {
+                    "type": "object",
+                    "description": "Related objects for `{{objects.*}}`."
+                  },
+                  "trigger": {
+                    "type": "object",
+                    "description": "Trigger data for `{{trigger.*}}`."
+                  }
+                },
+                "example": {
+                  "customer": {
+                    "first_name": "Jane",
+                    "email": "jane@example.com",
+                    "plan": "enterprise"
+                  },
+                  "event": {
+                    "name": "order_completed",
+                    "total": 149.99
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "amp": {
+                      "type": "string",
+                      "description": "AMP HTML variant with liquid evaluated. Omitted if the email doesn't have an AMP version."
+                    },
+                    "errors": {
+                      "type": "object",
+                      "description": "Per-field Liquid error arrays. All 15 fields are always present; an empty array means no errors for that field.",
+                      "properties": {
+                        "bcc": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "BCC field Liquid errors."
+                        },
+                        "body": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "HTML body Liquid errors."
+                        },
+                        "body_amp": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "AMP body Liquid errors."
+                        },
+                        "body_plain": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Plain-text body Liquid errors."
+                        },
+                        "cc": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "CC field Liquid errors."
+                        },
+                        "event": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Event data Liquid errors."
+                        },
+                        "from": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "From address Liquid errors."
+                        },
+                        "layout": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Layout template errors."
+                        },
+                        "message": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Message-level errors."
+                        },
+                        "preheader_text": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Preheader Liquid errors."
+                        },
+                        "reply_to": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Reply-to address Liquid errors."
+                        },
+                        "snippets": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Snippet rendering errors."
+                        },
+                        "subject": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Subject line Liquid errors."
+                        },
+                        "to": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Recipient field Liquid errors, for example `\"undefined variable: customer.email\"`.\n"
+                        },
+                        "trigger": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Trigger data Liquid errors."
+                        }
+                      }
+                    },
+                    "from": {
+                      "type": "string",
+                      "description": "Resolved from address, for example `\"Name <email>\"`. Omitted when the email doesn't include a from address."
+                    },
+                    "headers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Errors in the header name."
+                          },
+                          "value": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Errors in the header value."
+                          }
+                        }
+                      },
+                      "description": "One entry per custom header that has Liquid errors. Omitted when there are none."
+                    },
+                    "html": {
+                      "type": "string",
+                      "description": "Final HTML with Liquid evaluated, the preheader injected, and dangerous tags removed."
+                    },
+                    "language": {
+                      "type": "string",
+                      "description": "Language code if the node is a translation. Omitted for default-language nodes."
+                    },
+                    "links": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "errors": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Problems with this link, like a relative URL or liquid tags that were URL-encoded. Empty when the link is fine."
+                          },
+                          "text": {
+                            "type": "string",
+                            "description": "The link's visible text."
+                          },
+                          "tracked": {
+                            "type": "boolean",
+                            "description": "Whether Customer.io rewrites this link for click tracking when you send the email."
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "The link URL after liquid evaluation."
+                          }
+                        }
+                      },
+                      "description": "Every link in the evaluated HTML body, with any per-link problems."
+                    },
+                    "node_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "The UUID of the previewed email node."
+                    },
+                    "node_type": {
+                      "type": "string",
+                      "enum": [
+                        "EMAIL"
+                      ],
+                      "description": "Always `\"EMAIL\"`."
+                    },
+                    "plaintext_body": {
+                      "type": "string",
+                      "description": "The plain-text part a recipient would get—your plain text version with HTML tags stripped, or text generated from the final HTML if the email doesn't have one. Omitted when empty."
+                    },
+                    "preheader_text": {
+                      "type": "string",
+                      "description": "Evaluated preheader text. Omitted when the email doesn't include preheaders."
+                    },
+                    "subject": {
+                      "type": "string",
+                      "description": "Evaluated subject line."
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "Plain-text body with liquid evaluated. Omitted if the email doesn't have a plain text version."
+                    }
+                  },
+                  "example": {
+                    "errors": {
+                      "bcc": [],
+                      "body": [],
+                      "body_amp": [],
+                      "body_plain": [],
+                      "cc": [],
+                      "event": [],
+                      "from": [],
+                      "layout": [],
+                      "message": [],
+                      "preheader_text": [],
+                      "reply_to": [],
+                      "snippets": [],
+                      "subject": [],
+                      "to": [],
+                      "trigger": []
+                    },
+                    "from": "\"No reply\" <noreply@example.com>",
+                    "html": "<!DOCTYPE html>...<p>Purchase info</p>...",
+                    "links": [
+                      {
+                        "errors": [],
+                        "text": "View your order",
+                        "tracked": true,
+                        "url": "https://example.com/orders"
+                      }
+                    ],
+                    "node_id": "1a0cbb4e-09d3-402e-949e-f6732f021650",
+                    "node_type": "EMAIL",
+                    "plaintext_body": "Thanks for your recent purchase!",
+                    "subject": "Order Confirmation",
+                    "text": "<html><head></head><body style=\"margin:0\"><div style=\"font-size:16px;line-height:1.5;font-family:Arial,Helvetica,sans-serif;white-space:pre-wrap;padding:10px;\">Thanks for your recent purchase!</div></body></html>"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible reasons:\n  - The `design_studio_api_manage` feature isn't enabled for this workspace\n  - The email node doesn't exist\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "json",
+            "label": "JSON",
+            "source": "{\n  \"customer\": {\n    \"first_name\": \"Jane\",\n    \"email\": \"jane@example.com\",\n    \"plan\": \"enterprise\"\n  },\n  \"event\": {\n    \"name\": \"order_completed\",\n    \"total\": 149.99\n  }\n}"
+          }
+        ]
+      }
+    },
+    "/v1/design_studio/emails/{id}/review": {
+      "get": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "Review an email",
+        "description": "Checks an email's saved content for errors and suggests how to improve accessibility, styling, and more. This runs the same process as the [*Review* panel in Design Studio](/messaging/design-studio/emails/qa-in-design-studio/) and returns a readiness score, a status per check, and how to fix issues.\n\nThis endpoint reviews **a single translation** based on the `:id` you pass. Call this endpoint for each language variant to review each translation.\n\n**Checks**\n  - `liquid` — Liquid syntax: broken tags, invalid filters, unclosed blocks. Does not report missing variables; use the [preview endpoint](/integrations/api/app/tag/design-studio-emails/previewEmail/) with sample data to validate variable resolution.\n  - `failed-components` — Custom components that fail to compile. Always `skipped` on the API; it's a browser-runtime-only signal.\n  - `source` — Raw markup the editor stores, before liquid rendering. Checks for reserved internal HTML attributes, multiple root elements, and design-token clashes.\n  - `links` — Broken URLs, validated over HTTP (capped at 100 links per review).\n  - `images` — Broken image URLs and missing alt text (capped at 100 images per review).\n  - `accessibility` — WCAG accessibility issues.\n  - `spam` — SpamAssassin score.\n  - `unsubscribe` — Presence of an unsubscribe link.\n  - `implied-links` — Bare URLs or email addresses that should be wrapped in `<a>` tags.\n  - `html-clip` — Gmail's 102 KB clipping threshold.\n  - `preheader` — Preheader text presence and quality.\n\nThe render, preview, review, link, and publish endpoints share a rate limit of 5 requests per second per workspace.\n",
+        "operationId": "reviewEmail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the email node. This can be the default-language node or a specific translation node.\n",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "checks": {
+                      "type": "object",
+                      "description": "Per-check status, keyed by check name. See the endpoint description for the full list of checks.",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "error": {
+                            "type": "string",
+                            "description": "Present when `status` is `degraded` or `error`. Explains what was missing or what failed."
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "complete",
+                              "degraded",
+                              "error",
+                              "skipped"
+                            ],
+                            "description": "`complete`: findings are authoritative. `degraded`: the check ran on reduced input (for example, some URL validations failed) — its findings aren't authoritative. `error`: the check couldn't run and contributed no findings. `skipped`: the check has no server-side signal for API callers.\n"
+                          }
+                        }
+                      }
+                    },
+                    "findings": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "check": {
+                            "type": "string",
+                            "description": "Which check produced this finding."
+                          },
+                          "details": {
+                            "type": "string",
+                            "description": "Explanation and suggested fix. Omitted when there's nothing more to add beyond the title."
+                          },
+                          "id": {
+                            "type": "string",
+                            "description": "Identifier for this finding, unique within the response."
+                          },
+                          "severity": {
+                            "type": "string",
+                            "enum": [
+                              "error",
+                              "warning",
+                              "tip"
+                            ],
+                            "description": "Fix all errors to make sure your recipients get your email and you follow compliance requirements. Review warnings and tips to improve the quality of your email."
+                          },
+                          "state": {
+                            "type": "string",
+                            "enum": [
+                              "pass",
+                              "fail"
+                            ],
+                            "description": "Whether this finding represents an issue. Passing findings don't affect the score."
+                          },
+                          "summary": {
+                            "type": "string",
+                            "description": "Location context, for example \"In the email body\". Omitted when there's no additional context."
+                          },
+                          "title": {
+                            "type": "string",
+                            "description": "Short human-readable title."
+                          }
+                        }
+                      }
+                    },
+                    "node_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "The UUID of the reviewed email node."
+                    },
+                    "score": {
+                      "type": "object",
+                      "description": "Readiness score. Omitted when `status` is `render_failed`.",
+                      "properties": {
+                        "counts": {
+                          "type": "object",
+                          "description": "Finding counts by severity across all checks.",
+                          "properties": {
+                            "error": {
+                              "type": "integer",
+                              "description": "The number of failing `error` findings."
+                            },
+                            "tip": {
+                              "type": "integer",
+                              "description": "The number of failing `tip` findings."
+                            },
+                            "warning": {
+                              "type": "integer",
+                              "description": "The number of failing `warning` findings."
+                            }
+                          }
+                        },
+                        "score": {
+                          "type": "integer",
+                          "description": "0–100 readiness estimate. Starts at 100 and is reduced per failing finding. An error drops the score to 60 or below; fix all errors to make sure your recipients get your email and you follow compliance requirements. See **findings** to locate errors.\n"
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "complete",
+                        "partial",
+                        "render_failed"
+                      ],
+                      "description": "- `complete`: every check ran to completion. \n- `partial`: at least one check errored, ran on reduced input, or was skipped. `failed-components` is always skipped and doesn't [affect this status. If you get a `partial` status, send the request again after a few seconds to try to get a complete set of findings.\n- `render_failed`: the underlying render failed; no checks ran, `score` is omitted, and `findings` is empty. If it's a timeout, send the request again after a few seconds. If it's a content or compilation error, fix the email before sending the request again.\n"
+                    }
+                  },
+                  "example": {
+                    "checks": {
+                      "liquid": {
+                        "status": "complete"
+                      },
+                      "failed-components": {
+                        "status": "skipped"
+                      },
+                      "source": {
+                        "status": "complete"
+                      },
+                      "links": {
+                        "status": "complete"
+                      },
+                      "images": {
+                        "status": "complete"
+                      },
+                      "accessibility": {
+                        "status": "complete"
+                      },
+                      "spam": {
+                        "status": "complete"
+                      },
+                      "unsubscribe": {
+                        "status": "complete"
+                      },
+                      "implied-links": {
+                        "status": "complete"
+                      },
+                      "html-clip": {
+                        "status": "complete"
+                      },
+                      "preheader": {
+                        "status": "complete"
+                      }
+                    },
+                    "findings": [
+                      {
+                        "check": "unsubscribe",
+                        "details": "Add {% unsubscribe %} or use {% unsubscribe_url %} as the href.",
+                        "id": "unsubscribe",
+                        "severity": "warning",
+                        "state": "fail",
+                        "title": "No unsubscribe link"
+                      },
+                      {
+                        "check": "preheader",
+                        "details": "Add a short preheader to improve open rates.",
+                        "id": "preheader",
+                        "severity": "tip",
+                        "state": "fail",
+                        "title": "No preheader text"
+                      }
+                    ],
+                    "node_id": "887d804e-9199-4a65-ae26-315e825344bc",
+                    "score": {
+                      "counts": {
+                        "error": 0,
+                        "tip": 1,
+                        "warning": 1
+                      },
+                      "score": 86
+                    },
+                    "status": "complete"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible reasons:\n  - The `design_studio_api_manage` feature isn't enabled for this workspace\n  - The email node doesn't exist\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/design_studio/emails/{id}/versions": {
+      "get": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "List email versions",
+        "description": "Returns an email's saved versions, newest first. A version is a named checkpoint of the email's content and envelope. \n- Design Studio creates a version automatically every time you [publish](/integrations/api/app/tag/design-studio-emails/publishEmail/) the email.\n- You can save a version manually with [Save an email version](/integrations/api/app/tag/design-studio-emails/saveVersion/).\n\nPass `start_date` to filter for versions created after a certain time. Or pass `start_date` and `end_date` together to filter for versions created in a certain time range.\n\nYou can retrieve your email's UUID through [List emails](/integrations/api/app/tag/design-studio-emails/listEmails/). If your email has language variants, *List emails* only returns the UUID for the default language. Use this default ID to retrieve variant IDs through [List email translations](/integrations/api/app/tag/design-studio-emails/listEmailTranslations/).\n",
+        "operationId": "listVersions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the email. If your email has translations, this is the ID of a specific language variant.\n",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "description": "Return versions created at or after this time. Must be a unix timestamp.",
+            "schema": {
+              "type": "integer",
+              "format": "Unix timestamp"
+            },
+            "example": 1773856017
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "description": "Return versions created at or before this time. Must be a unix timestamp. Requires `start_date`.",
+            "schema": {
+              "type": "integer",
+              "format": "Unix timestamp"
+            },
+            "example": 1773856017
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "versions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "created": {
+                            "type": "integer",
+                            "format": "Unix timestamp",
+                            "description": "The date-time the version was created."
+                          },
+                          "created_on_publish": {
+                            "type": "boolean",
+                            "description": "`false` if you [saved the email](/integrations/api/app/tag/design-studio-emails/saveVersion/). `true` if  Design Studio created this version automatically when you [published the email](/integrations/api/app/tag/design-studio-emails/publishEmail/). You can't delete versions generated by Design Studio.\n"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "Explanatory text you provided when creating a version. Omitted if no description."
+                          },
+                          "feedback": {
+                            "type": "boolean",
+                            "description": "`true` is you saved this version by creating a [round of feedback in Design Studio](/messaging/design-studio/collaboration/feedback/).\n"
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "UUID of the version."
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Name given to the version when it was saved."
+                          },
+                          "node_id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "UUID of the email node this version belongs to."
+                          },
+                          "node_type": {
+                            "type": "string",
+                            "enum": [
+                              "EMAIL"
+                            ],
+                            "description": "Always `\"EMAIL\"`."
+                          }
+                        },
+                        "example": {
+                          "created": 1773856017,
+                          "created_on_publish": false,
+                          "feedback": false,
+                          "id": "8f14e45f-ceea-4c67-9814-b8f0e0e1a6f0",
+                          "name": "Before holiday redesign",
+                          "node_id": "1a0cbb4e-09d3-402e-949e-f6732f021650",
+                          "node_type": "EMAIL"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. Possible reasons include `:id` is not a valid UUID, the node is not an `EMAIL` type, or you passed `end_date` without `start_date`.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible reasons include the email node doesn't exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "Save an email version",
+        "description": "Saves a version of the email's current content, envelope, and any component dependencies it references.\n\nIf you need to revert to a previous version, use [Restore an email version](/integrations/api/app/tag/design-studio-emails/restoreVersion/).\n\nIf the email is identical to the most recent version, this returns that version with `\"created\": false` instead of saving a duplicate. If the code of a referenced custom component changes, you can save a new version of the email with the latest component changes; however, the code diff in Design Studio will show no change because the component code isn't compiled in that view.\n",
+        "operationId": "saveVersion",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the email. If your email has translations, this is the ID of a specific language variant.\n",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name for the version, shown in the [version history list](/integrations/api/app/tag/design-studio-emails/listVersions/).",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "example": "Before holiday redesign"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Note about the version."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the new version saved, or the latest version if nothing changed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "created": {
+                      "type": "boolean",
+                      "description": "`false` when the email and its dependencies matched the most recent version exactly, so no new version was saved. `true` when this call created a new version.\n"
+                    },
+                    "version": {
+                      "type": "object",
+                      "properties": {
+                        "created": {
+                          "type": "integer",
+                          "format": "Unix timestamp",
+                          "description": "The date-time the version was created."
+                        },
+                        "created_on_publish": {
+                          "type": "boolean",
+                          "description": "`false` if you [saved the email](/integrations/api/app/tag/design-studio-emails/saveVersion/). `true` if  Design Studio created this version automatically when you [published the email](/integrations/api/app/tag/design-studio-emails/publishEmail/). You can't delete versions generated by Design Studio.\n"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Explanatory text you provided when creating a version. Omitted if no description."
+                        },
+                        "feedback": {
+                          "type": "boolean",
+                          "description": "`true` is you saved this version by creating a [round of feedback in Design Studio](/messaging/design-studio/collaboration/feedback/).\n"
+                        },
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "UUID of the version."
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Name given to the version when it was saved."
+                        },
+                        "node_id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "UUID of the email node this version belongs to."
+                        },
+                        "node_type": {
+                          "type": "string",
+                          "enum": [
+                            "EMAIL"
+                          ],
+                          "description": "Always `\"EMAIL\"`."
+                        }
+                      },
+                      "example": {
+                        "created": 1773856017,
+                        "created_on_publish": false,
+                        "feedback": false,
+                        "id": "8f14e45f-ceea-4c67-9814-b8f0e0e1a6f0",
+                        "name": "Before holiday redesign",
+                        "node_id": "1a0cbb4e-09d3-402e-949e-f6732f021650",
+                        "node_type": "EMAIL"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. Possible reasons include `:id` is not a valid UUID or `name` is missing.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible reasons include the email node doesn't exist.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "json",
+            "label": "JSON",
+            "source": "{\n  \"name\": \"Before holiday redesign\",\n  \"description\": \"\"\n}"
+          }
+        ]
+      }
+    },
+    "/v1/design_studio/emails/{id}/versions/{version_id}": {
+      "get": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "Get an email version",
+        "description": "Returns a snapshot of the version's content including the code for any custom components referenced in the email (see `dependencies` for more).\n",
+        "operationId": "getVersion",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the email. If your email has translations, this is the ID of a specific language variant.\n",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the version.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dependencies": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": "The code of the referenced custom component(s) in the node version.",
+                        "properties": {
+                          "component_name": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "The component tag name when you saved this version."
+                          },
+                          "content": {
+                            "type": "string",
+                            "description": "HTML content as of the snapshot."
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Display name of the component in Design Studio."
+                          },
+                          "node_id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "UUID of the component node."
+                          },
+                          "node_type": {
+                            "type": "string",
+                            "enum": [
+                              "COMPONENT"
+                            ],
+                            "description": "Always `COMPONENT`."
+                          }
+                        },
+                        "example": {
+                          "component_name": "footer",
+                          "content": "<script>...</script><template>...</template>",
+                          "name": "Footer",
+                          "node_id": "1abcbb4e-402e-949e-f6732f333",
+                          "node_type": "COMPONENT"
+                        }
+                      }
+                    },
+                    "node": {
+                      "type": "object",
+                      "description": "The content and settings stored in the version.",
+                      "properties": {
+                        "amp": {
+                          "type": "string",
+                          "description": "AMP HTML body as of the snapshot. Omitted if the email had none."
+                        },
+                        "content": {
+                          "type": "string",
+                          "description": "HTML content as of the snapshot. For the content of any referenced custom component, see `dependencies`."
+                        },
+                        "envelope": {
+                          "type": "object",
+                          "properties": {
+                            "bcc": {
+                              "type": "string",
+                              "description": "BCC email address."
+                            },
+                            "fake_bcc": {
+                              "type": "boolean",
+                              "description": "Whether to use fake BCC. Defaults to true if not provided."
+                            },
+                            "from": {
+                              "type": "string",
+                              "description": "The sender address associated with the from_id."
+                            },
+                            "from_id": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "description": "Sender identity ID.\n"
+                            },
+                            "headers": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "value": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "description": "Custom headers. Each item: { \"name\": \"string\", \"value\": \"string\" }.\n"
+                            },
+                            "recipient": {
+                              "type": "string",
+                              "description": "Recipient expression. Defaults to {{customer.email}} if not set."
+                            },
+                            "reply_to": {
+                              "type": "string",
+                              "description": "The reply-to address associated with the reply_to_id."
+                            },
+                            "reply_to_id": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "description": "Reply-to identity ID. This matches one of the ids in *Workspace Settings > Email*.\n"
+                            }
+                          }
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Display name of the email in Design Studio. If the version is a language variant, the title ends in the language code like \"Onboarding email (fr)\"."
+                        },
+                        "node_id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "UUID of the node."
+                        },
+                        "node_type": {
+                          "type": "string",
+                          "enum": [
+                            "EMAIL"
+                          ],
+                          "description": "Always `EMAIL` for the node."
+                        },
+                        "preheader_text": {
+                          "type": "string",
+                          "description": "Preview text as of the snapshot. Omitted if the email had none."
+                        },
+                        "subject": {
+                          "type": "string",
+                          "description": "Email subject line."
+                        },
+                        "text": {
+                          "type": "string",
+                          "description": "Plain text body as of the snapshot. Omitted if the email had none."
+                        },
+                        "transformers": {
+                          "type": "object",
+                          "description": "Automate repetitive actions like removing white space and inlining CSS with [transformers](/journeys/design-studio/emails/code-editor/overview/#transformers).",
+                          "properties": {
+                            "accessibility": {
+                              "type": "object",
+                              "description": "Applies a set of accessibility improvements to the email HTML. When no `language` is set, this falls back to the `lang` attribute on the `<html>` tag, or `\"und\"` (undetermined). The `dir` attribute is automatically derived from the language using RTL detection.\n",
+                              "properties": {
+                                "add_dir_to_content": {
+                                  "type": "boolean",
+                                  "description": "Add `dir` attribute to direct children of `<body>`.\n",
+                                  "default": true
+                                },
+                                "add_dir_to_html": {
+                                  "type": "boolean",
+                                  "description": "Add `dir` attribute (`ltr`, `rtl`, or `auto`) to the `<html>` element if not already present.\n",
+                                  "default": true
+                                },
+                                "add_empty_alt_to_images": {
+                                  "type": "boolean",
+                                  "description": "Add `alt=\"\"` to `<img>` elements missing an `alt` attribute, preventing screen readers from reading the file name.\n",
+                                  "default": true
+                                },
+                                "add_lang_to_content": {
+                                  "type": "boolean",
+                                  "description": "Add `lang` attribute to direct children of `<body>`.\n",
+                                  "default": true
+                                },
+                                "add_lang_to_html": {
+                                  "type": "boolean",
+                                  "description": "Add `lang` attribute to the `<html>` element if not already present.\n",
+                                  "default": true
+                                },
+                                "add_role_to_tables": {
+                                  "type": "boolean",
+                                  "description": "Add `role=\"presentation\"` to all `<table>` elements without an existing `role`, so screen readers skip table semantics for layout tables.\n",
+                                  "default": true
+                                },
+                                "add_title_to_head": {
+                                  "type": "boolean",
+                                  "description": "Add a `<title>` tag to `<head>` using the email subject line (creates or replaces if empty).\n",
+                                  "default": true
+                                },
+                                "add_vml_alt_text": {
+                                  "type": "boolean",
+                                  "description": "Add `alt` attribute to VML elements (used by Outlook’s Word rendering engine), derived from the element’s text content.\n",
+                                  "default": true
+                                },
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enable accessibility fixes.\n",
+                                  "default": false
+                                },
+                                "language": {
+                                  "type": "string",
+                                  "description": "Language code (for example, `\"en\"`, `\"fr\"`, or `\"ar\"`) used for `lang` and `dir` attributes.\n",
+                                  "default": ""
+                                },
+                                "remove_button_role_from_links": {
+                                  "type": "boolean",
+                                  "description": "Remove `role=\"button\"` from `<a>` tags to restore proper link semantics for screen readers.\n",
+                                  "default": true
+                                },
+                                "remove_zoom_meta_tag": {
+                                  "type": "boolean",
+                                  "description": "Remove viewport `<meta>` tags that restrict zoom (`user-scalable=0`, `user-scalable=no`, `maximum-scale=1`, or `maximum-scale=2`).\n",
+                                  "default": true
+                                }
+                              }
+                            },
+                            "css_inliner": {
+                              "type": "object",
+                              "description": "Moves CSS from `<style>` tags into inline `style` attributes on each element. Essential for email clients with limited `<style>` support (for example, older Gmail and some Outlook versions). Uses the `juice` library. Elements in `<style>` tags marked with `data-ignore-inlining` are skipped.\n",
+                              "properties": {
+                                "apply_html_attributes": {
+                                  "type": "object",
+                                  "description": "Controls adding redundant HTML attributes alongside inlined CSS to different HTML elements.\n",
+                                  "properties": {
+                                    "apply_height_attributes": {
+                                      "type": "boolean",
+                                      "description": "Add redundant HTML `height` attributes alongside inlined CSS `height` on `<table>`, `<td>`, `<th>`, and `<img>` elements. Only applies to `px` values (and `%` on table elements). Needed for email clients that ignore CSS height.\n",
+                                      "default": true
+                                    },
+                                    "apply_table_element_attributes": {
+                                      "type": "boolean",
+                                      "description": "Add redundant HTML attributes on table elements (`<table>`, `<th>`, `<tr>`, `<td>`, `<caption>`, `<colgroup>`, `<col>`, `<thead>`, `<tbody>`, `<tfoot>`): `background-color` → `bgcolor`, `background-image` → `background`, `text-align` → `align`, `vertical-align` → `valign`.\n",
+                                      "default": true
+                                    },
+                                    "apply_width_attributes": {
+                                      "type": "boolean",
+                                      "description": "Add redundant HTML `width` attributes alongside inlined CSS `width` on `<table>`, `<td>`, `<th>`, and `<img>` elements. Only applies to `px` values (and `%` on table elements). Needed for email clients that ignore CSS width (for example, older Outlook).\n",
+                                      "default": true
+                                    },
+                                    "enabled": {
+                                      "type": "boolean",
+                                      "description": "Enable adding redundant HTML attributes.\n",
+                                      "default": true
+                                    }
+                                  }
+                                },
+                                "apply_style_tags": {
+                                  "type": "boolean",
+                                  "description": "Inline styles from `<style>` tags.\n",
+                                  "default": true
+                                },
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enable CSS inlining.\n",
+                                  "default": false
+                                },
+                                "inline_pseudo_elements": {
+                                  "type": "boolean",
+                                  "description": "Attempt to inline pseudo-element (`::before`, `::after`) styles.\n",
+                                  "default": false
+                                },
+                                "preserve_font_faces": {
+                                  "type": "boolean",
+                                  "description": "Keep `@font-face` rules in `<style>` (cannot be inlined).\n",
+                                  "default": true
+                                },
+                                "preserve_important": {
+                                  "type": "boolean",
+                                  "description": "Preserve `!important` declarations in inlined styles.\n",
+                                  "default": false
+                                },
+                                "preserve_keyframes": {
+                                  "type": "boolean",
+                                  "description": "Keep `@keyframes` rules in `<style>` (cannot be inlined).\n",
+                                  "default": true
+                                },
+                                "preserve_media_queries": {
+                                  "type": "boolean",
+                                  "description": "Keep `@media` rules in `<style>` (cannot be inlined).\n",
+                                  "default": true
+                                },
+                                "preserve_pseudos": {
+                                  "type": "boolean",
+                                  "description": "Keep pseudo-selector rules (for example, `:hover`) in `<style>` (cannot be inlined).\n",
+                                  "default": true
+                                },
+                                "remove_style_tags": {
+                                  "type": "boolean",
+                                  "description": "Remove `<style>` tags after inlining their rules.\n",
+                                  "default": true
+                                }
+                              }
+                            },
+                            "css_variables": {
+                              "type": "object",
+                              "description": "Resolves CSS custom properties (`var(--name)`) into their computed values. Required for email clients that do not support CSS custom properties (most email clients). Variables declared in one `<style>` tag are available in subsequent `<style>` tags.\n",
+                              "properties": {
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enable CSS variable resolution.\n",
+                                  "default": false
+                                },
+                                "preserve": {
+                                  "type": "boolean",
+                                  "description": "Keep original custom property declarations (`--name: value`) alongside the resolved values.\n",
+                                  "default": false
+                                }
+                              }
+                            },
+                            "encode_entities": {
+                              "type": "object",
+                              "description": "Encodes special characters (for example, `©`, `™`, and `—`) as their HTML entity equivalents. Improves rendering consistency across email clients with varying character encoding support. Only processes text nodes in the `<body>` and skips `<script>`, `<style>`, `<noscript>`, `<svg>`, and `<head>` elements. Preserves Liquid template tags and avoids double-encoding existing entities.\n",
+                              "properties": {
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enable HTML entity encoding.\n",
+                                  "default": false
+                                }
+                              }
+                            },
+                            "formatter": {
+                              "type": "object",
+                              "description": "Controls the output formatting of the final HTML. Only one mode (`prettify` or `minify`) can be active at a time. Set to `\"none\"` to skip formatting entirely.\n",
+                              "properties": {
+                                "minify": {
+                                  "type": "object",
+                                  "description": "Options used when `type` is `\"minify\"`. Reduces file size by stripping whitespace and comments.\n",
+                                  "properties": {
+                                    "line_length_limit": {
+                                      "type": "integer",
+                                      "description": "Maximum characters per line before inserting a line break.\n",
+                                      "default": 500
+                                    },
+                                    "remove_css_comments": {
+                                      "type": "boolean",
+                                      "description": "Remove CSS comments (`/* ... */`) from `<style>` blocks.\n",
+                                      "default": true
+                                    },
+                                    "remove_html_comments": {
+                                      "type": "string",
+                                      "description": "HTML comment removal level. `\"0\"` keeps all comments, `\"1\"` removes non-conditional comments (preserves MSO conditionals like `<!--[if mso]>`), and `\"2\"` removes all comments including conditional.\n",
+                                      "enum": [
+                                        "0",
+                                        "1",
+                                        "2"
+                                      ],
+                                      "default": "0"
+                                    },
+                                    "remove_indentations": {
+                                      "type": "boolean",
+                                      "description": "Remove leading whitespace indentation.\n",
+                                      "default": true
+                                    },
+                                    "remove_line_breaks": {
+                                      "type": "boolean",
+                                      "description": "Remove all line breaks from the output.\n",
+                                      "default": false
+                                    }
+                                  }
+                                },
+                                "prettify": {
+                                  "type": "object",
+                                  "description": "Options used when `type` is `\"prettify\"`. Produces human-readable, indented HTML output.\n",
+                                  "properties": {
+                                    "indent_character": {
+                                      "type": "string",
+                                      "description": "Character used for indentation.\n",
+                                      "enum": [
+                                        "spaces",
+                                        "tabs"
+                                      ],
+                                      "default": "spaces"
+                                    },
+                                    "indent_size": {
+                                      "type": "integer",
+                                      "description": "Number of indent characters per level.\n",
+                                      "default": 2
+                                    },
+                                    "wrap_attributes": {
+                                      "type": "boolean",
+                                      "description": "Wrap HTML attributes onto separate lines (`force-expand-multiline` mode).\n",
+                                      "default": false
+                                    }
+                                  }
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "description": "Formatting mode to apply.\n",
+                                  "enum": [
+                                    "none",
+                                    "prettify",
+                                    "minify"
+                                  ],
+                                  "default": "none"
+                                }
+                              }
+                            },
+                            "prevent_widows": {
+                              "type": "object",
+                              "description": "Replaces the last space in text blocks with a non-breaking space (`&nbsp;`) to prevent a single word from wrapping onto its own line (a “widow”). Only processes text nodes in the `<body>` and skips `<script>`, `<style>`, `<noscript>`, `<svg>`, and `<head>` elements. Preserves Liquid template tags (`{{ }} ` and `{% %}`).\n",
+                              "properties": {
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enable widow word prevention.\n",
+                                  "default": false
+                                }
+                              }
+                            },
+                            "remove_unused_css": {
+                              "type": "object",
+                              "description": "Scans the HTML and removes any CSS selectors from `<style>` tags that are not referenced in the document. Reduces file size and helps avoid Gmail’s 102 KB clipping limit. HTML and CSS comments are always preserved by this step (comment removal is handled separately by the formatter object).\n",
+                              "properties": {
+                                "backend_markers": {
+                                  "type": "array",
+                                  "description": "Template syntax delimiters (e.g., Liquid, Handlebars) that the CSS parser should skip over to avoid treating template expressions as invalid CSS.\n",
+                                  "default": [
+                                    {
+                                      "heads": "",
+                                      "tails": ""
+                                    },
+                                    {
+                                      "heads": "{%",
+                                      "tails": "%}"
+                                    }
+                                  ],
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "heads": {
+                                        "type": "string",
+                                        "description": "Opening delimiter.\n"
+                                      },
+                                      "tails": {
+                                        "type": "string",
+                                        "description": "Closing delimiter.\n"
+                                      }
+                                    }
+                                  }
+                                },
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enable unused CSS removal.\n",
+                                  "default": false
+                                },
+                                "uglify": {
+                                  "type": "boolean",
+                                  "description": "Shorten (uglify) CSS class names to reduce file size.\n",
+                                  "default": false
+                                },
+                                "whitelist": {
+                                  "type": "array",
+                                  "description": "CSS selectors to always keep, even if they are not found in the HTML.\n  - .ReadMsgBody\n  - .ExternalClass\n  - .aBn\n  - .a6S\n  - .im\n  - .yshortcuts\n  - \"#outlook\"\n  - .MsoHyperlink\n  - .MsoHyperlinkFollowed\n",
+                                  "items": {
+                                    "type": "string",
+                                    "description": "A CSS selector to always keep.\n"
+                                  }
+                                }
+                              }
+                            },
+                            "url_parameters": {
+                              "type": "object",
+                              "description": "Appends query string parameters to all absolute URLs in `<a>` and VML elements. Useful for adding UTM tracking or other analytics parameters. Skips `mailto:`, `tel:`, and `sms:` links. Elements marked with `data-ignore-params` are excluded.\n",
+                              "properties": {
+                                "enabled": {
+                                  "type": "boolean",
+                                  "description": "Enable URL parameter injection.\n",
+                                  "default": false
+                                },
+                                "parameters": {
+                                  "type": "array",
+                                  "description": "List of parameters to append to URLs.\n",
+                                  "default": [],
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "key": {
+                                        "type": "string",
+                                        "description": "Parameter name.\n"
+                                      },
+                                      "url_encode": {
+                                        "type": "boolean",
+                                        "description": "URL-encode the value before appending it to the URL.\n"
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "description": "Parameter value. May contain template variables.\n"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "example": {
+                        "content": "<x-base>...</x-base>",
+                        "envelope": {
+                          "bcc": "",
+                          "fake_bcc": true,
+                          "from": "Customer.io <noreply@example.com>",
+                          "from_id": 1,
+                          "headers": [],
+                          "recipient": "{{customer.email}}",
+                          "reply_to": "",
+                          "reply_to_id": null
+                        },
+                        "name": "Onboarding phase 1",
+                        "node_id": "1a0cbb4e-09d3-402e-949e-f6732f021650",
+                        "node_type": "EMAIL",
+                        "preheader_text": "Get started in minutes",
+                        "subject": "Welcome to Design Studio!",
+                        "transformers": {
+                          "prevent_widows": {
+                            "enabled": false
+                          }
+                        }
+                      }
+                    },
+                    "version": {
+                      "type": "object",
+                      "properties": {
+                        "created": {
+                          "type": "integer",
+                          "format": "Unix timestamp",
+                          "description": "The date-time the version was created."
+                        },
+                        "created_on_publish": {
+                          "type": "boolean",
+                          "description": "`false` if you [saved the email](/integrations/api/app/tag/design-studio-emails/saveVersion/). `true` if  Design Studio created this version automatically when you [published the email](/integrations/api/app/tag/design-studio-emails/publishEmail/). You can't delete versions generated by Design Studio.\n"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Explanatory text you provided when creating a version. Omitted if no description."
+                        },
+                        "feedback": {
+                          "type": "boolean",
+                          "description": "`true` is you saved this version by creating a [round of feedback in Design Studio](/messaging/design-studio/collaboration/feedback/).\n"
+                        },
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "UUID of the version."
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Name given to the version when it was saved."
+                        },
+                        "node_id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "UUID of the email node this version belongs to."
+                        },
+                        "node_type": {
+                          "type": "string",
+                          "enum": [
+                            "EMAIL"
+                          ],
+                          "description": "Always `\"EMAIL\"`."
+                        }
+                      },
+                      "example": {
+                        "created": 1773856017,
+                        "created_on_publish": false,
+                        "feedback": false,
+                        "id": "8f14e45f-ceea-4c67-9814-b8f0e0e1a6f0",
+                        "name": "Before holiday redesign",
+                        "node_id": "1a0cbb4e-09d3-402e-949e-f6732f021650",
+                        "node_type": "EMAIL"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. Possible reasons include `:id` is not a valid UUID, the node is not an email, or `version_id` is not a valid UUID.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible reasons include the email node or version doesn't exist.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "Delete an email version",
+        "description": "Deletes a version. You can't delete a version that Design Studio created automatically during a publish.\n",
+        "operationId": "deleteVersion",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the email. If your email has translations, this is the ID of a specific language variant.\n",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the version.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Version deleted"
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible reasons include the email node or version doesn't exist or the version belongs to a different node.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The version was created automatically during a publish and can't be deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "cannot delete a version created on publish",
+                      "status": 409
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/design_studio/emails/{id}/versions/{version_id}/restore": {
+      "post": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "Restore an email version",
+        "description": "Returns the email to a saved version. This restores only the email itself; if the code for a referenced custom component changed since this version was saved, the latest component code renders in Design Studio, not the original.\n\nThis only edits the draft in Design Studio. If you already linked the email to a workflow, you need to [publish it](/integrations/api/app/tag/design-studio-emails/publishEmail/) to push the restored content live.\n",
+        "operationId": "restoreVersion",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the email. If your email has translations, this is the ID of a specific language variant.\n",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the version.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Version restored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "The UUID of the restored email node."
+                    },
+                    "restored_node_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "description": "The nodes whose content was rolled back. Always just the email node itself—component dependencies aren't restored."
+                    },
+                    "version_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "The UUID of the version that was restored."
+                    }
+                  },
+                  "example": {
+                    "node_id": "123e4567-e89b-12d3-a456-426614174000",
+                    "restored_node_ids": [
+                      "123e4567-e89b-12d3-a456-426614174000"
+                    ],
+                    "version_id": "fc70fa5f-5fed-49c1-be48-6508aa9875c1"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request. Possible reasons include `:id` or `version_id` is not a valid UUID.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Possible reasons include the email node or version doesn't exist or the version belongs to a different node.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -170975,7 +174767,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Add a language variant to a newsletter.\n\nIf you omit optional fields, the values from the default template are copied over untranslated. Make sure you translate all aspects of your default template.\n\nYou can't add language variants to a newsletter that has already been sent. You can't manage emails created with the drag-and-drop editor or Design Studio via this endpoint—use [Create an email translation](/integrations/api/app/tag/design-studio/createEmailTranslation/) for Design Studio emails.\n\nIf the newsletter has A/B tests, use [Add a translation to a newsletter test group](/integrations/api/app/tag/newsletter-variants/createNewsletterTestLanguageVariant/) instead.\n",
+        "description": "Add a language variant to a newsletter.\n\nIf you omit optional fields, the values from the default template are copied over untranslated. Make sure you translate all aspects of your default template.\n\nYou can't add language variants to a newsletter that has already been sent. You can't manage emails created with the drag-and-drop editor or Design Studio via this endpoint—use [Create an email translation](/integrations/api/app/tag/design-studio-emails/createEmailTranslation/) for Design Studio emails.\n\nIf the newsletter has A/B tests, use [Add a translation to a newsletter test group](/integrations/api/app/tag/newsletter-variants/createNewsletterTestLanguageVariant/) instead.\n",
         "tags": [
           "Newsletter Variants"
         ],
@@ -220310,7 +224102,11 @@
     },
     {
       "name": "Design Studio",
-      "description": "Use these endpoints to manage emails, translations, and components made with Design Studio. You can programmatically manage Design Studio content and migrate templates from an external service. To manage assets like images, use the [Assets API](/integrations/api/app/tag/assets/). Learn more about the [best practices](/integrations/api/integrate-with-ds/) for sending HTML through these endpoints.\n\nWith Design Studio messages, you **link** them to a single workflow, like an automation or broadcast. Then you **publish changes** to push your updates from Design Studio to your workflow. There are separate endpoints for linking and publishing below.\n\nThese endpoints do not enable you to publish changes to global styles or from custom components to all messages that reference the component.\n\nIf you're an external tool and interested in being listed as one of our integrated partners, please reach out to [product@customer.io](mailto:product@customer.io) to chat with a Product Manager!\n"
+      "description": "Design Studio is a tool for creating and managing message content in Customer.io. Use these endpoints to organize your content and manage custom components. \n- To programmatically manage email content, go to [Design Studio emails](/integrations/api/app/tag/design-studio-emails/).\n- To manage assets like images, use the [Assets API](/integrations/api/app/tag/assets/). \n\nLearn more about the [best practices](/integrations/api/integrate-with-ds/) for sending HTML through these endpoints.\n\nThese endpoints do not enable you to publish changes to global styles or from custom components to all messages that reference the component.\n\nIf you're an external tool and interested in being listed as one of our integrated partners, please reach out to [product@customer.io](mailto:product@customer.io) to chat with a Product Manager!\n"
+    },
+    {
+      "name": "Design Studio emails",
+      "description": "Design Studio is a tool for creating and managing message content in Customer.io. Use these endpoints to manage emails and translations made with Design Studio. \n\nWith Design Studio emails, you [**link**](/integrations/api/app/tag/design-studio-emails/linkEmail/) them to a single workflow, like an email action in an automation or broadcast. Then you [**publish changes**](/integrations/api/app/tag/design-studio-emails/publishEmail/) to push your updates from Design Studio to your workflow.\n\nBefore you send an email, call the [**preview**](/integrations/api/app/tag/design-studio-emails/previewEmail/) endpoint to check that your liquid evaluates the way you expect against sample data, and the [**review**](/integrations/api/app/tag/design-studio-emails/reviewEmail/) endpoint to catch issues that could prevent your email from sending or breach compliance standards.\n\nUse the [**version**](/integrations/api/app/tag/design-studio-emails/listVersions/) endpoints to save named checkpoints of an email's content, inspect or restore a past checkpoint, or delete ones you no longer need.\n\nYou can manage other parts of Design Studio programmatically too: \n- To organize your files or manage custom components, go to [Design Studio](/integrations/api/app/tag/design-studio/).\n- To manage assets like images, use the [Assets API](/integrations/api/app/tag/assets/). \n\nLearn more about the [best practices](/integrations/api/integrate-with-ds/) for sending HTML through these endpoints.\n"
     },
     {
       "name": "Assets",
