@@ -315,7 +315,7 @@
         "name": "newsletter_id",
         "in": "path",
         "required": true,
-        "description": "The identifier of a newsletter.",
+        "description": "The identifier of a one-time send.",
         "schema": {
           "type": "integer"
         }
@@ -324,7 +324,7 @@
         "name": "content_id",
         "in": "path",
         "required": true,
-        "description": "The identifier of a message in a newsletter. If your newsletter has an A/B test group or includes multiple languages, each variant has its own `content_id`, separate from the `newsletter_id`.\n\nUse [List variants of a newsletter](/integrations/api/app/tag/newsletter-variants/listNewsletterVariants/) to find the `content_id` associated with the right variant.\n",
+        "description": "The identifier of a message in a one-time send. If your one-time send has an A/B test group or includes multiple languages, each variant has its own `content_id`, separate from the `newsletter_id`.\n\nUse [List variants of a one-time send](/integrations/api/app/tag/newsletter-variants/listNewsletterVariants/) to find the `content_id` associated with the right variant.\n",
         "schema": {
           "type": "integer"
         }
@@ -360,7 +360,7 @@
         "name": "newsletter_id",
         "in": "query",
         "required": false,
-        "description": "The newsletter you want to filter for.",
+        "description": "The one-time send you want to filter for.",
         "schema": {
           "type": "integer"
         }
@@ -918,7 +918,7 @@
           },
           "template_id": {
             "type": "integer",
-            "description": "Restrict the export to a specific message template (content) within the selected automation, newsletter, or transactional message."
+            "description": "Restrict the export to a specific message template (content) within the selected automation, one-time send, or transactional message."
           }
         }
       },
@@ -7923,7 +7923,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "email": {
@@ -8055,7 +8055,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "description": {
@@ -8140,7 +8140,7 @@
       "variant_id": {
         "x-scalar-ignore": true,
         "type": "integer",
-        "description": "The identifier of a newsletter variant—a language in a multi-language newsletter or a test in an A/B test.",
+        "description": "The identifier of a one-time send variant—a language in a multi-language one-time send or a test in an A/B test.",
         "readOnly": true
       },
       "subscription_topic_id": {
@@ -8152,7 +8152,7 @@
       "newsletterErrorResponse": {
         "x-scalar-ignore": true,
         "type": "object",
-        "description": "Error response format for newsletter endpoints.",
+        "description": "Error response format for one-time send endpoints.",
         "properties": {
           "errors": {
             "type": "array",
@@ -8191,7 +8191,7 @@
                   "rate_limit_spread": true,
                   "rate_limit_time_period": 60
                 },
-                "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
               },
               {
                 "type": "object",
@@ -8235,7 +8235,7 @@
             "properties": {
               "type": {
                 "type": "string",
-                "description": "The channel type for the newsletter.",
+                "description": "The channel type for the one-time send.",
                 "enum": [
                   "email"
                 ]
@@ -8247,11 +8247,11 @@
               "name": {
                 "type": "string",
                 "maxLength": 190,
-                "description": "The name of the newsletter."
+                "description": "The name of the one-time send."
               },
               "recipients": {
                 "type": "object",
-                "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                 "properties": {
                   "and": {
                     "type": "array",
@@ -8339,7 +8339,7 @@
               "rate_limit_email_rate": {
                 "type": "integer",
                 "minimum": 1,
-                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
               },
               "rate_limit_spread": {
                 "type": "boolean",
@@ -8357,15 +8357,15 @@
               "scheduled_at": {
                 "type": "integer",
                 "format": "unix timestamp",
-                "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+                "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
               },
               "send_now": {
                 "type": "boolean",
-                "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+                "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
               },
               "subscription_topic_id": {
                 "type": "integer",
-                "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+                "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
               }
             },
             "required": [
@@ -8389,13 +8389,13 @@
                   "rate_limit_spread": true,
                   "rate_limit_time_period": 60
                 },
-                "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
               }
             ],
             "properties": {
               "type": {
                 "type": "string",
-                "description": "The channel type for the newsletter.",
+                "description": "The channel type for the one-time send.",
                 "enum": [
                   "twilio"
                 ]
@@ -8408,11 +8408,11 @@
               "name": {
                 "type": "string",
                 "maxLength": 190,
-                "description": "The name of the newsletter."
+                "description": "The name of the one-time send."
               },
               "recipients": {
                 "type": "object",
-                "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                 "properties": {
                   "and": {
                     "type": "array",
@@ -8473,7 +8473,7 @@
               "rate_limit_email_rate": {
                 "type": "integer",
                 "minimum": 1,
-                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
               },
               "rate_limit_spread": {
                 "type": "boolean",
@@ -8491,15 +8491,15 @@
               "scheduled_at": {
                 "type": "integer",
                 "format": "unix timestamp",
-                "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+                "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
               },
               "send_now": {
                 "type": "boolean",
-                "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+                "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
               },
               "subscription_topic_id": {
                 "type": "integer",
-                "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+                "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
               }
             },
             "required": [
@@ -8522,13 +8522,13 @@
                   "rate_limit_spread": true,
                   "rate_limit_time_period": 60
                 },
-                "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
               }
             ],
             "properties": {
               "type": {
                 "type": "string",
-                "description": "The channel type for the newsletter.",
+                "description": "The channel type for the one-time send.",
                 "enum": [
                   "push"
                 ]
@@ -8536,11 +8536,11 @@
               "name": {
                 "type": "string",
                 "maxLength": 190,
-                "description": "The name of the newsletter."
+                "description": "The name of the one-time send."
               },
               "recipients": {
                 "type": "object",
-                "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                 "properties": {
                   "and": {
                     "type": "array",
@@ -8606,7 +8606,7 @@
               "rate_limit_email_rate": {
                 "type": "integer",
                 "minimum": 1,
-                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
               },
               "rate_limit_spread": {
                 "type": "boolean",
@@ -8624,11 +8624,11 @@
               "scheduled_at": {
                 "type": "integer",
                 "format": "unix timestamp",
-                "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+                "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
               },
               "send_now": {
                 "type": "boolean",
-                "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+                "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
               },
               "subject": {
                 "type": "string",
@@ -8637,7 +8637,7 @@
               },
               "subscription_topic_id": {
                 "type": "integer",
-                "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+                "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
               }
             },
             "required": [
@@ -8659,13 +8659,13 @@
                   "rate_limit_spread": true,
                   "rate_limit_time_period": 60
                 },
-                "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
               }
             ],
             "properties": {
               "type": {
                 "type": "string",
-                "description": "The channel type for the newsletter.",
+                "description": "The channel type for the one-time send.",
                 "enum": [
                   "in_app"
                 ]
@@ -8679,11 +8679,11 @@
               "name": {
                 "type": "string",
                 "maxLength": 190,
-                "description": "The name of the newsletter."
+                "description": "The name of the one-time send."
               },
               "recipients": {
                 "type": "object",
-                "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                 "properties": {
                   "and": {
                     "type": "array",
@@ -8744,7 +8744,7 @@
               "rate_limit_email_rate": {
                 "type": "integer",
                 "minimum": 1,
-                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
               },
               "rate_limit_spread": {
                 "type": "boolean",
@@ -8762,15 +8762,15 @@
               "scheduled_at": {
                 "type": "integer",
                 "format": "unix timestamp",
-                "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+                "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
               },
               "send_now": {
                 "type": "boolean",
-                "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+                "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
               },
               "subscription_topic_id": {
                 "type": "integer",
-                "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+                "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
               }
             },
             "required": [
@@ -8793,13 +8793,13 @@
                   "rate_limit_spread": true,
                   "rate_limit_time_period": 60
                 },
-                "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
               }
             ],
             "properties": {
               "type": {
                 "type": "string",
-                "description": "The channel type for the newsletter.",
+                "description": "The channel type for the one-time send.",
                 "enum": [
                   "webhook"
                 ]
@@ -8807,16 +8807,16 @@
               "body": {
                 "type": "string",
                 "description": "The body content of the webhook request.",
-                "example": "{\"channel\":\"#marketing\",\"text\":\"Newsletter sent to {{ customer.email }}\"}"
+                "example": "{\"channel\":\"#marketing\",\"text\":\"One-time send sent to {{ customer.email }}\"}"
               },
               "name": {
                 "type": "string",
                 "maxLength": 190,
-                "description": "The name of the newsletter."
+                "description": "The name of the one-time send."
               },
               "recipients": {
                 "type": "object",
-                "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                 "properties": {
                   "and": {
                     "type": "array",
@@ -8892,7 +8892,7 @@
               "rate_limit_email_rate": {
                 "type": "integer",
                 "minimum": 1,
-                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
               },
               "rate_limit_spread": {
                 "type": "boolean",
@@ -8910,15 +8910,15 @@
               "scheduled_at": {
                 "type": "integer",
                 "format": "unix timestamp",
-                "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+                "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
               },
               "send_now": {
                 "type": "boolean",
-                "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+                "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
               },
               "subscription_topic_id": {
                 "type": "integer",
-                "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+                "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
               }
             },
             "required": [
@@ -8943,13 +8943,13 @@
                   "rate_limit_spread": true,
                   "rate_limit_time_period": 60
                 },
-                "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
               }
             ],
             "properties": {
               "type": {
                 "type": "string",
-                "description": "The channel type for the newsletter.",
+                "description": "The channel type for the one-time send.",
                 "enum": [
                   "inbox"
                 ]
@@ -8963,11 +8963,11 @@
               "name": {
                 "type": "string",
                 "maxLength": 190,
-                "description": "The name of the newsletter."
+                "description": "The name of the one-time send."
               },
               "recipients": {
                 "type": "object",
-                "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                 "properties": {
                   "and": {
                     "type": "array",
@@ -9028,7 +9028,7 @@
               "rate_limit_email_rate": {
                 "type": "integer",
                 "minimum": 1,
-                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
               },
               "rate_limit_spread": {
                 "type": "boolean",
@@ -9046,15 +9046,15 @@
               "scheduled_at": {
                 "type": "integer",
                 "format": "unix timestamp",
-                "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+                "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
               },
               "send_now": {
                 "type": "boolean",
-                "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+                "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
               },
               "subscription_topic_id": {
                 "type": "integer",
-                "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+                "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
               }
             },
             "required": [
@@ -9081,11 +9081,11 @@
           "name": {
             "type": "string",
             "maxLength": 190,
-            "description": "The name of the newsletter."
+            "description": "The name of the one-time send."
           },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -9146,15 +9146,15 @@
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
-            "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+            "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
           },
           "send_now": {
             "type": "boolean",
-            "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+            "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
           },
           "subscription_topic_id": {
             "type": "integer",
-            "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+            "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
           }
         }
       },
@@ -9171,7 +9171,7 @@
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
             },
-            "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
           },
           {
             "type": "object",
@@ -9220,11 +9220,11 @@
           "name": {
             "type": "string",
             "maxLength": 190,
-            "description": "The name of the newsletter."
+            "description": "The name of the one-time send."
           },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -9288,7 +9288,7 @@
           },
           "type": {
             "type": "string",
-            "description": "The channel type for the newsletter.",
+            "description": "The channel type for the one-time send.",
             "enum": [
               "email"
             ]
@@ -9319,7 +9319,7 @@
           "rate_limit_email_rate": {
             "type": "integer",
             "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
           },
           "rate_limit_spread": {
             "type": "boolean",
@@ -9337,15 +9337,15 @@
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
-            "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+            "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
           },
           "send_now": {
             "type": "boolean",
-            "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+            "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
           },
           "subscription_topic_id": {
             "type": "integer",
-            "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+            "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
           }
         },
         "required": [
@@ -9369,7 +9369,7 @@
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
             },
-            "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
           }
         ],
         "properties": {
@@ -9381,11 +9381,11 @@
           "name": {
             "type": "string",
             "maxLength": 190,
-            "description": "The name of the newsletter."
+            "description": "The name of the one-time send."
           },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -9445,7 +9445,7 @@
           },
           "type": {
             "type": "string",
-            "description": "The channel type for the newsletter.",
+            "description": "The channel type for the one-time send.",
             "enum": [
               "twilio"
             ]
@@ -9453,7 +9453,7 @@
           "rate_limit_email_rate": {
             "type": "integer",
             "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
           },
           "rate_limit_spread": {
             "type": "boolean",
@@ -9471,15 +9471,15 @@
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
-            "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+            "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
           },
           "send_now": {
             "type": "boolean",
-            "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+            "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
           },
           "subscription_topic_id": {
             "type": "integer",
-            "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+            "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
           }
         },
         "required": [
@@ -9502,18 +9502,18 @@
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
             },
-            "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
           }
         ],
         "properties": {
           "name": {
             "type": "string",
             "maxLength": 190,
-            "description": "The name of the newsletter."
+            "description": "The name of the one-time send."
           },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -9573,7 +9573,7 @@
           },
           "type": {
             "type": "string",
-            "description": "The channel type for the newsletter.",
+            "description": "The channel type for the one-time send.",
             "enum": [
               "push"
             ]
@@ -9586,7 +9586,7 @@
           "rate_limit_email_rate": {
             "type": "integer",
             "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
           },
           "rate_limit_spread": {
             "type": "boolean",
@@ -9604,11 +9604,11 @@
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
-            "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+            "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
           },
           "send_now": {
             "type": "boolean",
-            "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+            "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
           },
           "subject": {
             "type": "string",
@@ -9617,7 +9617,7 @@
           },
           "subscription_topic_id": {
             "type": "integer",
-            "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+            "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
           }
         },
         "required": [
@@ -9639,7 +9639,7 @@
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
             },
-            "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
           }
         ],
         "properties": {
@@ -9652,11 +9652,11 @@
           "name": {
             "type": "string",
             "maxLength": 190,
-            "description": "The name of the newsletter."
+            "description": "The name of the one-time send."
           },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -9716,7 +9716,7 @@
           },
           "type": {
             "type": "string",
-            "description": "The channel type for the newsletter.",
+            "description": "The channel type for the one-time send.",
             "enum": [
               "in_app"
             ]
@@ -9724,7 +9724,7 @@
           "rate_limit_email_rate": {
             "type": "integer",
             "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
           },
           "rate_limit_spread": {
             "type": "boolean",
@@ -9742,15 +9742,15 @@
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
-            "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+            "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
           },
           "send_now": {
             "type": "boolean",
-            "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+            "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
           },
           "subscription_topic_id": {
             "type": "integer",
-            "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+            "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
           }
         },
         "required": [
@@ -9785,7 +9785,7 @@
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
             },
-            "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
           }
         ],
         "properties": {
@@ -9798,11 +9798,11 @@
           "name": {
             "type": "string",
             "maxLength": 190,
-            "description": "The name of the newsletter."
+            "description": "The name of the one-time send."
           },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -9862,7 +9862,7 @@
           },
           "type": {
             "type": "string",
-            "description": "The channel type for the newsletter.",
+            "description": "The channel type for the one-time send.",
             "enum": [
               "inbox"
             ]
@@ -9870,7 +9870,7 @@
           "rate_limit_email_rate": {
             "type": "integer",
             "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
           },
           "rate_limit_spread": {
             "type": "boolean",
@@ -9888,15 +9888,15 @@
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
-            "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+            "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
           },
           "send_now": {
             "type": "boolean",
-            "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+            "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
           },
           "subscription_topic_id": {
             "type": "integer",
-            "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+            "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
           }
         },
         "required": [
@@ -9919,23 +9919,23 @@
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
             },
-            "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
           }
         ],
         "properties": {
           "body": {
             "type": "string",
             "description": "The body content of the webhook request.",
-            "example": "{\"channel\":\"#marketing\",\"text\":\"Newsletter sent to {{ customer.email }}\"}"
+            "example": "{\"channel\":\"#marketing\",\"text\":\"One-time send sent to {{ customer.email }}\"}"
           },
           "name": {
             "type": "string",
             "maxLength": 190,
-            "description": "The name of the newsletter."
+            "description": "The name of the one-time send."
           },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the newsletter's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -10006,7 +10006,7 @@
           },
           "type": {
             "type": "string",
-            "description": "The channel type for the newsletter.",
+            "description": "The channel type for the one-time send.",
             "enum": [
               "webhook"
             ]
@@ -10018,7 +10018,7 @@
           "rate_limit_email_rate": {
             "type": "integer",
             "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
           },
           "rate_limit_spread": {
             "type": "boolean",
@@ -10036,15 +10036,15 @@
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
-            "description": "A Unix timestamp indicating when to send the newsletter. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+            "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
           },
           "send_now": {
             "type": "boolean",
-            "description": "If `true`, the newsletter is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+            "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
           },
           "subscription_topic_id": {
             "type": "integer",
-            "description": "The newsletter audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+            "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
           }
         },
         "required": [
@@ -10058,12 +10058,12 @@
       },
       "createLanguageVariantRequest": {
         "x-scalar-ignore": true,
-        "description": "Add a language variant to a newsletter. The payload the endpoint accepts depends on the parent newsletter's channel type.",
+        "description": "Add a language variant to a one-time send. The payload the endpoint accepts depends on the parent one-time send's channel type.",
         "oneOf": [
           {
             "x-scalar-ignore": true,
             "title": "Email",
-            "description": "Add a language variant to an email newsletter. Requires `language`, `subject`, and `body`.",
+            "description": "Add a language variant to an email one-time send. Requires `language`, `subject`, and `body`.",
             "properties": {
               "body": {
                 "type": "string",
@@ -10103,7 +10103,7 @@
           {
             "x-scalar-ignore": true,
             "title": "SMS",
-            "description": "Add a language variant to an SMS newsletter. Requires `language` and `body`.",
+            "description": "Add a language variant to an SMS one-time send. Requires `language` and `body`.",
             "properties": {
               "body": {
                 "type": "string",
@@ -10124,7 +10124,7 @@
           {
             "x-scalar-ignore": true,
             "title": "Push",
-            "description": "Add a language variant to a push notification newsletter. Requires `language` and at least one of `subject` or `body`.",
+            "description": "Add a language variant to a push notification one-time send. Requires `language` and at least one of `subject` or `body`.",
             "properties": {
               "language": {
                 "type": "string",
@@ -10149,7 +10149,7 @@
           {
             "x-scalar-ignore": true,
             "title": "Webhook",
-            "description": "Add a language variant to a webhook newsletter. Requires `language` and `body`.",
+            "description": "Add a language variant to a webhook one-time send. Requires `language` and `body`.",
             "properties": {
               "body": {
                 "type": "string",
@@ -10170,7 +10170,7 @@
           {
             "x-scalar-ignore": true,
             "title": "Inbox message",
-            "description": "Add a language variant to an inbox message newsletter. Requires `language` and `body_json`.",
+            "description": "Add a language variant to an inbox message one-time send. Requires `language` and `body_json`.",
             "properties": {
               "body_json": {
                 "type": "string",
@@ -10207,7 +10207,7 @@
       "createEmailLanguageVariant": {
         "x-scalar-ignore": true,
         "title": "Email",
-        "description": "Add a language variant to an email newsletter. Requires `language`, `subject`, and `body`.",
+        "description": "Add a language variant to an email one-time send. Requires `language`, `subject`, and `body`.",
         "properties": {
           "body": {
             "type": "string",
@@ -10247,7 +10247,7 @@
       "createSmsLanguageVariant": {
         "x-scalar-ignore": true,
         "title": "SMS",
-        "description": "Add a language variant to an SMS newsletter. Requires `language` and `body`.",
+        "description": "Add a language variant to an SMS one-time send. Requires `language` and `body`.",
         "properties": {
           "body": {
             "type": "string",
@@ -10268,7 +10268,7 @@
       "createPushLanguageVariant": {
         "x-scalar-ignore": true,
         "title": "Push",
-        "description": "Add a language variant to a push notification newsletter. Requires `language` and at least one of `subject` or `body`.",
+        "description": "Add a language variant to a push notification one-time send. Requires `language` and at least one of `subject` or `body`.",
         "properties": {
           "language": {
             "type": "string",
@@ -10293,7 +10293,7 @@
       "createInAppLanguageVariant": {
         "x-scalar-ignore": true,
         "title": "In-App",
-        "description": "Add a language variant to an in-app message newsletter. Requires `language` and `body_json`.",
+        "description": "Add a language variant to an in-app message one-time send. Requires `language` and `body_json`.",
         "properties": {
           "body_json": {
             "type": "string",
@@ -10314,7 +10314,7 @@
       "createInboxLanguageVariant": {
         "x-scalar-ignore": true,
         "title": "Inbox message",
-        "description": "Add a language variant to an inbox message newsletter. Requires `language` and `body_json`.",
+        "description": "Add a language variant to an inbox message one-time send. Requires `language` and `body_json`.",
         "properties": {
           "body_json": {
             "type": "string",
@@ -10335,7 +10335,7 @@
       "createWebhookLanguageVariant": {
         "x-scalar-ignore": true,
         "title": "Webhook",
-        "description": "Add a language variant to a webhook newsletter. Requires `language` and `body`.",
+        "description": "Add a language variant to a webhook one-time send. Requires `language` and `body`.",
         "properties": {
           "body": {
             "type": "string",
@@ -10361,12 +10361,12 @@
           "rate_limit_spread": true,
           "rate_limit_time_period": 60
         },
-        "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone.",
+        "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone.",
         "properties": {
           "rate_limit_email_rate": {
             "type": "integer",
             "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
           },
           "rate_limit_spread": {
             "type": "boolean",
@@ -10403,7 +10403,7 @@
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
             },
-            "description": "Optional newsletter rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
           }
         ],
         "properties": {
@@ -10415,7 +10415,7 @@
           "rate_limit_email_rate": {
             "type": "integer",
             "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/journeys/send/broadcasts/newsletters/#daily-ramp).\n"
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
           },
           "rate_limit_spread": {
             "type": "boolean",
@@ -10449,7 +10449,7 @@
         "properties": {
           "content_ids": {
             "type": "array",
-            "description": "A list of message variants in a newsletter, where a variant is a translation or A/B test.",
+            "description": "A list of message variants in a one-time send, where a variant is a translation or A/B test.",
             "items": {
               "type": "integer"
             }
@@ -10466,18 +10466,18 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "id": {
             "x-scalar-ignore": true,
-            "description": "The identifier for a newsletter.",
+            "description": "The identifier for a one-time send.",
             "type": "integer",
             "example": 10
           },
           "name": {
             "type": "string",
-            "description": "The name of the newsletter. Must be 190 characters or less.",
+            "description": "The name of the one-time send. Must be 190 characters or less.",
             "readOnly": true
           },
           "recipient_segment_ids": {
@@ -10490,7 +10490,7 @@
           "sent_at": {
             "type": "integer",
             "format": "unix timestamp",
-            "description": "The last time the newsletter was sent."
+            "description": "The last time the one-time send was sent."
           },
           "subscription_topic_id": {
             "type": "integer",
@@ -10498,14 +10498,14 @@
           },
           "tags": {
             "type": "array",
-            "description": "An array of tags associated with the newsletter.",
+            "description": "An array of tags associated with the one-time send.",
             "items": {
               "type": "string"
             }
           },
           "type": {
             "x-scalar-ignore": true,
-            "description": "Channel type for a newsletter or newsletter content variant.",
+            "description": "Channel type for a one-time send or one-time send content variant.",
             "type": "string",
             "enum": [
               "email",
@@ -13234,7 +13234,7 @@
         "x-scalar-ignore": true,
         "type": "string",
         "readOnly": true,
-        "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+        "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
         "example": "15:1492548073"
       },
       "segment_name": {
@@ -13265,7 +13265,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "description": {
@@ -13441,7 +13441,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "first_started": {
@@ -15080,11 +15080,11 @@
           {
             "x-scalar-ignore": true,
             "title": "Email",
-            "description": "Update the contents of an email newsletter variant. You can set the sender with `from_id`. If you don't provide it, the existing sender is preserved.\n",
+            "description": "Update the contents of an email one-time send variant. You can set the sender with `from_id`. If you don't provide it, the existing sender is preserved.\n",
             "properties": {
               "type": {
                 "x-scalar-ignore": true,
-                "description": "Channel type for a newsletter or newsletter content variant.",
+                "description": "Channel type for a one-time send or one-time send content variant.",
                 "type": "string",
                 "enum": [
                   "email"
@@ -15094,7 +15094,7 @@
               },
               "body": {
                 "type": "string",
-                "description": "The HTML body of the email. You cannot modify the body if you created the newsletter with Design Studio or the drag-and-drop editor."
+                "description": "The HTML body of the email. You cannot modify the body if you created the one-time send with Design Studio or the drag-and-drop editor."
               },
               "body_amp": {
                 "x-scalar-ignore": true,
@@ -15110,7 +15110,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "from_id": {
@@ -15126,7 +15126,7 @@
               },
               "recipient": {
                 "type": "string",
-                "description": "The recipient address for the newsletter. By default, it's `{{customer.email}}`."
+                "description": "The recipient address for the one-time send. By default, it's `{{customer.email}}`."
               },
               "reply_to_id": {
                 "x-scalar-ignore": true,
@@ -15148,11 +15148,11 @@
           {
             "x-scalar-ignore": true,
             "title": "SMS",
-            "description": "Update the contents of an SMS newsletter variant.",
+            "description": "Update the contents of an SMS one-time send variant.",
             "properties": {
               "type": {
                 "x-scalar-ignore": true,
-                "description": "Channel type for a newsletter or newsletter content variant.",
+                "description": "Channel type for a one-time send or one-time send content variant.",
                 "type": "string",
                 "enum": [
                   "twilio"
@@ -15169,7 +15169,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               }
             }
@@ -15177,11 +15177,11 @@
           {
             "x-scalar-ignore": true,
             "title": "Push",
-            "description": "Update the contents of a push notification newsletter variant.",
+            "description": "Update the contents of a push notification one-time send variant.",
             "properties": {
               "type": {
                 "x-scalar-ignore": true,
-                "description": "Channel type for a newsletter or newsletter content variant.",
+                "description": "Channel type for a one-time send or one-time send content variant.",
                 "type": "string",
                 "enum": [
                   "push"
@@ -15198,7 +15198,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "subject": {
@@ -15211,11 +15211,11 @@
           {
             "x-scalar-ignore": true,
             "title": "Webhook",
-            "description": "Update the contents of a webhook newsletter variant.",
+            "description": "Update the contents of a webhook one-time send variant.",
             "properties": {
               "type": {
                 "x-scalar-ignore": true,
-                "description": "Channel type for a newsletter or newsletter content variant.",
+                "description": "Channel type for a one-time send or one-time send content variant.",
                 "type": "string",
                 "enum": [
                   "webhook"
@@ -15226,13 +15226,13 @@
               "body": {
                 "type": "string",
                 "description": "The body content of the webhook request.",
-                "example": "{\"channel\":\"#marketing\",\"text\":\"Newsletter sent to {{ customer.email }}\"}"
+                "example": "{\"channel\":\"#marketing\",\"text\":\"One-time send sent to {{ customer.email }}\"}"
               },
               "deduplicate_id": {
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "headers": {
@@ -15268,7 +15268,7 @@
             "properties": {
               "type": {
                 "x-scalar-ignore": true,
-                "description": "Channel type for a newsletter or newsletter content variant.",
+                "description": "Channel type for a one-time send or one-time send content variant.",
                 "type": "string",
                 "enum": [
                   "in_app"
@@ -15280,7 +15280,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               }
             }
@@ -15292,7 +15292,7 @@
             "properties": {
               "type": {
                 "x-scalar-ignore": true,
-                "description": "Channel type for a newsletter or newsletter content variant.",
+                "description": "Channel type for a one-time send or one-time send content variant.",
                 "type": "string",
                 "enum": [
                   "inbox"
@@ -15304,7 +15304,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               }
             }
@@ -15322,12 +15322,12 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "type": {
             "x-scalar-ignore": true,
-            "description": "Channel type for a newsletter or newsletter content variant.",
+            "description": "Channel type for a one-time send or one-time send content variant.",
             "type": "string",
             "enum": [
               "email",
@@ -15345,11 +15345,11 @@
       "updateEmailContent": {
         "x-scalar-ignore": true,
         "title": "Email",
-        "description": "Update the contents of an email newsletter variant. You can set the sender with `from_id`. If you don't provide it, the existing sender is preserved.\n",
+        "description": "Update the contents of an email one-time send variant. You can set the sender with `from_id`. If you don't provide it, the existing sender is preserved.\n",
         "properties": {
           "body": {
             "type": "string",
-            "description": "The HTML body of the email. You cannot modify the body if you created the newsletter with Design Studio or the drag-and-drop editor."
+            "description": "The HTML body of the email. You cannot modify the body if you created the one-time send with Design Studio or the drag-and-drop editor."
           },
           "body_amp": {
             "x-scalar-ignore": true,
@@ -15365,7 +15365,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "from_id": {
@@ -15381,7 +15381,7 @@
           },
           "recipient": {
             "type": "string",
-            "description": "The recipient address for the newsletter. By default, it's `{{customer.email}}`."
+            "description": "The recipient address for the one-time send. By default, it's `{{customer.email}}`."
           },
           "reply_to_id": {
             "x-scalar-ignore": true,
@@ -15400,7 +15400,7 @@
           },
           "type": {
             "x-scalar-ignore": true,
-            "description": "Channel type for a newsletter or newsletter content variant.",
+            "description": "Channel type for a one-time send or one-time send content variant.",
             "type": "string",
             "enum": [
               "email"
@@ -15413,7 +15413,7 @@
       "updateSmsContent": {
         "x-scalar-ignore": true,
         "title": "SMS",
-        "description": "Update the contents of an SMS newsletter variant.",
+        "description": "Update the contents of an SMS one-time send variant.",
         "properties": {
           "body": {
             "type": "string",
@@ -15424,12 +15424,12 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "type": {
             "x-scalar-ignore": true,
-            "description": "Channel type for a newsletter or newsletter content variant.",
+            "description": "Channel type for a one-time send or one-time send content variant.",
             "type": "string",
             "enum": [
               "twilio"
@@ -15442,7 +15442,7 @@
       "updatePushContent": {
         "x-scalar-ignore": true,
         "title": "Push",
-        "description": "Update the contents of a push notification newsletter variant.",
+        "description": "Update the contents of a push notification one-time send variant.",
         "properties": {
           "body": {
             "type": "string",
@@ -15453,7 +15453,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "subject": {
@@ -15463,7 +15463,7 @@
           },
           "type": {
             "x-scalar-ignore": true,
-            "description": "Channel type for a newsletter or newsletter content variant.",
+            "description": "Channel type for a one-time send or one-time send content variant.",
             "type": "string",
             "enum": [
               "push"
@@ -15482,12 +15482,12 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "type": {
             "x-scalar-ignore": true,
-            "description": "Channel type for a newsletter or newsletter content variant.",
+            "description": "Channel type for a one-time send or one-time send content variant.",
             "type": "string",
             "enum": [
               "in_app"
@@ -15506,12 +15506,12 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "type": {
             "x-scalar-ignore": true,
-            "description": "Channel type for a newsletter or newsletter content variant.",
+            "description": "Channel type for a one-time send or one-time send content variant.",
             "type": "string",
             "enum": [
               "inbox"
@@ -15524,18 +15524,18 @@
       "updateWebhookContent": {
         "x-scalar-ignore": true,
         "title": "Webhook",
-        "description": "Update the contents of a webhook newsletter variant.",
+        "description": "Update the contents of a webhook one-time send variant.",
         "properties": {
           "body": {
             "type": "string",
             "description": "The body content of the webhook request.",
-            "example": "{\"channel\":\"#marketing\",\"text\":\"Newsletter sent to {{ customer.email }}\"}"
+            "example": "{\"channel\":\"#marketing\",\"text\":\"One-time send sent to {{ customer.email }}\"}"
           },
           "deduplicate_id": {
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "headers": {
@@ -15564,7 +15564,7 @@
           },
           "type": {
             "x-scalar-ignore": true,
-            "description": "Channel type for a newsletter or newsletter content variant.",
+            "description": "Channel type for a one-time send or one-time send content variant.",
             "type": "string",
             "enum": [
               "webhook"
@@ -15603,7 +15603,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "fake_bcc": {
@@ -15635,7 +15635,7 @@
           "id": {
             "x-scalar-ignore": true,
             "type": "integer",
-            "description": "The identifier of a newsletter variant—a language in a multi-language newsletter or a test in an A/B test.",
+            "description": "The identifier of a one-time send variant—a language in a multi-language one-time send or a test in an A/B test.",
             "readOnly": true
           },
           "language": {
@@ -15655,11 +15655,11 @@
             "type": "string",
             "description": "The name of the variant, if it exists.",
             "readOnly": true,
-            "example": "newsletter variant A"
+            "example": "one-time send variant A"
           },
           "newsletter_id": {
             "x-scalar-ignore": true,
-            "description": "The identifier for a newsletter.",
+            "description": "The identifier for a one-time send.",
             "type": "integer",
             "example": 10
           },
@@ -15707,7 +15707,7 @@
           },
           "type": {
             "x-scalar-ignore": true,
-            "description": "Channel type for a newsletter or newsletter content variant.",
+            "description": "Channel type for a one-time send or one-time send content variant.",
             "type": "string",
             "enum": [
               "email",
@@ -15752,7 +15752,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "fake_bcc": {
@@ -15777,7 +15777,7 @@
           "id": {
             "x-scalar-ignore": true,
             "type": "integer",
-            "description": "The identifier of a newsletter variant—a language in a multi-language newsletter or a test in an A/B test.",
+            "description": "The identifier of a one-time send variant—a language in a multi-language one-time send or a test in an A/B test.",
             "readOnly": true
           },
           "language": {
@@ -15797,11 +15797,11 @@
             "type": "string",
             "description": "The name of the variant, if it exists.",
             "readOnly": true,
-            "example": "newsletter variant A"
+            "example": "one-time send variant A"
           },
           "newsletter_id": {
             "x-scalar-ignore": true,
-            "description": "The identifier for a newsletter.",
+            "description": "The identifier for a one-time send.",
             "type": "integer",
             "example": 10
           },
@@ -15849,7 +15849,7 @@
           },
           "type": {
             "x-scalar-ignore": true,
-            "description": "Channel type for a newsletter or newsletter content variant.",
+            "description": "Channel type for a one-time send or one-time send content variant.",
             "type": "string",
             "enum": [
               "email",
@@ -15911,20 +15911,20 @@
       },
       "newsletter_id": {
         "x-scalar-ignore": true,
-        "description": "The identifier for a newsletter.",
+        "description": "The identifier for a one-time send.",
         "type": "integer",
         "example": 10
       },
       "content_id": {
         "x-scalar-ignore": true,
-        "description": "The identifier for a message in a newsletter. Newsletters can have multiple content IDs (for multi-language messages or A/B tests).",
+        "description": "The identifier for a message in a one-time send. One-time sends can have multiple content IDs (for multi-language messages or A/B tests).",
         "type": "integer",
         "readOnly": true,
         "example": 1
       },
       "newsletterMessageType": {
         "x-scalar-ignore": true,
-        "description": "Channel type for a newsletter or newsletter content variant.",
+        "description": "Channel type for a one-time send or one-time send content variant.",
         "type": "string",
         "enum": [
           "email",
@@ -15939,7 +15939,7 @@
       },
       "messageType": {
         "x-scalar-ignore": true,
-        "description": "The type of message or action for a delivery, automation action, or related object. Includes channels that newsletters do not support (for example, `slack` and `whatsapp`).",
+        "description": "The type of message or action for a delivery, automation action, or related object. Includes channels that one-time sends do not support (for example, `slack` and `whatsapp`).",
         "type": "string",
         "enum": [
           "email",
@@ -16087,7 +16087,7 @@
           },
           "content_id": {
             "x-scalar-ignore": true,
-            "description": "The identifier for a message in a newsletter. Newsletters can have multiple content IDs (for multi-language messages or A/B tests).",
+            "description": "The identifier for a message in a one-time send. One-time sends can have multiple content IDs (for multi-language messages or A/B tests).",
             "type": "integer",
             "readOnly": true,
             "example": 1
@@ -16148,7 +16148,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "failure_message": {
@@ -16255,7 +16255,7 @@
             "oneOf": [
               {
                 "x-scalar-ignore": true,
-                "description": "The identifier for a newsletter.",
+                "description": "The identifier for a one-time send.",
                 "type": "integer",
                 "example": 10
               },
@@ -16382,7 +16382,7 @@
           },
           "content_id": {
             "x-scalar-ignore": true,
-            "description": "The identifier for a message in a newsletter. Newsletters can have multiple content IDs (for multi-language messages or A/B tests).",
+            "description": "The identifier for a message in a one-time send. One-time sends can have multiple content IDs (for multi-language messages or A/B tests).",
             "type": "integer",
             "readOnly": true,
             "example": 1
@@ -16443,7 +16443,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "failure_message": {
@@ -16550,7 +16550,7 @@
             "oneOf": [
               {
                 "x-scalar-ignore": true,
-                "description": "The identifier for a newsletter.",
+                "description": "The identifier for a one-time send.",
                 "type": "integer",
                 "example": 10
               },
@@ -16615,7 +16615,7 @@
           },
           "type": {
             "x-scalar-ignore": true,
-            "description": "The type of message or action for a delivery, automation action, or related object. Includes channels that newsletters do not support (for example, `slack` and `whatsapp`).",
+            "description": "The type of message or action for a delivery, automation action, or related object. Includes channels that one-time sends do not support (for example, `slack` and `whatsapp`).",
             "type": "string",
             "enum": [
               "email",
@@ -16634,7 +16634,7 @@
       },
       "newsletterMessageObject": {
         "x-scalar-ignore": true,
-        "description": "Each object is a delivery of a newsletter.",
+        "description": "Each object is a delivery of a one-time send.",
         "properties": {
           "action_id": {
             "x-scalar-ignore": true,
@@ -16671,7 +16671,7 @@
           },
           "content_id": {
             "x-scalar-ignore": true,
-            "description": "The identifier for a message in a newsletter. Newsletters can have multiple content IDs (for multi-language messages or A/B tests).",
+            "description": "The identifier for a message in a one-time send. One-time sends can have multiple content IDs (for multi-language messages or A/B tests).",
             "type": "integer",
             "readOnly": true,
             "example": 1
@@ -16732,7 +16732,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "failure_message": {
@@ -16839,7 +16839,7 @@
             "oneOf": [
               {
                 "x-scalar-ignore": true,
-                "description": "The identifier for a newsletter.",
+                "description": "The identifier for a one-time send.",
                 "type": "integer",
                 "example": 10
               },
@@ -16904,7 +16904,7 @@
           },
           "type": {
             "x-scalar-ignore": true,
-            "description": "Channel type for a newsletter or newsletter content variant.",
+            "description": "Channel type for a one-time send or one-time send content variant.",
             "type": "string",
             "enum": [
               "email",
@@ -16939,7 +16939,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "headers": {
@@ -17048,7 +17048,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "fake_bcc": {
@@ -17215,7 +17215,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "fake_bcc": {
@@ -17386,7 +17386,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "id": {
@@ -17481,7 +17481,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "id": {
@@ -17576,7 +17576,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "headers": {
@@ -17696,7 +17696,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "fake_bcc": {
@@ -17850,7 +17850,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "id": {
@@ -17945,7 +17945,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "id": {
@@ -18040,7 +18040,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "headers": {
@@ -18570,7 +18570,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "image_url": {
@@ -18654,7 +18654,7 @@
             "x-scalar-ignore": true,
             "type": "string",
             "readOnly": true,
-            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
           "language": {
@@ -18767,7 +18767,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "fake_bcc": {
@@ -18945,7 +18945,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "id": {
@@ -19047,7 +19047,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "id": {
@@ -19149,7 +19149,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "headers": {
@@ -19282,7 +19282,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "fake_bcc": {
@@ -19443,7 +19443,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "id": {
@@ -19545,7 +19545,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "id": {
@@ -19647,7 +19647,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "headers": {
@@ -20409,7 +20409,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "description": {
@@ -20564,7 +20564,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "description": {
@@ -20689,7 +20689,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "description": {
@@ -20814,7 +20814,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "description": {
@@ -20983,7 +20983,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "description": {
@@ -21148,7 +21148,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "description": {
@@ -21291,7 +21291,7 @@
                 "x-scalar-ignore": true,
                 "type": "string",
                 "readOnly": true,
-                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, Newsletters, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
               },
               "description": {
