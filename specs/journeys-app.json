@@ -10888,6 +10888,10 @@
             "type": "boolean",
             "description": "Reports when a message draft is created. Set to true to report this event type."
           },
+          "sms_dropped": {
+            "type": "boolean",
+            "description": "Reports when a message isn't sent because the recipient opted out or their phone number can't receive SMS. Set to true to report this event type."
+          },
           "sms_failed": {
             "type": "boolean",
             "description": "Reports when a message couldn't be sent to the delivery provider. Set to true to report this event type."
@@ -48835,6 +48839,424 @@
                     },
                     "required": [
                       "recipient",
+                      "failure_message"
+                    ]
+                  },
+                  "event_id": {
+                    "x-scalar-ignore": true,
+                    "type": "string",
+                    "description": "The unique ID of the reporting webhook event being sent.",
+                    "example": "01E4C4CT6YDC7Y5M7FE1GWWPQJ"
+                  },
+                  "object_type": {
+                    "type": "string",
+                    "enum": [
+                      "sms"
+                    ],
+                    "description": "The event relates to an SMS message."
+                  },
+                  "timestamp": {
+                    "x-scalar-ignore": true,
+                    "type": "integer",
+                    "format": "unix timestamp",
+                    "description": "The unix timestamp when the event occurred.",
+                    "example": 1613063089
+                  }
+                },
+                "required": [
+                  "event_id",
+                  "object_type",
+                  "timestamp",
+                  "metric",
+                  "data"
+                ]
+              },
+              {
+                "title": "SMS dropped",
+                "properties": {
+                  "metric": {
+                    "type": "string",
+                    "enum": [
+                      "dropped"
+                    ],
+                    "description": "Customer.io did not send an SMS because the recipient opted out or their phone number can't receive SMS."
+                  },
+                  "data": {
+                    "description": "Contains information about the event, specific to the `object_type` and `metric`.",
+                    "allOf": [
+                      {
+                        "x-scalar-ignore": true,
+                        "example": {
+                          "action_id": 42,
+                          "campaign_id": 7,
+                          "delivery_id": "RPIyMTM6OjEyMzQ=",
+                          "identifiers": {
+                            "id": "user-123"
+                          },
+                          "customer_id": "user-123",
+                          "journey_id": 15
+                        },
+                        "oneOf": [
+                          {
+                            "title": "API triggered broadcast",
+                            "required": [
+                              "trigger_id",
+                              "broadcast_id",
+                              "delivery_id",
+                              "action_id",
+                              "identifiers"
+                            ],
+                            "type": "object",
+                            "properties": {
+                              "action_id": {
+                                "x-scalar-ignore": true,
+                                "description": "The identifier for an action.",
+                                "type": "integer",
+                                "readOnly": true,
+                                "example": 96
+                              },
+                              "broadcast_id": {
+                                "oneOf": [
+                                  {
+                                    "x-scalar-ignore": true,
+                                    "type": "integer",
+                                    "description": "The identifier for a broadcast.",
+                                    "example": 2
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "delivery_id": {
+                                "x-scalar-ignore": true,
+                                "type": "string",
+                                "description": "The instance of a message sent to a person.",
+                                "example": "ZAIAAVTJVG0QcCok0-0ZKj6yiQ=="
+                              },
+                              "identifiers": {
+                                "x-scalar-ignore": true,
+                                "type": "object",
+                                "description": "The person the event represents. This object contains all of the identifiers enabled in your workspace, even if they aren't set for the person. If your workspace supports multiple identifiers, this object contains `cio_id` plus each enabled identifier—`id`, `email`, and (if enabled) `phone`. Each of these can be null when the person doesn't have that identifier set.\n\nOtherwise, if your workspace only supports ID, this object just contains the `id` of the person the event represents.\n",
+                                "required": [
+                                  "id"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "x-scalar-ignore": true,
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "The ID of a customer profile, analogous to a \"person\" in the UI. If your workspace supports multiple identifiers (email and ID), this value can be null.",
+                                    "example": "42"
+                                  },
+                                  "cio_id": {
+                                    "type": "string",
+                                    "description": "The canonical identifier for a person, present only if your workspace supports multiple identifiers (email and ID). This value exists to keep a record of a person in your workspace across changes to their other identifiers.",
+                                    "example": "d9c106000001"
+                                  },
+                                  "email": {
+                                    "x-scalar-ignore": true,
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "The email address of the customer.",
+                                    "example": "test@example.com"
+                                  },
+                                  "phone": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "The person's phone number. This key only appears if your workspace has phone enabled as an identifier.",
+                                    "example": "+15558675309"
+                                  }
+                                }
+                              },
+                              "trigger_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "The trigger ID returned by the [Trigger Broadcast API](/integrations/api/app/tag/send-messages/triggerBroadcast/).",
+                                "example": 1
+                              },
+                              "broadcast_name": {
+                                "type": "string",
+                                "description": "The name of the broadcast. Omitted when the name isn't available—for example, if the broadcast was deleted."
+                              },
+                              "broadcast_tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "The tags on the broadcast, as an array of tag names. Omitted when the broadcast has no tags or the tags aren't available."
+                              },
+                              "customer_id": {
+                                "x-scalar-ignore": true,
+                                "type": "string",
+                                "deprecated": true,
+                                "description": "The ID of the person the webhook event occurred to. Blank if the person in question has been deleted.\n\nWhile webhooks may still contain this property, you should rely on the newer `identifiers` object wherever possible.\n",
+                                "example": "42"
+                              },
+                              "journey_id": {
+                                "x-scalar-ignore": true,
+                                "type": "string",
+                                "description": "The ID for the path a person went through in an automation or API Triggered Broadcast workflow.",
+                                "example": "01GW20GXAAXBKZD8J96M8FNV3R"
+                              },
+                              "parent_action_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "The ID of the parent action, if the action occurred within an automation and has a parent (like a randomized split, etc).",
+                                "example": 1,
+                                "readOnly": true
+                              },
+                              "template_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "The ID of the template used to render the message. A message's content can change over its lifetime; this is the template used for this delivery. For one-time sends (newsletters), this matches `content_id`.",
+                                "example": 3
+                              }
+                            }
+                          },
+                          {
+                            "title": "Campaign",
+                            "type": "object",
+                            "required": [
+                              "campaign_id",
+                              "delivery_id",
+                              "action_id",
+                              "identifiers"
+                            ],
+                            "properties": {
+                              "action_id": {
+                                "x-scalar-ignore": true,
+                                "description": "The identifier for an action.",
+                                "type": "integer",
+                                "readOnly": true,
+                                "example": 96
+                              },
+                              "campaign_id": {
+                                "oneOf": [
+                                  {
+                                    "x-scalar-ignore": true,
+                                    "description": "The identifier for an automation.",
+                                    "type": "integer",
+                                    "example": 5
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "delivery_id": {
+                                "x-scalar-ignore": true,
+                                "type": "string",
+                                "description": "The instance of a message sent to a person.",
+                                "example": "ZAIAAVTJVG0QcCok0-0ZKj6yiQ=="
+                              },
+                              "identifiers": {
+                                "x-scalar-ignore": true,
+                                "type": "object",
+                                "description": "The person the event represents. This object contains all of the identifiers enabled in your workspace, even if they aren't set for the person. If your workspace supports multiple identifiers, this object contains `cio_id` plus each enabled identifier—`id`, `email`, and (if enabled) `phone`. Each of these can be null when the person doesn't have that identifier set.\n\nOtherwise, if your workspace only supports ID, this object just contains the `id` of the person the event represents.\n",
+                                "required": [
+                                  "id"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "x-scalar-ignore": true,
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "The ID of a customer profile, analogous to a \"person\" in the UI. If your workspace supports multiple identifiers (email and ID), this value can be null.",
+                                    "example": "42"
+                                  },
+                                  "cio_id": {
+                                    "type": "string",
+                                    "description": "The canonical identifier for a person, present only if your workspace supports multiple identifiers (email and ID). This value exists to keep a record of a person in your workspace across changes to their other identifiers.",
+                                    "example": "d9c106000001"
+                                  },
+                                  "email": {
+                                    "x-scalar-ignore": true,
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "The email address of the customer.",
+                                    "example": "test@example.com"
+                                  },
+                                  "phone": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "The person's phone number. This key only appears if your workspace has phone enabled as an identifier.",
+                                    "example": "+15558675309"
+                                  }
+                                }
+                              },
+                              "campaign_name": {
+                                "x-scalar-ignore": true,
+                                "type": "string",
+                                "description": "The name of the automation.",
+                                "readOnly": true
+                              },
+                              "campaign_tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "The tags on the automation, as an array of tag names. Omitted when the automation has no tags or the tags aren't available."
+                              },
+                              "customer_id": {
+                                "x-scalar-ignore": true,
+                                "type": "string",
+                                "deprecated": true,
+                                "description": "The ID of the person the webhook event occurred to. Blank if the person in question has been deleted.\n\nWhile webhooks may still contain this property, you should rely on the newer `identifiers` object wherever possible.\n",
+                                "example": "42"
+                              },
+                              "journey_id": {
+                                "x-scalar-ignore": true,
+                                "type": "string",
+                                "description": "The ID for the path a person went through in an automation or API Triggered Broadcast workflow.",
+                                "example": "01GW20GXAAXBKZD8J96M8FNV3R"
+                              },
+                              "parent_action_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "The ID of the parent action, if the action occurred within an automation and has a parent (like a randomized split, etc).",
+                                "example": 1,
+                                "readOnly": true
+                              },
+                              "template_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "The ID of the template used to render the message. A message's content can change over its lifetime; this is the template used for this delivery. For one-time sends (newsletters), this matches `content_id`.",
+                                "example": 3
+                              },
+                              "trigger_event_id": {
+                                "x-scalar-ignore": true,
+                                "type": "string",
+                                "description": "The id of the event that triggered an event-triggered automation (not an API-triggered broadcast).",
+                                "example": "21E4C3CT6YDC7Y4N7FE1GWWABC"
+                              }
+                            }
+                          },
+                          {
+                            "title": "Newsletter",
+                            "type": "object",
+                            "required": [
+                              "newsletter_id",
+                              "delivery_id",
+                              "identifiers"
+                            ],
+                            "properties": {
+                              "delivery_id": {
+                                "x-scalar-ignore": true,
+                                "type": "string",
+                                "description": "The instance of a message sent to a person.",
+                                "example": "ZAIAAVTJVG0QcCok0-0ZKj6yiQ=="
+                              },
+                              "identifiers": {
+                                "x-scalar-ignore": true,
+                                "type": "object",
+                                "description": "The person the event represents. This object contains all of the identifiers enabled in your workspace, even if they aren't set for the person. If your workspace supports multiple identifiers, this object contains `cio_id` plus each enabled identifier—`id`, `email`, and (if enabled) `phone`. Each of these can be null when the person doesn't have that identifier set.\n\nOtherwise, if your workspace only supports ID, this object just contains the `id` of the person the event represents.\n",
+                                "required": [
+                                  "id"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "x-scalar-ignore": true,
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "The ID of a customer profile, analogous to a \"person\" in the UI. If your workspace supports multiple identifiers (email and ID), this value can be null.",
+                                    "example": "42"
+                                  },
+                                  "cio_id": {
+                                    "type": "string",
+                                    "description": "The canonical identifier for a person, present only if your workspace supports multiple identifiers (email and ID). This value exists to keep a record of a person in your workspace across changes to their other identifiers.",
+                                    "example": "d9c106000001"
+                                  },
+                                  "email": {
+                                    "x-scalar-ignore": true,
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "The email address of the customer.",
+                                    "example": "test@example.com"
+                                  },
+                                  "phone": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "The person's phone number. This key only appears if your workspace has phone enabled as an identifier.",
+                                    "example": "+15558675309"
+                                  }
+                                }
+                              },
+                              "newsletter_id": {
+                                "oneOf": [
+                                  {
+                                    "x-scalar-ignore": true,
+                                    "description": "The identifier for a one-time send.",
+                                    "type": "integer",
+                                    "example": 10
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "content_id": {
+                                "x-scalar-ignore": true,
+                                "description": "The identifier for a one-time send variant.",
+                                "type": "integer",
+                                "example": 3
+                              },
+                              "customer_id": {
+                                "x-scalar-ignore": true,
+                                "type": "string",
+                                "deprecated": true,
+                                "description": "The ID of the person the webhook event occurred to. Blank if the person in question has been deleted.\n\nWhile webhooks may still contain this property, you should rely on the newer `identifiers` object wherever possible.\n",
+                                "example": "42"
+                              },
+                              "newsletter_name": {
+                                "type": "string",
+                                "description": "The name of the one-time send. Omitted when the name isn't available—for example, if the one-time send was deleted."
+                              },
+                              "newsletter_tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "The tags on the one-time send, as an array of tag names. Omitted when the one-time send has no tags or the tags aren't available."
+                              },
+                              "template_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "The ID of the template used to render the message. A message's content can change over its lifetime; this is the template used for this delivery. For one-time sends (newsletters), this matches `content_id`.",
+                                "example": 3
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "properties": {
+                      "failure_message": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "Indicates the reason that an attempted message failed.",
+                        "example": "Something went wrong!"
+                      }
+                    },
+                    "required": [
                       "failure_message"
                     ]
                   },
@@ -89392,6 +89814,424 @@
             ]
           },
           {
+            "title": "SMS dropped",
+            "properties": {
+              "metric": {
+                "type": "string",
+                "enum": [
+                  "dropped"
+                ],
+                "description": "Customer.io did not send an SMS because the recipient opted out or their phone number can't receive SMS."
+              },
+              "data": {
+                "description": "Contains information about the event, specific to the `object_type` and `metric`.",
+                "allOf": [
+                  {
+                    "x-scalar-ignore": true,
+                    "example": {
+                      "action_id": 42,
+                      "campaign_id": 7,
+                      "delivery_id": "RPIyMTM6OjEyMzQ=",
+                      "identifiers": {
+                        "id": "user-123"
+                      },
+                      "customer_id": "user-123",
+                      "journey_id": 15
+                    },
+                    "oneOf": [
+                      {
+                        "title": "API triggered broadcast",
+                        "required": [
+                          "trigger_id",
+                          "broadcast_id",
+                          "delivery_id",
+                          "action_id",
+                          "identifiers"
+                        ],
+                        "type": "object",
+                        "properties": {
+                          "action_id": {
+                            "x-scalar-ignore": true,
+                            "description": "The identifier for an action.",
+                            "type": "integer",
+                            "readOnly": true,
+                            "example": 96
+                          },
+                          "broadcast_id": {
+                            "oneOf": [
+                              {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "The identifier for a broadcast.",
+                                "example": 2
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "delivery_id": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "description": "The instance of a message sent to a person.",
+                            "example": "ZAIAAVTJVG0QcCok0-0ZKj6yiQ=="
+                          },
+                          "identifiers": {
+                            "x-scalar-ignore": true,
+                            "type": "object",
+                            "description": "The person the event represents. This object contains all of the identifiers enabled in your workspace, even if they aren't set for the person. If your workspace supports multiple identifiers, this object contains `cio_id` plus each enabled identifier—`id`, `email`, and (if enabled) `phone`. Each of these can be null when the person doesn't have that identifier set.\n\nOtherwise, if your workspace only supports ID, this object just contains the `id` of the person the event represents.\n",
+                            "required": [
+                              "id"
+                            ],
+                            "properties": {
+                              "id": {
+                                "x-scalar-ignore": true,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "The ID of a customer profile, analogous to a \"person\" in the UI. If your workspace supports multiple identifiers (email and ID), this value can be null.",
+                                "example": "42"
+                              },
+                              "cio_id": {
+                                "type": "string",
+                                "description": "The canonical identifier for a person, present only if your workspace supports multiple identifiers (email and ID). This value exists to keep a record of a person in your workspace across changes to their other identifiers.",
+                                "example": "d9c106000001"
+                              },
+                              "email": {
+                                "x-scalar-ignore": true,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "The email address of the customer.",
+                                "example": "test@example.com"
+                              },
+                              "phone": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "The person's phone number. This key only appears if your workspace has phone enabled as an identifier.",
+                                "example": "+15558675309"
+                              }
+                            }
+                          },
+                          "trigger_id": {
+                            "x-scalar-ignore": true,
+                            "type": "integer",
+                            "description": "The trigger ID returned by the [Trigger Broadcast API](/integrations/api/app/tag/send-messages/triggerBroadcast/).",
+                            "example": 1
+                          },
+                          "broadcast_name": {
+                            "type": "string",
+                            "description": "The name of the broadcast. Omitted when the name isn't available—for example, if the broadcast was deleted."
+                          },
+                          "broadcast_tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "The tags on the broadcast, as an array of tag names. Omitted when the broadcast has no tags or the tags aren't available."
+                          },
+                          "customer_id": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "deprecated": true,
+                            "description": "The ID of the person the webhook event occurred to. Blank if the person in question has been deleted.\n\nWhile webhooks may still contain this property, you should rely on the newer `identifiers` object wherever possible.\n",
+                            "example": "42"
+                          },
+                          "journey_id": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "description": "The ID for the path a person went through in an automation or API Triggered Broadcast workflow.",
+                            "example": "01GW20GXAAXBKZD8J96M8FNV3R"
+                          },
+                          "parent_action_id": {
+                            "x-scalar-ignore": true,
+                            "type": "integer",
+                            "description": "The ID of the parent action, if the action occurred within an automation and has a parent (like a randomized split, etc).",
+                            "example": 1,
+                            "readOnly": true
+                          },
+                          "template_id": {
+                            "x-scalar-ignore": true,
+                            "type": "integer",
+                            "description": "The ID of the template used to render the message. A message's content can change over its lifetime; this is the template used for this delivery. For one-time sends (newsletters), this matches `content_id`.",
+                            "example": 3
+                          }
+                        }
+                      },
+                      {
+                        "title": "Campaign",
+                        "type": "object",
+                        "required": [
+                          "campaign_id",
+                          "delivery_id",
+                          "action_id",
+                          "identifiers"
+                        ],
+                        "properties": {
+                          "action_id": {
+                            "x-scalar-ignore": true,
+                            "description": "The identifier for an action.",
+                            "type": "integer",
+                            "readOnly": true,
+                            "example": 96
+                          },
+                          "campaign_id": {
+                            "oneOf": [
+                              {
+                                "x-scalar-ignore": true,
+                                "description": "The identifier for an automation.",
+                                "type": "integer",
+                                "example": 5
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "delivery_id": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "description": "The instance of a message sent to a person.",
+                            "example": "ZAIAAVTJVG0QcCok0-0ZKj6yiQ=="
+                          },
+                          "identifiers": {
+                            "x-scalar-ignore": true,
+                            "type": "object",
+                            "description": "The person the event represents. This object contains all of the identifiers enabled in your workspace, even if they aren't set for the person. If your workspace supports multiple identifiers, this object contains `cio_id` plus each enabled identifier—`id`, `email`, and (if enabled) `phone`. Each of these can be null when the person doesn't have that identifier set.\n\nOtherwise, if your workspace only supports ID, this object just contains the `id` of the person the event represents.\n",
+                            "required": [
+                              "id"
+                            ],
+                            "properties": {
+                              "id": {
+                                "x-scalar-ignore": true,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "The ID of a customer profile, analogous to a \"person\" in the UI. If your workspace supports multiple identifiers (email and ID), this value can be null.",
+                                "example": "42"
+                              },
+                              "cio_id": {
+                                "type": "string",
+                                "description": "The canonical identifier for a person, present only if your workspace supports multiple identifiers (email and ID). This value exists to keep a record of a person in your workspace across changes to their other identifiers.",
+                                "example": "d9c106000001"
+                              },
+                              "email": {
+                                "x-scalar-ignore": true,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "The email address of the customer.",
+                                "example": "test@example.com"
+                              },
+                              "phone": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "The person's phone number. This key only appears if your workspace has phone enabled as an identifier.",
+                                "example": "+15558675309"
+                              }
+                            }
+                          },
+                          "campaign_name": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "description": "The name of the automation.",
+                            "readOnly": true
+                          },
+                          "campaign_tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "The tags on the automation, as an array of tag names. Omitted when the automation has no tags or the tags aren't available."
+                          },
+                          "customer_id": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "deprecated": true,
+                            "description": "The ID of the person the webhook event occurred to. Blank if the person in question has been deleted.\n\nWhile webhooks may still contain this property, you should rely on the newer `identifiers` object wherever possible.\n",
+                            "example": "42"
+                          },
+                          "journey_id": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "description": "The ID for the path a person went through in an automation or API Triggered Broadcast workflow.",
+                            "example": "01GW20GXAAXBKZD8J96M8FNV3R"
+                          },
+                          "parent_action_id": {
+                            "x-scalar-ignore": true,
+                            "type": "integer",
+                            "description": "The ID of the parent action, if the action occurred within an automation and has a parent (like a randomized split, etc).",
+                            "example": 1,
+                            "readOnly": true
+                          },
+                          "template_id": {
+                            "x-scalar-ignore": true,
+                            "type": "integer",
+                            "description": "The ID of the template used to render the message. A message's content can change over its lifetime; this is the template used for this delivery. For one-time sends (newsletters), this matches `content_id`.",
+                            "example": 3
+                          },
+                          "trigger_event_id": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "description": "The id of the event that triggered an event-triggered automation (not an API-triggered broadcast).",
+                            "example": "21E4C3CT6YDC7Y4N7FE1GWWABC"
+                          }
+                        }
+                      },
+                      {
+                        "title": "Newsletter",
+                        "type": "object",
+                        "required": [
+                          "newsletter_id",
+                          "delivery_id",
+                          "identifiers"
+                        ],
+                        "properties": {
+                          "delivery_id": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "description": "The instance of a message sent to a person.",
+                            "example": "ZAIAAVTJVG0QcCok0-0ZKj6yiQ=="
+                          },
+                          "identifiers": {
+                            "x-scalar-ignore": true,
+                            "type": "object",
+                            "description": "The person the event represents. This object contains all of the identifiers enabled in your workspace, even if they aren't set for the person. If your workspace supports multiple identifiers, this object contains `cio_id` plus each enabled identifier—`id`, `email`, and (if enabled) `phone`. Each of these can be null when the person doesn't have that identifier set.\n\nOtherwise, if your workspace only supports ID, this object just contains the `id` of the person the event represents.\n",
+                            "required": [
+                              "id"
+                            ],
+                            "properties": {
+                              "id": {
+                                "x-scalar-ignore": true,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "The ID of a customer profile, analogous to a \"person\" in the UI. If your workspace supports multiple identifiers (email and ID), this value can be null.",
+                                "example": "42"
+                              },
+                              "cio_id": {
+                                "type": "string",
+                                "description": "The canonical identifier for a person, present only if your workspace supports multiple identifiers (email and ID). This value exists to keep a record of a person in your workspace across changes to their other identifiers.",
+                                "example": "d9c106000001"
+                              },
+                              "email": {
+                                "x-scalar-ignore": true,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "The email address of the customer.",
+                                "example": "test@example.com"
+                              },
+                              "phone": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "The person's phone number. This key only appears if your workspace has phone enabled as an identifier.",
+                                "example": "+15558675309"
+                              }
+                            }
+                          },
+                          "newsletter_id": {
+                            "oneOf": [
+                              {
+                                "x-scalar-ignore": true,
+                                "description": "The identifier for a one-time send.",
+                                "type": "integer",
+                                "example": 10
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "content_id": {
+                            "x-scalar-ignore": true,
+                            "description": "The identifier for a one-time send variant.",
+                            "type": "integer",
+                            "example": 3
+                          },
+                          "customer_id": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "deprecated": true,
+                            "description": "The ID of the person the webhook event occurred to. Blank if the person in question has been deleted.\n\nWhile webhooks may still contain this property, you should rely on the newer `identifiers` object wherever possible.\n",
+                            "example": "42"
+                          },
+                          "newsletter_name": {
+                            "type": "string",
+                            "description": "The name of the one-time send. Omitted when the name isn't available—for example, if the one-time send was deleted."
+                          },
+                          "newsletter_tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "The tags on the one-time send, as an array of tag names. Omitted when the one-time send has no tags or the tags aren't available."
+                          },
+                          "template_id": {
+                            "x-scalar-ignore": true,
+                            "type": "integer",
+                            "description": "The ID of the template used to render the message. A message's content can change over its lifetime; this is the template used for this delivery. For one-time sends (newsletters), this matches `content_id`.",
+                            "example": 3
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "properties": {
+                  "failure_message": {
+                    "x-scalar-ignore": true,
+                    "type": "string",
+                    "description": "Indicates the reason that an attempted message failed.",
+                    "example": "Something went wrong!"
+                  }
+                },
+                "required": [
+                  "failure_message"
+                ]
+              },
+              "event_id": {
+                "x-scalar-ignore": true,
+                "type": "string",
+                "description": "The unique ID of the reporting webhook event being sent.",
+                "example": "01E4C4CT6YDC7Y5M7FE1GWWPQJ"
+              },
+              "object_type": {
+                "type": "string",
+                "enum": [
+                  "sms"
+                ],
+                "description": "The event relates to an SMS message."
+              },
+              "timestamp": {
+                "x-scalar-ignore": true,
+                "type": "integer",
+                "format": "unix timestamp",
+                "description": "The unix timestamp when the event occurred.",
+                "example": 1613063089
+              }
+            },
+            "required": [
+              "event_id",
+              "object_type",
+              "timestamp",
+              "metric",
+              "data"
+            ]
+          },
+          {
             "title": "SMS failed",
             "properties": {
               "metric": {
@@ -93587,6 +94427,424 @@
               "bounced"
             ],
             "description": "The delivery provider was unable to deliver an SMS message."
+          },
+          "object_type": {
+            "type": "string",
+            "enum": [
+              "sms"
+            ],
+            "description": "The event relates to an SMS message."
+          },
+          "timestamp": {
+            "x-scalar-ignore": true,
+            "type": "integer",
+            "format": "unix timestamp",
+            "description": "The unix timestamp when the event occurred.",
+            "example": 1613063089
+          }
+        },
+        "required": [
+          "event_id",
+          "object_type",
+          "timestamp",
+          "metric",
+          "data"
+        ]
+      },
+      "sms_dropped": {
+        "title": "SMS dropped",
+        "properties": {
+          "data": {
+            "description": "Contains information about the event, specific to the `object_type` and `metric`.",
+            "allOf": [
+              {
+                "x-scalar-ignore": true,
+                "example": {
+                  "action_id": 42,
+                  "campaign_id": 7,
+                  "delivery_id": "RPIyMTM6OjEyMzQ=",
+                  "identifiers": {
+                    "id": "user-123"
+                  },
+                  "customer_id": "user-123",
+                  "journey_id": 15
+                },
+                "oneOf": [
+                  {
+                    "title": "API triggered broadcast",
+                    "required": [
+                      "trigger_id",
+                      "broadcast_id",
+                      "delivery_id",
+                      "action_id",
+                      "identifiers"
+                    ],
+                    "type": "object",
+                    "properties": {
+                      "action_id": {
+                        "x-scalar-ignore": true,
+                        "description": "The identifier for an action.",
+                        "type": "integer",
+                        "readOnly": true,
+                        "example": 96
+                      },
+                      "broadcast_id": {
+                        "oneOf": [
+                          {
+                            "x-scalar-ignore": true,
+                            "type": "integer",
+                            "description": "The identifier for a broadcast.",
+                            "example": 2
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "delivery_id": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The instance of a message sent to a person.",
+                        "example": "ZAIAAVTJVG0QcCok0-0ZKj6yiQ=="
+                      },
+                      "identifiers": {
+                        "x-scalar-ignore": true,
+                        "type": "object",
+                        "description": "The person the event represents. This object contains all of the identifiers enabled in your workspace, even if they aren't set for the person. If your workspace supports multiple identifiers, this object contains `cio_id` plus each enabled identifier—`id`, `email`, and (if enabled) `phone`. Each of these can be null when the person doesn't have that identifier set.\n\nOtherwise, if your workspace only supports ID, this object just contains the `id` of the person the event represents.\n",
+                        "required": [
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "x-scalar-ignore": true,
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "The ID of a customer profile, analogous to a \"person\" in the UI. If your workspace supports multiple identifiers (email and ID), this value can be null.",
+                            "example": "42"
+                          },
+                          "cio_id": {
+                            "type": "string",
+                            "description": "The canonical identifier for a person, present only if your workspace supports multiple identifiers (email and ID). This value exists to keep a record of a person in your workspace across changes to their other identifiers.",
+                            "example": "d9c106000001"
+                          },
+                          "email": {
+                            "x-scalar-ignore": true,
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "The email address of the customer.",
+                            "example": "test@example.com"
+                          },
+                          "phone": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "The person's phone number. This key only appears if your workspace has phone enabled as an identifier.",
+                            "example": "+15558675309"
+                          }
+                        }
+                      },
+                      "trigger_id": {
+                        "x-scalar-ignore": true,
+                        "type": "integer",
+                        "description": "The trigger ID returned by the [Trigger Broadcast API](/integrations/api/app/tag/send-messages/triggerBroadcast/).",
+                        "example": 1
+                      },
+                      "broadcast_name": {
+                        "type": "string",
+                        "description": "The name of the broadcast. Omitted when the name isn't available—for example, if the broadcast was deleted."
+                      },
+                      "broadcast_tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "The tags on the broadcast, as an array of tag names. Omitted when the broadcast has no tags or the tags aren't available."
+                      },
+                      "customer_id": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "deprecated": true,
+                        "description": "The ID of the person the webhook event occurred to. Blank if the person in question has been deleted.\n\nWhile webhooks may still contain this property, you should rely on the newer `identifiers` object wherever possible.\n",
+                        "example": "42"
+                      },
+                      "journey_id": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The ID for the path a person went through in an automation or API Triggered Broadcast workflow.",
+                        "example": "01GW20GXAAXBKZD8J96M8FNV3R"
+                      },
+                      "parent_action_id": {
+                        "x-scalar-ignore": true,
+                        "type": "integer",
+                        "description": "The ID of the parent action, if the action occurred within an automation and has a parent (like a randomized split, etc).",
+                        "example": 1,
+                        "readOnly": true
+                      },
+                      "template_id": {
+                        "x-scalar-ignore": true,
+                        "type": "integer",
+                        "description": "The ID of the template used to render the message. A message's content can change over its lifetime; this is the template used for this delivery. For one-time sends (newsletters), this matches `content_id`.",
+                        "example": 3
+                      }
+                    }
+                  },
+                  {
+                    "title": "Campaign",
+                    "type": "object",
+                    "required": [
+                      "campaign_id",
+                      "delivery_id",
+                      "action_id",
+                      "identifiers"
+                    ],
+                    "properties": {
+                      "action_id": {
+                        "x-scalar-ignore": true,
+                        "description": "The identifier for an action.",
+                        "type": "integer",
+                        "readOnly": true,
+                        "example": 96
+                      },
+                      "campaign_id": {
+                        "oneOf": [
+                          {
+                            "x-scalar-ignore": true,
+                            "description": "The identifier for an automation.",
+                            "type": "integer",
+                            "example": 5
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "delivery_id": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The instance of a message sent to a person.",
+                        "example": "ZAIAAVTJVG0QcCok0-0ZKj6yiQ=="
+                      },
+                      "identifiers": {
+                        "x-scalar-ignore": true,
+                        "type": "object",
+                        "description": "The person the event represents. This object contains all of the identifiers enabled in your workspace, even if they aren't set for the person. If your workspace supports multiple identifiers, this object contains `cio_id` plus each enabled identifier—`id`, `email`, and (if enabled) `phone`. Each of these can be null when the person doesn't have that identifier set.\n\nOtherwise, if your workspace only supports ID, this object just contains the `id` of the person the event represents.\n",
+                        "required": [
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "x-scalar-ignore": true,
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "The ID of a customer profile, analogous to a \"person\" in the UI. If your workspace supports multiple identifiers (email and ID), this value can be null.",
+                            "example": "42"
+                          },
+                          "cio_id": {
+                            "type": "string",
+                            "description": "The canonical identifier for a person, present only if your workspace supports multiple identifiers (email and ID). This value exists to keep a record of a person in your workspace across changes to their other identifiers.",
+                            "example": "d9c106000001"
+                          },
+                          "email": {
+                            "x-scalar-ignore": true,
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "The email address of the customer.",
+                            "example": "test@example.com"
+                          },
+                          "phone": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "The person's phone number. This key only appears if your workspace has phone enabled as an identifier.",
+                            "example": "+15558675309"
+                          }
+                        }
+                      },
+                      "campaign_name": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The name of the automation.",
+                        "readOnly": true
+                      },
+                      "campaign_tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "The tags on the automation, as an array of tag names. Omitted when the automation has no tags or the tags aren't available."
+                      },
+                      "customer_id": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "deprecated": true,
+                        "description": "The ID of the person the webhook event occurred to. Blank if the person in question has been deleted.\n\nWhile webhooks may still contain this property, you should rely on the newer `identifiers` object wherever possible.\n",
+                        "example": "42"
+                      },
+                      "journey_id": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The ID for the path a person went through in an automation or API Triggered Broadcast workflow.",
+                        "example": "01GW20GXAAXBKZD8J96M8FNV3R"
+                      },
+                      "parent_action_id": {
+                        "x-scalar-ignore": true,
+                        "type": "integer",
+                        "description": "The ID of the parent action, if the action occurred within an automation and has a parent (like a randomized split, etc).",
+                        "example": 1,
+                        "readOnly": true
+                      },
+                      "template_id": {
+                        "x-scalar-ignore": true,
+                        "type": "integer",
+                        "description": "The ID of the template used to render the message. A message's content can change over its lifetime; this is the template used for this delivery. For one-time sends (newsletters), this matches `content_id`.",
+                        "example": 3
+                      },
+                      "trigger_event_id": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The id of the event that triggered an event-triggered automation (not an API-triggered broadcast).",
+                        "example": "21E4C3CT6YDC7Y4N7FE1GWWABC"
+                      }
+                    }
+                  },
+                  {
+                    "title": "Newsletter",
+                    "type": "object",
+                    "required": [
+                      "newsletter_id",
+                      "delivery_id",
+                      "identifiers"
+                    ],
+                    "properties": {
+                      "delivery_id": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The instance of a message sent to a person.",
+                        "example": "ZAIAAVTJVG0QcCok0-0ZKj6yiQ=="
+                      },
+                      "identifiers": {
+                        "x-scalar-ignore": true,
+                        "type": "object",
+                        "description": "The person the event represents. This object contains all of the identifiers enabled in your workspace, even if they aren't set for the person. If your workspace supports multiple identifiers, this object contains `cio_id` plus each enabled identifier—`id`, `email`, and (if enabled) `phone`. Each of these can be null when the person doesn't have that identifier set.\n\nOtherwise, if your workspace only supports ID, this object just contains the `id` of the person the event represents.\n",
+                        "required": [
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "x-scalar-ignore": true,
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "The ID of a customer profile, analogous to a \"person\" in the UI. If your workspace supports multiple identifiers (email and ID), this value can be null.",
+                            "example": "42"
+                          },
+                          "cio_id": {
+                            "type": "string",
+                            "description": "The canonical identifier for a person, present only if your workspace supports multiple identifiers (email and ID). This value exists to keep a record of a person in your workspace across changes to their other identifiers.",
+                            "example": "d9c106000001"
+                          },
+                          "email": {
+                            "x-scalar-ignore": true,
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "The email address of the customer.",
+                            "example": "test@example.com"
+                          },
+                          "phone": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "The person's phone number. This key only appears if your workspace has phone enabled as an identifier.",
+                            "example": "+15558675309"
+                          }
+                        }
+                      },
+                      "newsletter_id": {
+                        "oneOf": [
+                          {
+                            "x-scalar-ignore": true,
+                            "description": "The identifier for a one-time send.",
+                            "type": "integer",
+                            "example": 10
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "content_id": {
+                        "x-scalar-ignore": true,
+                        "description": "The identifier for a one-time send variant.",
+                        "type": "integer",
+                        "example": 3
+                      },
+                      "customer_id": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "deprecated": true,
+                        "description": "The ID of the person the webhook event occurred to. Blank if the person in question has been deleted.\n\nWhile webhooks may still contain this property, you should rely on the newer `identifiers` object wherever possible.\n",
+                        "example": "42"
+                      },
+                      "newsletter_name": {
+                        "type": "string",
+                        "description": "The name of the one-time send. Omitted when the name isn't available—for example, if the one-time send was deleted."
+                      },
+                      "newsletter_tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "The tags on the one-time send, as an array of tag names. Omitted when the one-time send has no tags or the tags aren't available."
+                      },
+                      "template_id": {
+                        "x-scalar-ignore": true,
+                        "type": "integer",
+                        "description": "The ID of the template used to render the message. A message's content can change over its lifetime; this is the template used for this delivery. For one-time sends (newsletters), this matches `content_id`.",
+                        "example": 3
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "properties": {
+              "failure_message": {
+                "x-scalar-ignore": true,
+                "type": "string",
+                "description": "Indicates the reason that an attempted message failed.",
+                "example": "Something went wrong!"
+              }
+            },
+            "required": [
+              "failure_message"
+            ]
+          },
+          "event_id": {
+            "x-scalar-ignore": true,
+            "type": "string",
+            "description": "The unique ID of the reporting webhook event being sent.",
+            "example": "01E4C4CT6YDC7Y5M7FE1GWWPQJ"
+          },
+          "metric": {
+            "type": "string",
+            "enum": [
+              "dropped"
+            ],
+            "description": "Customer.io did not send an SMS because the recipient opted out or their phone number can't receive SMS."
           },
           "object_type": {
             "type": "string",
@@ -212603,6 +213861,424 @@
                             },
                             "required": [
                               "recipient",
+                              "failure_message"
+                            ]
+                          },
+                          "event_id": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "description": "The unique ID of the reporting webhook event being sent.",
+                            "example": "01E4C4CT6YDC7Y5M7FE1GWWPQJ"
+                          },
+                          "object_type": {
+                            "type": "string",
+                            "enum": [
+                              "sms"
+                            ],
+                            "description": "The event relates to an SMS message."
+                          },
+                          "timestamp": {
+                            "x-scalar-ignore": true,
+                            "type": "integer",
+                            "format": "unix timestamp",
+                            "description": "The unix timestamp when the event occurred.",
+                            "example": 1613063089
+                          }
+                        },
+                        "required": [
+                          "event_id",
+                          "object_type",
+                          "timestamp",
+                          "metric",
+                          "data"
+                        ]
+                      },
+                      {
+                        "title": "SMS dropped",
+                        "properties": {
+                          "metric": {
+                            "type": "string",
+                            "enum": [
+                              "dropped"
+                            ],
+                            "description": "Customer.io did not send an SMS because the recipient opted out or their phone number can't receive SMS."
+                          },
+                          "data": {
+                            "description": "Contains information about the event, specific to the `object_type` and `metric`.",
+                            "allOf": [
+                              {
+                                "x-scalar-ignore": true,
+                                "example": {
+                                  "action_id": 42,
+                                  "campaign_id": 7,
+                                  "delivery_id": "RPIyMTM6OjEyMzQ=",
+                                  "identifiers": {
+                                    "id": "user-123"
+                                  },
+                                  "customer_id": "user-123",
+                                  "journey_id": 15
+                                },
+                                "oneOf": [
+                                  {
+                                    "title": "API triggered broadcast",
+                                    "required": [
+                                      "trigger_id",
+                                      "broadcast_id",
+                                      "delivery_id",
+                                      "action_id",
+                                      "identifiers"
+                                    ],
+                                    "type": "object",
+                                    "properties": {
+                                      "action_id": {
+                                        "x-scalar-ignore": true,
+                                        "description": "The identifier for an action.",
+                                        "type": "integer",
+                                        "readOnly": true,
+                                        "example": 96
+                                      },
+                                      "broadcast_id": {
+                                        "oneOf": [
+                                          {
+                                            "x-scalar-ignore": true,
+                                            "type": "integer",
+                                            "description": "The identifier for a broadcast.",
+                                            "example": 2
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "delivery_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "string",
+                                        "description": "The instance of a message sent to a person.",
+                                        "example": "ZAIAAVTJVG0QcCok0-0ZKj6yiQ=="
+                                      },
+                                      "identifiers": {
+                                        "x-scalar-ignore": true,
+                                        "type": "object",
+                                        "description": "The person the event represents. This object contains all of the identifiers enabled in your workspace, even if they aren't set for the person. If your workspace supports multiple identifiers, this object contains `cio_id` plus each enabled identifier—`id`, `email`, and (if enabled) `phone`. Each of these can be null when the person doesn't have that identifier set.\n\nOtherwise, if your workspace only supports ID, this object just contains the `id` of the person the event represents.\n",
+                                        "required": [
+                                          "id"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "x-scalar-ignore": true,
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ],
+                                            "description": "The ID of a customer profile, analogous to a \"person\" in the UI. If your workspace supports multiple identifiers (email and ID), this value can be null.",
+                                            "example": "42"
+                                          },
+                                          "cio_id": {
+                                            "type": "string",
+                                            "description": "The canonical identifier for a person, present only if your workspace supports multiple identifiers (email and ID). This value exists to keep a record of a person in your workspace across changes to their other identifiers.",
+                                            "example": "d9c106000001"
+                                          },
+                                          "email": {
+                                            "x-scalar-ignore": true,
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ],
+                                            "description": "The email address of the customer.",
+                                            "example": "test@example.com"
+                                          },
+                                          "phone": {
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ],
+                                            "description": "The person's phone number. This key only appears if your workspace has phone enabled as an identifier.",
+                                            "example": "+15558675309"
+                                          }
+                                        }
+                                      },
+                                      "trigger_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "integer",
+                                        "description": "The trigger ID returned by the [Trigger Broadcast API](/integrations/api/app/tag/send-messages/triggerBroadcast/).",
+                                        "example": 1
+                                      },
+                                      "broadcast_name": {
+                                        "type": "string",
+                                        "description": "The name of the broadcast. Omitted when the name isn't available—for example, if the broadcast was deleted."
+                                      },
+                                      "broadcast_tags": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        },
+                                        "description": "The tags on the broadcast, as an array of tag names. Omitted when the broadcast has no tags or the tags aren't available."
+                                      },
+                                      "customer_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "string",
+                                        "deprecated": true,
+                                        "description": "The ID of the person the webhook event occurred to. Blank if the person in question has been deleted.\n\nWhile webhooks may still contain this property, you should rely on the newer `identifiers` object wherever possible.\n",
+                                        "example": "42"
+                                      },
+                                      "journey_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "string",
+                                        "description": "The ID for the path a person went through in an automation or API Triggered Broadcast workflow.",
+                                        "example": "01GW20GXAAXBKZD8J96M8FNV3R"
+                                      },
+                                      "parent_action_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "integer",
+                                        "description": "The ID of the parent action, if the action occurred within an automation and has a parent (like a randomized split, etc).",
+                                        "example": 1,
+                                        "readOnly": true
+                                      },
+                                      "template_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "integer",
+                                        "description": "The ID of the template used to render the message. A message's content can change over its lifetime; this is the template used for this delivery. For one-time sends (newsletters), this matches `content_id`.",
+                                        "example": 3
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "title": "Campaign",
+                                    "type": "object",
+                                    "required": [
+                                      "campaign_id",
+                                      "delivery_id",
+                                      "action_id",
+                                      "identifiers"
+                                    ],
+                                    "properties": {
+                                      "action_id": {
+                                        "x-scalar-ignore": true,
+                                        "description": "The identifier for an action.",
+                                        "type": "integer",
+                                        "readOnly": true,
+                                        "example": 96
+                                      },
+                                      "campaign_id": {
+                                        "oneOf": [
+                                          {
+                                            "x-scalar-ignore": true,
+                                            "description": "The identifier for an automation.",
+                                            "type": "integer",
+                                            "example": 5
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "delivery_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "string",
+                                        "description": "The instance of a message sent to a person.",
+                                        "example": "ZAIAAVTJVG0QcCok0-0ZKj6yiQ=="
+                                      },
+                                      "identifiers": {
+                                        "x-scalar-ignore": true,
+                                        "type": "object",
+                                        "description": "The person the event represents. This object contains all of the identifiers enabled in your workspace, even if they aren't set for the person. If your workspace supports multiple identifiers, this object contains `cio_id` plus each enabled identifier—`id`, `email`, and (if enabled) `phone`. Each of these can be null when the person doesn't have that identifier set.\n\nOtherwise, if your workspace only supports ID, this object just contains the `id` of the person the event represents.\n",
+                                        "required": [
+                                          "id"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "x-scalar-ignore": true,
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ],
+                                            "description": "The ID of a customer profile, analogous to a \"person\" in the UI. If your workspace supports multiple identifiers (email and ID), this value can be null.",
+                                            "example": "42"
+                                          },
+                                          "cio_id": {
+                                            "type": "string",
+                                            "description": "The canonical identifier for a person, present only if your workspace supports multiple identifiers (email and ID). This value exists to keep a record of a person in your workspace across changes to their other identifiers.",
+                                            "example": "d9c106000001"
+                                          },
+                                          "email": {
+                                            "x-scalar-ignore": true,
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ],
+                                            "description": "The email address of the customer.",
+                                            "example": "test@example.com"
+                                          },
+                                          "phone": {
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ],
+                                            "description": "The person's phone number. This key only appears if your workspace has phone enabled as an identifier.",
+                                            "example": "+15558675309"
+                                          }
+                                        }
+                                      },
+                                      "campaign_name": {
+                                        "x-scalar-ignore": true,
+                                        "type": "string",
+                                        "description": "The name of the automation.",
+                                        "readOnly": true
+                                      },
+                                      "campaign_tags": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        },
+                                        "description": "The tags on the automation, as an array of tag names. Omitted when the automation has no tags or the tags aren't available."
+                                      },
+                                      "customer_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "string",
+                                        "deprecated": true,
+                                        "description": "The ID of the person the webhook event occurred to. Blank if the person in question has been deleted.\n\nWhile webhooks may still contain this property, you should rely on the newer `identifiers` object wherever possible.\n",
+                                        "example": "42"
+                                      },
+                                      "journey_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "string",
+                                        "description": "The ID for the path a person went through in an automation or API Triggered Broadcast workflow.",
+                                        "example": "01GW20GXAAXBKZD8J96M8FNV3R"
+                                      },
+                                      "parent_action_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "integer",
+                                        "description": "The ID of the parent action, if the action occurred within an automation and has a parent (like a randomized split, etc).",
+                                        "example": 1,
+                                        "readOnly": true
+                                      },
+                                      "template_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "integer",
+                                        "description": "The ID of the template used to render the message. A message's content can change over its lifetime; this is the template used for this delivery. For one-time sends (newsletters), this matches `content_id`.",
+                                        "example": 3
+                                      },
+                                      "trigger_event_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "string",
+                                        "description": "The id of the event that triggered an event-triggered automation (not an API-triggered broadcast).",
+                                        "example": "21E4C3CT6YDC7Y4N7FE1GWWABC"
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "title": "Newsletter",
+                                    "type": "object",
+                                    "required": [
+                                      "newsletter_id",
+                                      "delivery_id",
+                                      "identifiers"
+                                    ],
+                                    "properties": {
+                                      "delivery_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "string",
+                                        "description": "The instance of a message sent to a person.",
+                                        "example": "ZAIAAVTJVG0QcCok0-0ZKj6yiQ=="
+                                      },
+                                      "identifiers": {
+                                        "x-scalar-ignore": true,
+                                        "type": "object",
+                                        "description": "The person the event represents. This object contains all of the identifiers enabled in your workspace, even if they aren't set for the person. If your workspace supports multiple identifiers, this object contains `cio_id` plus each enabled identifier—`id`, `email`, and (if enabled) `phone`. Each of these can be null when the person doesn't have that identifier set.\n\nOtherwise, if your workspace only supports ID, this object just contains the `id` of the person the event represents.\n",
+                                        "required": [
+                                          "id"
+                                        ],
+                                        "properties": {
+                                          "id": {
+                                            "x-scalar-ignore": true,
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ],
+                                            "description": "The ID of a customer profile, analogous to a \"person\" in the UI. If your workspace supports multiple identifiers (email and ID), this value can be null.",
+                                            "example": "42"
+                                          },
+                                          "cio_id": {
+                                            "type": "string",
+                                            "description": "The canonical identifier for a person, present only if your workspace supports multiple identifiers (email and ID). This value exists to keep a record of a person in your workspace across changes to their other identifiers.",
+                                            "example": "d9c106000001"
+                                          },
+                                          "email": {
+                                            "x-scalar-ignore": true,
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ],
+                                            "description": "The email address of the customer.",
+                                            "example": "test@example.com"
+                                          },
+                                          "phone": {
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ],
+                                            "description": "The person's phone number. This key only appears if your workspace has phone enabled as an identifier.",
+                                            "example": "+15558675309"
+                                          }
+                                        }
+                                      },
+                                      "newsletter_id": {
+                                        "oneOf": [
+                                          {
+                                            "x-scalar-ignore": true,
+                                            "description": "The identifier for a one-time send.",
+                                            "type": "integer",
+                                            "example": 10
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "content_id": {
+                                        "x-scalar-ignore": true,
+                                        "description": "The identifier for a one-time send variant.",
+                                        "type": "integer",
+                                        "example": 3
+                                      },
+                                      "customer_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "string",
+                                        "deprecated": true,
+                                        "description": "The ID of the person the webhook event occurred to. Blank if the person in question has been deleted.\n\nWhile webhooks may still contain this property, you should rely on the newer `identifiers` object wherever possible.\n",
+                                        "example": "42"
+                                      },
+                                      "newsletter_name": {
+                                        "type": "string",
+                                        "description": "The name of the one-time send. Omitted when the name isn't available—for example, if the one-time send was deleted."
+                                      },
+                                      "newsletter_tags": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        },
+                                        "description": "The tags on the one-time send, as an array of tag names. Omitted when the one-time send has no tags or the tags aren't available."
+                                      },
+                                      "template_id": {
+                                        "x-scalar-ignore": true,
+                                        "type": "integer",
+                                        "description": "The ID of the template used to render the message. A message's content can change over its lifetime; this is the template used for this delivery. For one-time sends (newsletters), this matches `content_id`.",
+                                        "example": 3
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            ],
+                            "properties": {
+                              "failure_message": {
+                                "x-scalar-ignore": true,
+                                "type": "string",
+                                "description": "Indicates the reason that an attempted message failed.",
+                                "example": "Something went wrong!"
+                              }
+                            },
+                            "required": [
                               "failure_message"
                             ]
                           },

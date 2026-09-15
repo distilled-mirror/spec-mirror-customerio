@@ -10702,6 +10702,10 @@
             "type": "boolean",
             "description": "Reports when a message draft is created. Set to true to report this event type."
           },
+          "sms_dropped": {
+            "type": "boolean",
+            "description": "Reports when a message isn't sent because the recipient opted out or their phone number can't receive SMS. Set to true to report this event type."
+          },
           "sms_failed": {
             "type": "boolean",
             "description": "Reports when a message couldn't be sent to the delivery provider. Set to true to report this event type."
