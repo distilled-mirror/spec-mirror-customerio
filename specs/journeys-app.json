@@ -863,6 +863,24 @@
           "format": "uuid"
         }
       },
+      "run_id": {
+        "name": "run_id",
+        "in": "path",
+        "required": true,
+        "description": "The ID of the inbox preview job, returned by [Send for inbox previews](/integrations/api/app/tag/design-studio-emails/submitInboxPreview/).",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "preview_client_id": {
+        "name": "client_id",
+        "in": "path",
+        "required": true,
+        "description": "The device identifier for the capture, matching a value from `client_ids` in the response of [Send for inbox previews](/integrations/api/app/tag/design-studio-emails/submitInboxPreview/).",
+        "schema": {
+          "type": "string"
+        }
+      },
       "version_id": {
         "name": "version_id",
         "in": "path",
@@ -127048,6 +127066,409 @@
           "has_unpublished_changes": true
         }
       },
+      "InboxPreviewClient": {
+        "type": "object",
+        "description": "An email client available for inbox previews.",
+        "properties": {
+          "browser": {
+            "type": "string",
+            "description": "Browser used to render the client. Populates when `category` is `Web`.",
+            "example": ""
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "Mobile",
+              "Application",
+              "Web"
+            ],
+            "description": "Where the client renders. `Mobile` is a phone's native mail app, for example the Gmail App on Android devices. `Application` is a desktop native mail app, for example Apple Mail on macOS. `Web` is webmail viewed in a desktop browser, for example Gmail.com in Firefox, and includes a `browser` value.\n",
+            "example": "Mobile"
+          },
+          "client": {
+            "type": "string",
+            "description": "Name of the email client and device.",
+            "example": "Gmail App Pixel 6"
+          },
+          "id": {
+            "type": "string",
+            "description": "Identifier to pass in `client_ids` when you send for an inbox preview.",
+            "example": "android12_gmailapp_pixel6_dm"
+          },
+          "os": {
+            "type": "string",
+            "description": "Operating system the client runs on. Look for `(Dark Mode)` if you want to locate preview options for dark mode.\n",
+            "example": "Android 12 (Dark Mode)"
+          }
+        }
+      },
+      "InboxPreviewCreditPool": {
+        "type": "object",
+        "description": "Credits available for generating inbox previews.",
+        "properties": {
+          "credits_original": {
+            "type": "integer",
+            "description": "Credits originally granted for a tier."
+          },
+          "credits_remaining": {
+            "type": "integer",
+            "description": "Credits left to spend from this tier."
+          },
+          "expires_at": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "Unix timestamp",
+            "description": "When this pool's credits expire, if ever. Expiry is set per pool, not per tier—a purchased pool typically doesn't expire, but a free pool support granted can carry an expiration date. The monthly allowance's `expires_at` also reads `null` when Customer.io can't resolve your current billing period; that's a transient read issue, not a sign the allowance never expires."
+          },
+          "tier": {
+            "type": "string",
+            "enum": [
+              "free",
+              "paid"
+            ],
+            "description": "The credit tier this pool belongs to. The [`free` tier](/accounts/billing/inbox-previews/) covers two kinds of pools, the monthly allowance of 25 credits every account gets and any free pools Customer.io support has granted. Because of that, `free` can appear more than once in the response. The `paid` tier covers credits purchased for the account."
+          }
+        },
+        "example": [
+          {
+            "tier": "free",
+            "credits_original": 25,
+            "credits_remaining": 0,
+            "expires_at": 1715769600
+          },
+          {
+            "tier": "paid",
+            "credits_original": 100,
+            "credits_remaining": 90,
+            "expires_at": null
+          }
+        ]
+      },
+      "InboxPreviewTile": {
+        "type": "object",
+        "description": "The data for a single preview.",
+        "properties": {
+          "browser": {
+            "type": "string",
+            "description": "Browser used to render the client, when applicable. Populates when `category` is `Web`."
+          },
+          "cached": {
+            "type": "boolean",
+            "description": "Set when the item wasn't newly generated in this preview job because it had already been generated. Omitted when `false`."
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "Mobile",
+              "Application",
+              "Web"
+            ],
+            "description": "Client category. `Mobile` is a phone's native mail app, for example the Gmail App on Android devices. `Application` is a desktop native mail app, for example Apple Mail on macOS. `Web` is webmail viewed in a desktop browser, for example Gmail.com in Firefox, and includes a `browser` value."
+          },
+          "client_id": {
+            "type": "string",
+            "description": "The preview identifier, matching a value from `client_ids` in the submit request."
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable name of the client and device used to render the preview."
+          },
+          "error": {
+            "type": "object",
+            "description": "Details for a tile whose rendering failed.",
+            "properties": {
+              "message": {
+                "type": "string",
+                "description": "A human-readable explanation, safe to show to a user."
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "bounced",
+                  "vendor_timeout",
+                  "client_rejected",
+                  "vendor_request",
+                  "abandoned",
+                  "expired",
+                  "other"
+                ],
+                "description": "Why this device has no screenshot:\n  - `bounced`: the vendor rendered the device and reported a bounce.\n  - `vendor_timeout`: submitted to the vendor, but didn't finish in time.\n  - `client_rejected`: the vendor refused the device id.\n  - `vendor_request`: the submission to the vendor itself failed.\n  - `abandoned`: submitted, but the outcome is unknown.\n  - `expired`: the screenshot rendered successfully but has since aged out of its retention window and is no longer available. Unlike the other types, this isn't a render failure.\n  - `other`: any other cause.\n\nA tile with any of these types (except `expired`) was refunded its credit.\n"
+              }
+            }
+          },
+          "full_thumbnail": {
+            "type": "string",
+            "description": "Capture URL for a reduced, full-length version of the default screenshot. Omitted unless the render completed."
+          },
+          "os": {
+            "type": "string",
+            "description": "Operating system the client runs on."
+          },
+          "screenshots": {
+            "type": "object",
+            "description": "Capture URLs keyed by image name—the full-size screenshot under `default`, plus a key per extra image the device renders. This is the only place the full-size URL appears; `thumbnail` and `full_thumbnail` are reduced variants. Omitted unless the render completed.",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Pending",
+              "Processing",
+              "Complete",
+              "Bounced"
+            ],
+            "description": "The vendor's own status for this device's render. Only `Complete` and `Bounced` are terminal."
+          },
+          "thumbnail": {
+            "type": "string",
+            "description": "Capture URL for a reduced-size version of the default screenshot. Useful for grid/list views where you don't want to load full-size screenshots. Omitted unless the render completed."
+          }
+        }
+      },
+      "InboxPreviewError": {
+        "type": "object",
+        "description": "Details for a tile whose rendering failed.",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "A human-readable explanation, safe to show to a user."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "bounced",
+              "vendor_timeout",
+              "client_rejected",
+              "vendor_request",
+              "abandoned",
+              "expired",
+              "other"
+            ],
+            "description": "Why this device has no screenshot:\n  - `bounced`: the vendor rendered the device and reported a bounce.\n  - `vendor_timeout`: submitted to the vendor, but didn't finish in time.\n  - `client_rejected`: the vendor refused the device id.\n  - `vendor_request`: the submission to the vendor itself failed.\n  - `abandoned`: submitted, but the outcome is unknown.\n  - `expired`: the screenshot rendered successfully but has since aged out of its retention window and is no longer available. Unlike the other types, this isn't a render failure.\n  - `other`: any other cause.\n\nA tile with any of these types (except `expired`) was refunded its credit.\n"
+          }
+        }
+      },
+      "InboxPreviewJob": {
+        "type": "object",
+        "description": "The status and results of an Inbox Previews job.",
+        "properties": {
+          "client_ids": {
+            "type": "array",
+            "description": "The device identifiers requested for this job.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "integer",
+            "format": "Unix timestamp",
+            "description": "When you submitted the preview job."
+          },
+          "is_processed": {
+            "type": "boolean",
+            "description": "`true` once every device has settled, for the email in the path—a multi-language run reports each of its emails separately, so this doesn't reflect the whole run when it covers more than one. Poll this field, and see the endpoint description for how often, and for when to give up.\n"
+          },
+          "name": {
+            "type": "string",
+            "description": "The batch label provided when you sent an email for previews. Empty if none was given."
+          },
+          "previews": {
+            "type": "array",
+            "description": "One object per requested preview.",
+            "items": {
+              "type": "object",
+              "description": "The data for a single preview.",
+              "properties": {
+                "browser": {
+                  "type": "string",
+                  "description": "Browser used to render the client, when applicable. Populates when `category` is `Web`."
+                },
+                "cached": {
+                  "type": "boolean",
+                  "description": "Set when the item wasn't newly generated in this preview job because it had already been generated. Omitted when `false`."
+                },
+                "category": {
+                  "type": "string",
+                  "enum": [
+                    "Mobile",
+                    "Application",
+                    "Web"
+                  ],
+                  "description": "Client category. `Mobile` is a phone's native mail app, for example the Gmail App on Android devices. `Application` is a desktop native mail app, for example Apple Mail on macOS. `Web` is webmail viewed in a desktop browser, for example Gmail.com in Firefox, and includes a `browser` value."
+                },
+                "client_id": {
+                  "type": "string",
+                  "description": "The preview identifier, matching a value from `client_ids` in the submit request."
+                },
+                "display_name": {
+                  "type": "string",
+                  "description": "Human-readable name of the client and device used to render the preview."
+                },
+                "error": {
+                  "type": "object",
+                  "description": "Details for a tile whose rendering failed.",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "A human-readable explanation, safe to show to a user."
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "bounced",
+                        "vendor_timeout",
+                        "client_rejected",
+                        "vendor_request",
+                        "abandoned",
+                        "expired",
+                        "other"
+                      ],
+                      "description": "Why this device has no screenshot:\n  - `bounced`: the vendor rendered the device and reported a bounce.\n  - `vendor_timeout`: submitted to the vendor, but didn't finish in time.\n  - `client_rejected`: the vendor refused the device id.\n  - `vendor_request`: the submission to the vendor itself failed.\n  - `abandoned`: submitted, but the outcome is unknown.\n  - `expired`: the screenshot rendered successfully but has since aged out of its retention window and is no longer available. Unlike the other types, this isn't a render failure.\n  - `other`: any other cause.\n\nA tile with any of these types (except `expired`) was refunded its credit.\n"
+                    }
+                  }
+                },
+                "full_thumbnail": {
+                  "type": "string",
+                  "description": "Capture URL for a reduced, full-length version of the default screenshot. Omitted unless the render completed."
+                },
+                "os": {
+                  "type": "string",
+                  "description": "Operating system the client runs on."
+                },
+                "screenshots": {
+                  "type": "object",
+                  "description": "Capture URLs keyed by image name—the full-size screenshot under `default`, plus a key per extra image the device renders. This is the only place the full-size URL appears; `thumbnail` and `full_thumbnail` are reduced variants. Omitted unless the render completed.",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "Pending",
+                    "Processing",
+                    "Complete",
+                    "Bounced"
+                  ],
+                  "description": "The vendor's own status for this device's render. Only `Complete` and `Bounced` are terminal."
+                },
+                "thumbnail": {
+                  "type": "string",
+                  "description": "Capture URL for a reduced-size version of the default screenshot. Useful for grid/list views where you don't want to load full-size screenshots. Omitted unless the render completed."
+                }
+              }
+            }
+          },
+          "run_id": {
+            "type": "integer",
+            "description": "ID of the preview job."
+          },
+          "total_previews_bounced": {
+            "type": "integer",
+            "description": "Previews that produced no screenshot, whether the vendor bounced them or they failed on Customer.io's side. Their credits are refunded when the run settles."
+          },
+          "total_previews_cached": {
+            "type": "integer",
+            "description": "Previews served from an earlier run's screenshot. Not charged, and not counted in `total_previews_succeeded`."
+          },
+          "total_previews_ready": {
+            "type": "integer",
+            "description": "How many previews show a screenshot you can fetch, counted from the tiles themselves. This is the progress count to compare against `total_previews_requested`—`total_previews_succeeded` alone reads `0` on a fully cached run. It isn't the completion signal; `is_processed` is. Because a tile can be served by an earlier screenshot of the same content while this run's own render is still in flight, this can reach `total_previews_requested` before the run finishes.\n"
+          },
+          "total_previews_requested": {
+            "type": "integer",
+            "description": "Previews requested in the job, for the email in the path. On a settled run, this is normally `total_previews_cached` + `total_previews_succeeded` + `total_previews_bounced`."
+          },
+          "total_previews_succeeded": {
+            "type": "integer",
+            "description": "Previews this run generated itself, excluding cached ones. A fully cached run reports `0` here even though every tile is `Complete`—compare `total_previews_ready` against `total_previews_requested` instead to track progress."
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "Unix timestamp",
+            "description": "When the job's status was last updated."
+          }
+        }
+      },
+      "InboxPreviewJobSummary": {
+        "type": "object",
+        "description": "A summary entry in the inbox previews job history.",
+        "properties": {
+          "created_at": {
+            "type": "integer",
+            "format": "Unix timestamp",
+            "description": "When the job was submitted."
+          },
+          "is_processed": {
+            "type": "boolean",
+            "description": "`true` once every device of every counted node has settled. Under a `node_id` filter, \"counted\" means the matched nodes only.\n"
+          },
+          "name": {
+            "type": "string",
+            "description": "The batch label provided when the job was submitted."
+          },
+          "node_count": {
+            "type": "integer",
+            "description": "How many email nodes the run covers—more than one for a multi-language run. Under a `node_id` filter, how many of them matched."
+          },
+          "node_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The email node the run covers, or the first of them when it covers several. Under a `node_id` filter, this is the matched node."
+          },
+          "run_id": {
+            "type": "integer",
+            "description": "ID of the preview job."
+          },
+          "total_previews_bounced": {
+            "type": "integer",
+            "description": "Previews that produced no screenshot, whether the vendor bounced them or they failed on Customer.io's side, as stored when each node settled. Their credits are refunded."
+          },
+          "total_previews_cached": {
+            "type": "integer",
+            "description": "Previews served from an earlier run's screenshot. Not charged, and not counted in `total_previews_succeeded`."
+          },
+          "total_previews_ready": {
+            "type": "integer",
+            "description": "`total_previews_cached` + `total_previews_succeeded`, from the counters stored on the run. The cached half is final as soon as the run exists; the succeeded half counts only nodes that have settled, so a run still generating reads low until `is_processed` is `true`. This list can't see a tile served by an earlier screenshot of the same content, so it can read lower than [Get an inbox preview job](/integrations/api/app/tag/design-studio-emails/getInboxPreviewJob/) reports for the same run—poll the run for the authoritative count.\n"
+          },
+          "total_previews_requested": {
+            "type": "integer",
+            "description": "Previews requested across the counted nodes. On a settled run, this is normally `total_previews_cached` + `total_previews_succeeded` + `total_previews_bounced`."
+          },
+          "total_previews_succeeded": {
+            "type": "integer",
+            "description": "Previews this run generated itself, as stored when each node settled. Excludes cached ones, and counts only nodes that have settled—so a run still generating reads `0` here even once some devices are done."
+          },
+          "updated_at": {
+            "type": "integer",
+            "format": "Unix timestamp",
+            "description": "When the job's status was last updated."
+          }
+        }
+      },
+      "InboxPreviewJobsMeta": {
+        "type": "object",
+        "properties": {
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "description": "The `limit` used for this page."
+              },
+              "next_cursor": {
+                "type": "string",
+                "description": "Pass this as `cursor` to fetch the next page. Omitted when there are no more results."
+              }
+            }
+          }
+        }
+      },
       "EmailRenderResponse": {
         "type": "object",
         "properties": {
@@ -128995,6 +129416,342 @@
                     ]
                   },
                   "status": "422"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "InboxPreviewNotChargeable": {
+        "description": "Your account can't be charged for inbox preview credits right now. Credits are account-level—every workspace on the account draws from the same pools, so this isn't specific to the workspace in your credentials.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "description": "An error response containing one or more error details.",
+              "properties": {
+                "errors": {
+                  "type": "array",
+                  "description": "A list of errors that occurred while processing the request.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "detail": {
+                        "type": "string",
+                        "description": "Reason for error"
+                      },
+                      "meta": {
+                        "type": "object",
+                        "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Response code"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "errors": [
+                {
+                  "detail": "this account cannot be charged for inbox previews",
+                  "status": "403"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "InboxPreviewInsufficientCredits": {
+        "description": "Not enough inbox preview credits to cover every device in `client_ids`. The message names both figures, so you can size a top-up without a separate call to [Get preview credit balance](/integrations/api/app/tag/design-studio-emails/getInboxPreviewCredits/).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "description": "An error response containing one or more error details.",
+              "properties": {
+                "errors": {
+                  "type": "array",
+                  "description": "A list of errors that occurred while processing the request.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "detail": {
+                        "type": "string",
+                        "description": "Reason for error"
+                      },
+                      "meta": {
+                        "type": "object",
+                        "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Response code"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "errors": [
+                {
+                  "detail": "insufficient inbox preview credits: this request needs 12, the account has 4 available",
+                  "status": "422"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "InboxPreviewSubmitConflict": {
+        "description": "A retry crossed an interrupted charge for this batch. This means one of two things:\n  - The batch was already charged and settled today.\n  - An earlier attempt at the same batch is still being reconciled.\n\nChange the devices or nodes you're previewing, or retry later. Either way, you weren't double-charged.\n",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "description": "An error response containing one or more error details.",
+              "properties": {
+                "errors": {
+                  "type": "array",
+                  "description": "A list of errors that occurred while processing the request.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "detail": {
+                        "type": "string",
+                        "description": "Reason for error"
+                      },
+                      "meta": {
+                        "type": "object",
+                        "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Response code"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "errors": [
+                {
+                  "detail": "this preview batch was already charged and settled today. Change the devices or nodes you are previewing, or try again tomorrow.",
+                  "status": "409"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "InboxPreviewRateLimited": {
+        "description": "Rate limited to 5 requests per second per workspace—a bucket shared with the Design Studio link, publish, render, preview, and review endpoints, and tighter than the 10 per second reads get, because each call starts a server-side render before it reaches the vendor. The response carries a `Retry-After` header.\n",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "description": "An error response containing one or more error details.",
+              "properties": {
+                "errors": {
+                  "type": "array",
+                  "description": "A list of errors that occurred while processing the request.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "detail": {
+                        "type": "string",
+                        "description": "Reason for error"
+                      },
+                      "meta": {
+                        "type": "object",
+                        "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Response code"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "errors": [
+                {
+                  "detail": "rate limited to 5 requests per second",
+                  "status": "429"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "InboxPreviewReadRateLimited": {
+        "description": "Over the App API's shared limit of 10 requests per second per workspace—the same bucket every call in your workspace that isn't separately rate limited draws from, writes included. The response carries a `Retry-After` header.\n",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "description": "An error response containing one or more error details.",
+              "properties": {
+                "errors": {
+                  "type": "array",
+                  "description": "A list of errors that occurred while processing the request.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "detail": {
+                        "type": "string",
+                        "description": "Reason for error"
+                      },
+                      "meta": {
+                        "type": "object",
+                        "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Response code"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "errors": [
+                {
+                  "detail": "rate limited to 10 requests per second",
+                  "status": "429"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "InboxPreviewNotEnabled": {
+        "description": "Inbox previews aren't enabled for your account.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "description": "An error response containing one or more error details.",
+              "properties": {
+                "errors": {
+                  "type": "array",
+                  "description": "A list of errors that occurred while processing the request.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "detail": {
+                        "type": "string",
+                        "description": "Reason for error"
+                      },
+                      "meta": {
+                        "type": "object",
+                        "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Response code"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "errors": [
+                {
+                  "detail": "inbox previews are not enabled for this account",
+                  "status": "404"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "InboxPreviewRenderUnavailable": {
+        "description": "The email or Liquid renderer couldn't be reached. This is transient—retry in a moment.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "description": "An error response containing one or more error details.",
+              "properties": {
+                "errors": {
+                  "type": "array",
+                  "description": "A list of errors that occurred while processing the request.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "detail": {
+                        "type": "string",
+                        "description": "Reason for error"
+                      },
+                      "meta": {
+                        "type": "object",
+                        "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Response code"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "errors": [
+                {
+                  "detail": "the email renderer could not be reached; try again in a moment",
+                  "status": "503"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "InboxPreviewCatalogUnavailable": {
+        "description": "The device catalog is temporarily unavailable. This is transient—retry in a moment.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "description": "An error response containing one or more error details.",
+              "properties": {
+                "errors": {
+                  "type": "array",
+                  "description": "A list of errors that occurred while processing the request.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "detail": {
+                        "type": "string",
+                        "description": "Reason for error"
+                      },
+                      "meta": {
+                        "type": "object",
+                        "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Response code"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "errors": [
+                {
+                  "detail": "service unavailable",
+                  "status": "503"
                 }
               ]
             }
@@ -165903,6 +166660,1765 @@
                     {
                       "detail": "resource not found",
                       "status": "404"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/design_studio/inbox_previews/clients": {
+      "get": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "List inbox preview options",
+        "description": "Returns the catalog of email clients and devices available for [inbox previews](/messaging/design-studio/emails/qa-in-design-studio/#inbox-preview). \n\nUse the `id` values returned by this endpoint as `client_ids` when you [send for an inbox preview](/integrations/api/app/tag/design-studio-emails/submitInboxPreview/).\n",
+        "operationId": "listInboxPreviewClients",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "clients": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": "An email client available for inbox previews.",
+                        "properties": {
+                          "browser": {
+                            "type": "string",
+                            "description": "Browser used to render the client. Populates when `category` is `Web`.",
+                            "example": ""
+                          },
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "Mobile",
+                              "Application",
+                              "Web"
+                            ],
+                            "description": "Where the client renders. `Mobile` is a phone's native mail app, for example the Gmail App on Android devices. `Application` is a desktop native mail app, for example Apple Mail on macOS. `Web` is webmail viewed in a desktop browser, for example Gmail.com in Firefox, and includes a `browser` value.\n",
+                            "example": "Mobile"
+                          },
+                          "client": {
+                            "type": "string",
+                            "description": "Name of the email client and device.",
+                            "example": "Gmail App Pixel 6"
+                          },
+                          "id": {
+                            "type": "string",
+                            "description": "Identifier to pass in `client_ids` when you send for an inbox preview.",
+                            "example": "android12_gmailapp_pixel6_dm"
+                          },
+                          "os": {
+                            "type": "string",
+                            "description": "Operating system the client runs on. Look for `(Dark Mode)` if you want to locate preview options for dark mode.\n",
+                            "example": "Android 12 (Dark Mode)"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Inbox previews aren't enabled for your account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "inbox previews are not enabled for this account",
+                      "status": "404"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Over the App API's shared limit of 10 requests per second per workspace—the same bucket every call in your workspace that isn't separately rate limited draws from, writes included. The response carries a `Retry-After` header.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per second",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The device catalog is temporarily unavailable. This is transient—retry in a moment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "service unavailable",
+                      "status": "503"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/design_studio/inbox_previews/credits": {
+      "get": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "Get preview credit balance",
+        "description": "Returns your account's credit balance for inbox previews. Your credit balance determines how many previews you can generate in your account.\n\nLearn more about [how inbox previews use credits](/accounts/billing/inbox-previews/).\n",
+        "operationId": "getInboxPreviewCredits",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "credits": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": "Credits available for generating inbox previews.",
+                        "properties": {
+                          "credits_original": {
+                            "type": "integer",
+                            "description": "Credits originally granted for a tier."
+                          },
+                          "credits_remaining": {
+                            "type": "integer",
+                            "description": "Credits left to spend from this tier."
+                          },
+                          "expires_at": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "Unix timestamp",
+                            "description": "When this pool's credits expire, if ever. Expiry is set per pool, not per tier—a purchased pool typically doesn't expire, but a free pool support granted can carry an expiration date. The monthly allowance's `expires_at` also reads `null` when Customer.io can't resolve your current billing period; that's a transient read issue, not a sign the allowance never expires."
+                          },
+                          "tier": {
+                            "type": "string",
+                            "enum": [
+                              "free",
+                              "paid"
+                            ],
+                            "description": "The credit tier this pool belongs to. The [`free` tier](/accounts/billing/inbox-previews/) covers two kinds of pools, the monthly allowance of 25 credits every account gets and any free pools Customer.io support has granted. Because of that, `free` can appear more than once in the response. The `paid` tier covers credits purchased for the account."
+                          }
+                        },
+                        "example": [
+                          {
+                            "tier": "free",
+                            "credits_original": 25,
+                            "credits_remaining": 0,
+                            "expires_at": 1715769600
+                          },
+                          {
+                            "tier": "paid",
+                            "credits_original": 100,
+                            "credits_remaining": 90,
+                            "expires_at": null
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Inbox previews aren't enabled for your account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "inbox previews are not enabled for this account",
+                      "status": "404"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Over the App API's shared limit of 10 requests per second per workspace—the same bucket every call in your workspace that isn't separately rate limited draws from, writes included. The response carries a `Retry-After` header.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per second",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/design_studio/emails/{id}/inbox_previews": {
+      "post": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "Send for inbox previews",
+        "description": "Initiate one or more inbox previews for an email. This uses inbox preview credits; check your balance with [Get preview credit balance](/integrations/api/app/tag/design-studio-emails/getInboxPreviewCredits/). [**Learn how billing for inbox previews work before you call this endpoint.**](/accounts/billing/inbox-previews/)\n\nUse [List emails](/integrations/api/app/tag/design-studio-emails/listEmails/) to get your email's ID. If the email has translations, call [List email translations](/integrations/api/app/tag/design-studio-emails/listEmailTranslations/) to get the ID of the language variant you want a preview of.\n\nYou can retrieve client IDs from [List inbox preview options](/integrations/api/app/tag/design-studio-emails/listInboxPreviewClients/).\n\nThis call does not return the preview file. It returns a `run_id`; poll [Get an inbox preview job](/integrations/api/app/tag/design-studio-emails/getInboxPreviewJob/) with it, then fetch each tile's capture URL from that response.\n\nSubmitting the same email, content, and devices again on the same UTC day returns the existing run instead of starting a new one, with `replayed` set to `true` and no second charge. The same happens the next day if that run is still processing, or if a concurrent identical request gets there first. Resubmitting a stuck run is safe and free—it hands you the same run back rather than starting a second one.\n",
+        "operationId": "submitInboxPreview",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the email. If your email has translations, this is the ID of a specific language variant.\n",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "client_ids"
+                ],
+                "properties": {
+                  "client_ids": {
+                    "type": "array",
+                    "description": "The identifiers of the preview options you want. You can retrieve client IDs from [List inbox preview options](/integrations/api/app/tag/design-studio-emails/listInboxPreviewClients/).\n",
+                    "items": {
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "maxItems": 150
+                  },
+                  "lax_mode": {
+                    "type": "boolean",
+                    "description": "Set to `true` to render liquid variables missing from `sample_data` as blank instead of failing the job.",
+                    "default": false
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "A label for the batch of previews, shown in [preview history](/integrations/api/app/tag/design-studio-emails/listInboxPreviewJobs/).",
+                    "maxLength": 191
+                  },
+                  "sample_data": {
+                    "type": "object",
+                    "description": "Liquid variables to render with, as a JSON object—any shape is accepted, from flat variables like `{\"first_name\": \"Janine\"}` to nested ones like `{\"customer\": {\"first_name\": \"Janine\"}}`. Defaults to none, which fails the render on any variable the content needs beyond the ones a preview already sets for you. Set `lax_mode` to render missing variables as blank instead. Limited to 128 KB.\n",
+                    "additionalProperties": true
+                  }
+                },
+                "example": {
+                  "client_ids": [
+                    "android12_gmailapp_pixel6_dm",
+                    "android12_gmailapp_pixel6_dm_dark"
+                  ],
+                  "name": "Welcome email previews",
+                  "sample_data": {
+                    "customer": {
+                      "first_name": "Janine"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Preview job submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "replayed": {
+                      "type": "boolean",
+                      "description": "`true` when this call returned an existing run instead of starting a new one, and you weren't charged a second time for it. This happens for an identical request (same email, content, and devices) submitted again on the same UTC day, an identical request from the day before that's still processing, or a concurrent identical request that got there first. The run may belong to another client in your workspace, including the Journeys UI—`created_at` is that run's, and a `name` you send is applied to it.\n"
+                    },
+                    "run_id": {
+                      "type": "integer",
+                      "description": "ID of the preview job. Check when it's complete with [Get an inbox preview job](/integrations/api/app/tag/design-studio-emails/getInboxPreviewJob/)."
+                    }
+                  }
+                },
+                "example": {
+                  "replayed": false,
+                  "run_id": 10
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Your account can't be charged for inbox preview credits right now. Credits are account-level—every workspace on the account draws from the same pools, so this isn't specific to the workspace in your credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "this account cannot be charged for inbox previews",
+                      "status": "403"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "resource not found",
+                      "status": "404"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A retry crossed an interrupted charge for this batch. This means one of two things:\n  - The batch was already charged and settled today.\n  - An earlier attempt at the same batch is still being reconciled.\n\nChange the devices or nodes you're previewing, or retry later. Either way, you weren't double-charged.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "this preview batch was already charged and settled today. Change the devices or nodes you are previewing, or try again tomorrow.",
+                      "status": "409"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Not enough inbox preview credits to cover every device in `client_ids`. The message names both figures, so you can size a top-up without a separate call to [Get preview credit balance](/integrations/api/app/tag/design-studio-emails/getInboxPreviewCredits/).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "insufficient inbox preview credits: this request needs 12, the account has 4 available",
+                      "status": "422"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited to 5 requests per second per workspace—a bucket shared with the Design Studio link, publish, render, preview, and review endpoints, and tighter than the 10 per second reads get, because each call starts a server-side render before it reaches the vendor. The response carries a `Retry-After` header.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 5 requests per second",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The email or Liquid renderer couldn't be reached. This is transient—retry in a moment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "the email renderer could not be reached; try again in a moment",
+                      "status": "503"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "json",
+            "label": "JSON",
+            "source": "{\n  \"client_ids\": [\n    \"android12_gmailapp_pixel6_dm\",\n    \"android12_gmailapp_pixel6_dm_dark\"\n  ],\n  \"name\": \"Welcome email previews\",\n  \"sample_data\": {\n    \"customer\": {\n      \"first_name\": \"Janine\"\n    }\n  }\n}"
+          }
+        ]
+      }
+    },
+    "/v1/design_studio/emails/{id}/inbox_previews/{run_id}": {
+      "get": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "Get an inbox preview job",
+        "description": "Returns the status of a preview job submitted with [Send for inbox previews](/integrations/api/app/tag/design-studio-emails/submitInboxPreview/), including each preview's settings.\n",
+        "operationId": "getInboxPreviewJob",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the email. If your email has translations, this is the ID of a specific language variant.\n",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the inbox preview job, returned by [Send for inbox previews](/integrations/api/app/tag/design-studio-emails/submitInboxPreview/).",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "The status and results of an Inbox Previews job.",
+                  "properties": {
+                    "client_ids": {
+                      "type": "array",
+                      "description": "The device identifiers requested for this job.",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "created_at": {
+                      "type": "integer",
+                      "format": "Unix timestamp",
+                      "description": "When you submitted the preview job."
+                    },
+                    "is_processed": {
+                      "type": "boolean",
+                      "description": "`true` once every device has settled, for the email in the path—a multi-language run reports each of its emails separately, so this doesn't reflect the whole run when it covers more than one. Poll this field, and see the endpoint description for how often, and for when to give up.\n"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "The batch label provided when you sent an email for previews. Empty if none was given."
+                    },
+                    "previews": {
+                      "type": "array",
+                      "description": "One object per requested preview.",
+                      "items": {
+                        "type": "object",
+                        "description": "The data for a single preview.",
+                        "properties": {
+                          "browser": {
+                            "type": "string",
+                            "description": "Browser used to render the client, when applicable. Populates when `category` is `Web`."
+                          },
+                          "cached": {
+                            "type": "boolean",
+                            "description": "Set when the item wasn't newly generated in this preview job because it had already been generated. Omitted when `false`."
+                          },
+                          "category": {
+                            "type": "string",
+                            "enum": [
+                              "Mobile",
+                              "Application",
+                              "Web"
+                            ],
+                            "description": "Client category. `Mobile` is a phone's native mail app, for example the Gmail App on Android devices. `Application` is a desktop native mail app, for example Apple Mail on macOS. `Web` is webmail viewed in a desktop browser, for example Gmail.com in Firefox, and includes a `browser` value."
+                          },
+                          "client_id": {
+                            "type": "string",
+                            "description": "The preview identifier, matching a value from `client_ids` in the submit request."
+                          },
+                          "display_name": {
+                            "type": "string",
+                            "description": "Human-readable name of the client and device used to render the preview."
+                          },
+                          "error": {
+                            "type": "object",
+                            "description": "Details for a tile whose rendering failed.",
+                            "properties": {
+                              "message": {
+                                "type": "string",
+                                "description": "A human-readable explanation, safe to show to a user."
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "bounced",
+                                  "vendor_timeout",
+                                  "client_rejected",
+                                  "vendor_request",
+                                  "abandoned",
+                                  "expired",
+                                  "other"
+                                ],
+                                "description": "Why this device has no screenshot:\n  - `bounced`: the vendor rendered the device and reported a bounce.\n  - `vendor_timeout`: submitted to the vendor, but didn't finish in time.\n  - `client_rejected`: the vendor refused the device id.\n  - `vendor_request`: the submission to the vendor itself failed.\n  - `abandoned`: submitted, but the outcome is unknown.\n  - `expired`: the screenshot rendered successfully but has since aged out of its retention window and is no longer available. Unlike the other types, this isn't a render failure.\n  - `other`: any other cause.\n\nA tile with any of these types (except `expired`) was refunded its credit.\n"
+                              }
+                            }
+                          },
+                          "full_thumbnail": {
+                            "type": "string",
+                            "description": "Capture URL for a reduced, full-length version of the default screenshot. Omitted unless the render completed."
+                          },
+                          "os": {
+                            "type": "string",
+                            "description": "Operating system the client runs on."
+                          },
+                          "screenshots": {
+                            "type": "object",
+                            "description": "Capture URLs keyed by image name—the full-size screenshot under `default`, plus a key per extra image the device renders. This is the only place the full-size URL appears; `thumbnail` and `full_thumbnail` are reduced variants. Omitted unless the render completed.",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "Pending",
+                              "Processing",
+                              "Complete",
+                              "Bounced"
+                            ],
+                            "description": "The vendor's own status for this device's render. Only `Complete` and `Bounced` are terminal."
+                          },
+                          "thumbnail": {
+                            "type": "string",
+                            "description": "Capture URL for a reduced-size version of the default screenshot. Useful for grid/list views where you don't want to load full-size screenshots. Omitted unless the render completed."
+                          }
+                        }
+                      }
+                    },
+                    "run_id": {
+                      "type": "integer",
+                      "description": "ID of the preview job."
+                    },
+                    "total_previews_bounced": {
+                      "type": "integer",
+                      "description": "Previews that produced no screenshot, whether the vendor bounced them or they failed on Customer.io's side. Their credits are refunded when the run settles."
+                    },
+                    "total_previews_cached": {
+                      "type": "integer",
+                      "description": "Previews served from an earlier run's screenshot. Not charged, and not counted in `total_previews_succeeded`."
+                    },
+                    "total_previews_ready": {
+                      "type": "integer",
+                      "description": "How many previews show a screenshot you can fetch, counted from the tiles themselves. This is the progress count to compare against `total_previews_requested`—`total_previews_succeeded` alone reads `0` on a fully cached run. It isn't the completion signal; `is_processed` is. Because a tile can be served by an earlier screenshot of the same content while this run's own render is still in flight, this can reach `total_previews_requested` before the run finishes.\n"
+                    },
+                    "total_previews_requested": {
+                      "type": "integer",
+                      "description": "Previews requested in the job, for the email in the path. On a settled run, this is normally `total_previews_cached` + `total_previews_succeeded` + `total_previews_bounced`."
+                    },
+                    "total_previews_succeeded": {
+                      "type": "integer",
+                      "description": "Previews this run generated itself, excluding cached ones. A fully cached run reports `0` here even though every tile is `Complete`—compare `total_previews_ready` against `total_previews_requested` instead to track progress."
+                    },
+                    "updated_at": {
+                      "type": "integer",
+                      "format": "Unix timestamp",
+                      "description": "When the job's status was last updated."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The job doesn't exist, or inbox previews aren't enabled for your workspace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Over the App API's shared limit of 10 requests per second per workspace—the same bucket every call in your workspace that isn't separately rate limited draws from, writes included. The response carries a `Retry-After` header.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per second",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/design_studio/emails/{id}/inbox_previews/{run_id}/captures/{client_id}": {
+      "get": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "Get a preview screenshot",
+        "description": "Returns the image bytes for a single preview job, proxied from the vendor. The response's content type matches whatever the vendor sent for that capture, which isn't always PNG, and the `Content-Disposition` filename's extension matches it. You can also use the URL paths in the response of [Get an inbox preview job](/integrations/api/app/tag/design-studio-emails/getInboxPreviewJob/) to complete this request.\n",
+        "operationId": "getInboxPreviewCapture",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the email. If your email has translations, this is the ID of a specific language variant.\n",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the inbox preview job, returned by [Send for inbox previews](/integrations/api/app/tag/design-studio-emails/submitInboxPreview/).",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "client_id",
+            "in": "path",
+            "required": true,
+            "description": "The device identifier for the capture, matching a value from `client_ids` in the response of [Send for inbox previews](/integrations/api/app/tag/design-studio-emails/submitInboxPreview/).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "variant",
+            "in": "query",
+            "description": "The image to return.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "screenshot",
+                "thumbnail",
+                "full_thumbnail"
+              ],
+              "default": "screenshot"
+            }
+          },
+          {
+            "name": "key",
+            "in": "query",
+            "description": "Only applies when `variant` is `screenshot`. Match this to a key in that tile's `screenshots` object from [Get an inbox preview job](/integrations/api/app/tag/design-studio-emails/getInboxPreviewJob/)—most devices only have `default`, but some carry extra vendor-defined captures, like an image-blocking render.\n",
+            "schema": {
+              "type": "string",
+              "default": "default"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Image bytes for the requested capture, in whatever format the vendor sent it.",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/svg+xml": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/avif": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/bmp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/tiff": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/x-icon": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid `variant` value.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The capture doesn't exist, is still rendering, bounced, or has expired, or inbox previews aren't enabled for your workspace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Over the App API's shared limit of 10 requests per second per workspace—the same bucket every call in your workspace that isn't separately rate limited draws from, writes included. The response carries a `Retry-After` header.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per second",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/design_studio/inbox_previews/jobs": {
+      "get": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "List inbox preview history",
+        "description": "Returns a paginated history of inbox preview jobs across your workspace, or for a single email when you pass `node_id`. Only lists runs recent enough for their screenshots to still be viewable—an older run won't appear here even though it still exists.\n",
+        "operationId": "listInboxPreviewJobs",
+        "parameters": [
+          {
+            "name": "node_id",
+            "in": "query",
+            "description": "Filter to preview jobs submitted for a specific email.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of jobs to return per page.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "A pagination cursor returned in the previous page's `meta.pagination.next_cursor`. Omit to return the first page.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "pagination": {
+                          "type": "object",
+                          "properties": {
+                            "limit": {
+                              "type": "integer",
+                              "description": "The `limit` used for this page."
+                            },
+                            "next_cursor": {
+                              "type": "string",
+                              "description": "Pass this as `cursor` to fetch the next page. Omitted when there are no more results."
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "preview_jobs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": "A summary entry in the inbox previews job history.",
+                        "properties": {
+                          "created_at": {
+                            "type": "integer",
+                            "format": "Unix timestamp",
+                            "description": "When the job was submitted."
+                          },
+                          "is_processed": {
+                            "type": "boolean",
+                            "description": "`true` once every device of every counted node has settled. Under a `node_id` filter, \"counted\" means the matched nodes only.\n"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The batch label provided when the job was submitted."
+                          },
+                          "node_count": {
+                            "type": "integer",
+                            "description": "How many email nodes the run covers—more than one for a multi-language run. Under a `node_id` filter, how many of them matched."
+                          },
+                          "node_id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "The email node the run covers, or the first of them when it covers several. Under a `node_id` filter, this is the matched node."
+                          },
+                          "run_id": {
+                            "type": "integer",
+                            "description": "ID of the preview job."
+                          },
+                          "total_previews_bounced": {
+                            "type": "integer",
+                            "description": "Previews that produced no screenshot, whether the vendor bounced them or they failed on Customer.io's side, as stored when each node settled. Their credits are refunded."
+                          },
+                          "total_previews_cached": {
+                            "type": "integer",
+                            "description": "Previews served from an earlier run's screenshot. Not charged, and not counted in `total_previews_succeeded`."
+                          },
+                          "total_previews_ready": {
+                            "type": "integer",
+                            "description": "`total_previews_cached` + `total_previews_succeeded`, from the counters stored on the run. The cached half is final as soon as the run exists; the succeeded half counts only nodes that have settled, so a run still generating reads low until `is_processed` is `true`. This list can't see a tile served by an earlier screenshot of the same content, so it can read lower than [Get an inbox preview job](/integrations/api/app/tag/design-studio-emails/getInboxPreviewJob/) reports for the same run—poll the run for the authoritative count.\n"
+                          },
+                          "total_previews_requested": {
+                            "type": "integer",
+                            "description": "Previews requested across the counted nodes. On a settled run, this is normally `total_previews_cached` + `total_previews_succeeded` + `total_previews_bounced`."
+                          },
+                          "total_previews_succeeded": {
+                            "type": "integer",
+                            "description": "Previews this run generated itself, as stored when each node settled. Excludes cached ones, and counts only nodes that have settled—so a run still generating reads `0` here even once some devices are done."
+                          },
+                          "updated_at": {
+                            "type": "integer",
+                            "format": "Unix timestamp",
+                            "description": "When the job's status was last updated."
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "meta": {
+                    "pagination": {
+                      "limit": 50
+                    }
+                  },
+                  "preview_jobs": [
+                    {
+                      "created_at": 1773856017,
+                      "is_processed": true,
+                      "name": "Welcome email previews",
+                      "node_count": 1,
+                      "node_id": "018fbb92-6d1e-7c33-9c2c-df6a2b5aa931",
+                      "run_id": 2,
+                      "total_previews_bounced": 0,
+                      "total_previews_cached": 4,
+                      "total_previews_ready": 12,
+                      "total_previews_requested": 12,
+                      "total_previews_succeeded": 8,
+                      "updated_at": 1773856032
+                    },
+                    {
+                      "created_at": 1773855001,
+                      "is_processed": false,
+                      "name": "Order confirmation previews",
+                      "node_count": 1,
+                      "node_id": "018fbb90-1a2f-7e21-8f3d-56b1c0a2e410",
+                      "run_id": 1,
+                      "total_previews_bounced": 0,
+                      "total_previews_cached": 2,
+                      "total_previews_ready": 2,
+                      "total_previews_requested": 10,
+                      "total_previews_succeeded": 0,
+                      "updated_at": 1773855950
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Inbox previews aren't enabled for your workspace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Over the App API's shared limit of 10 requests per second per workspace—the same bucket every call in your workspace that isn't separately rate limited draws from, writes included. The response carries a `Retry-After` header.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per second",
+                      "status": "429"
                     }
                   ]
                 }
