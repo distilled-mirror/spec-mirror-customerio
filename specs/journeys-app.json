@@ -17944,6 +17944,13 @@
                 "description": "The layout used for the action, if it exists.",
                 "readOnly": true
               },
+              "multi_language_branch_action_id": {
+                "x-scalar-ignore": true,
+                "type": "integer",
+                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                "example": 23,
+                "readOnly": true
+              },
               "name": {
                 "type": "string",
                 "description": "The name of the action, if it exists.",
@@ -18076,6 +18083,13 @@
                 "description": "The layout used for the action, if it exists.",
                 "readOnly": true
               },
+              "multi_language_branch_action_id": {
+                "x-scalar-ignore": true,
+                "type": "integer",
+                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                "example": 23,
+                "readOnly": true
+              },
               "name": {
                 "type": "string",
                 "description": "The name of the action.",
@@ -18160,6 +18174,13 @@
                 "type": "string",
                 "description": "The language variant for your message. If you don't use our [localization feature](/journeys/channels/localization/getting-started), or this is the default message, this value is an empty string.",
                 "example": "fr",
+                "readOnly": true
+              },
+              "multi_language_branch_action_id": {
+                "x-scalar-ignore": true,
+                "type": "integer",
+                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                "example": 23,
                 "readOnly": true
               },
               "name": {
@@ -18273,6 +18294,13 @@
                   "patch"
                 ],
                 "example": "post"
+              },
+              "multi_language_branch_action_id": {
+                "x-scalar-ignore": true,
+                "type": "integer",
+                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                "example": 23,
+                "readOnly": true
               },
               "name": {
                 "type": "string",
@@ -18748,6 +18776,13 @@
         "type": "integer",
         "description": "The ID of the parent action, if the action occurred within an automation and has a parent (like a randomized split, etc).",
         "example": 1,
+        "readOnly": true
+      },
+      "multi_language_branch_action_id": {
+        "x-scalar-ignore": true,
+        "type": "integer",
+        "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+        "example": 23,
         "readOnly": true
       },
       "smsActionObject": {
@@ -19530,6 +19565,13 @@
                 "description": "The layout used for the action, if it exists.",
                 "readOnly": true
               },
+              "multi_language_branch_action_id": {
+                "x-scalar-ignore": true,
+                "type": "integer",
+                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                "example": 23,
+                "readOnly": true
+              },
               "name": {
                 "type": "string",
                 "description": "The name of the action, if it exists.",
@@ -19669,6 +19711,13 @@
                 "description": "The layout used for the action, if it exists.",
                 "readOnly": true
               },
+              "multi_language_branch_action_id": {
+                "x-scalar-ignore": true,
+                "type": "integer",
+                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                "example": 23,
+                "readOnly": true
+              },
               "name": {
                 "type": "string",
                 "description": "The name of the action.",
@@ -19760,6 +19809,13 @@
                 "type": "string",
                 "description": "The language variant for your message. If you don't use our [localization feature](/journeys/channels/localization/getting-started), or this is the default message, this value is an empty string.",
                 "example": "fr",
+                "readOnly": true
+              },
+              "multi_language_branch_action_id": {
+                "x-scalar-ignore": true,
+                "type": "integer",
+                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                "example": 23,
                 "readOnly": true
               },
               "name": {
@@ -19880,6 +19936,13 @@
                   "patch"
                 ],
                 "example": "post"
+              },
+              "multi_language_branch_action_id": {
+                "x-scalar-ignore": true,
+                "type": "integer",
+                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                "example": 23,
+                "readOnly": true
               },
               "name": {
                 "type": "string",
@@ -138948,7 +139011,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Returns the operations in an automation workflow. Each object in the response represents an action or 'tile' in the automation builder.\n\nThis endpoint returns up to 10 `actions` at a time. If there is another page of results, the response will include a `next` string. Pass this string as the `start` parameter to get the next page of results.\n",
+        "description": "Returns the operations in an automation workflow. Each object in the response represents an action or 'tile' in the automation builder.\n\nThis endpoint returns up to 10 `actions` at a time. If there is another page of results, the response will include a `next` string. Pass this string as the `start` parameter to get the next page of results.\n\nYou get the actions that have content, like messages, attribute updates, and events—not delays or flow control blocks like t/f branches.\n\nIf a message block contains multiple languages, this endpoint returns an object for each language variant. Each language variant includes the `multi_language_branch_action_id` property with the same value. Use this id to retrieve metrics for each language variant in a single request through [Get automation action metrics](/integrations/api/app/tag/automations/campaignActionMetrics/).\n",
         "tags": [
           "Automations"
         ],
@@ -139061,6 +139124,13 @@
                               "layout": {
                                 "type": "string",
                                 "description": "The layout used for the action, if it exists.",
+                                "readOnly": true
+                              },
+                              "multi_language_branch_action_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                                "example": 23,
                                 "readOnly": true
                               },
                               "name": {
@@ -139202,6 +139272,13 @@
                                 "description": "The layout used for the action, if it exists.",
                                 "readOnly": true
                               },
+                              "multi_language_branch_action_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                                "example": 23,
+                                "readOnly": true
+                              },
                               "name": {
                                 "type": "string",
                                 "description": "The name of the action.",
@@ -139293,6 +139370,13 @@
                                 "type": "string",
                                 "description": "The language variant for your message. If you don't use our [localization feature](/journeys/channels/localization/getting-started), or this is the default message, this value is an empty string.",
                                 "example": "fr",
+                                "readOnly": true
+                              },
+                              "multi_language_branch_action_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                                "example": 23,
                                 "readOnly": true
                               },
                               "name": {
@@ -139413,6 +139497,13 @@
                                   "patch"
                                 ],
                                 "example": "post"
+                              },
+                              "multi_language_branch_action_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                                "example": 23,
+                                "readOnly": true
                               },
                               "name": {
                                 "type": "string",
@@ -140331,6 +140422,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action, if it exists.",
@@ -140470,6 +140568,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action.",
@@ -140561,6 +140666,13 @@
                               "type": "string",
                               "description": "The language variant for your message. If you don't use our [localization feature](/journeys/channels/localization/getting-started), or this is the default message, this value is an empty string.",
                               "example": "fr",
+                              "readOnly": true
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
                               "readOnly": true
                             },
                             "name": {
@@ -140681,6 +140793,13 @@
                                 "patch"
                               ],
                               "example": "post"
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
                             },
                             "name": {
                               "type": "string",
@@ -141462,6 +141581,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action, if it exists.",
@@ -141601,6 +141727,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action.",
@@ -141692,6 +141825,13 @@
                               "type": "string",
                               "description": "The language variant for your message. If you don't use our [localization feature](/journeys/channels/localization/getting-started), or this is the default message, this value is an empty string.",
                               "example": "fr",
+                              "readOnly": true
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
                               "readOnly": true
                             },
                             "name": {
@@ -141812,6 +141952,13 @@
                                 "patch"
                               ],
                               "example": "post"
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
                             },
                             "name": {
                               "type": "string",
@@ -142117,6 +142264,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action, if it exists.",
@@ -142256,6 +142410,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action.",
@@ -142347,6 +142508,13 @@
                               "type": "string",
                               "description": "The language variant for your message. If you don't use our [localization feature](/journeys/channels/localization/getting-started), or this is the default message, this value is an empty string.",
                               "example": "fr",
+                              "readOnly": true
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
                               "readOnly": true
                             },
                             "name": {
@@ -142467,6 +142635,13 @@
                                 "patch"
                               ],
                               "example": "post"
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
                             },
                             "name": {
                               "type": "string",
@@ -143248,6 +143423,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action, if it exists.",
@@ -143387,6 +143569,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action.",
@@ -143478,6 +143667,13 @@
                               "type": "string",
                               "description": "The language variant for your message. If you don't use our [localization feature](/journeys/channels/localization/getting-started), or this is the default message, this value is an empty string.",
                               "example": "fr",
+                              "readOnly": true
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
                               "readOnly": true
                             },
                             "name": {
@@ -143598,6 +143794,13 @@
                                 "patch"
                               ],
                               "example": "post"
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
                             },
                             "name": {
                               "type": "string",
@@ -143769,7 +143972,7 @@
           "name": "action_id",
           "in": "path",
           "required": true,
-          "description": "The action you want to lookup or act on.",
+          "description": "The action in the automation. If the action is a message with translations, you can pass the `id` of the action to get metrics for a specific language variant or pass the `multi_language_branch_action_id` to get metrics for each language variant and total metrics across the variants.\n",
           "schema": {
             "type": "integer"
           }
@@ -143912,7 +144115,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Returns metrics for an individual action, both in total and as a series of counts, oldest first—the 0-index of any result is the oldest point in the window.\n\n**We recommend version 2. Send `version=2`.** It accepts an explicit `start`, `end`, and `res`, reported in the `tz` you choose. Without it, the endpoint answers with version 1 behavior instead: a window built from `period` and `steps`, always in Eastern time.\n\nVersion 1 can't return fewer than 2 steps of any period. `?period=days&steps=1` means two days—the 48 hours before the request—and `?period=days&steps=0` returns the maximum for the period, the same as `?period=days&steps=45`.\n\n**Multi-language messages**\n\nIf the action is a [multi-language](/messaging/channels/localization/getting-started/) message, the response also includes a `language_variants` object with a breakdown for each language variant, keyed by the variant's action ID. You get that breakdown whether you send `version=1` or `version=2`.\n\nIn this case, `metric` is the *total* across every variant. If you sum metrics across all of an automation's actions, skip actions that return `language_variants` or you will count those messages twice—once in the multi-language action's total, and again in each variant's own action.\n",
+        "description": "Returns metrics for an individual action, both in total and as a series of counts, oldest first—the 0-index of any result is the oldest point in the window.\n\n**We recommend version 2. Send `version=2`.** It accepts an explicit `start`, `end`, and `res`, reported in the `tz` you choose. Without it, the endpoint answers with version 1 behavior instead: a window built from `period` and `steps`, always in Eastern time.\n\nVersion 1 can't return fewer than 2 steps of any period. `?period=days&steps=1` means two days—the 48 hours before the request—and `?period=days&steps=0` returns the maximum for the period, the same as `?period=days&steps=45`.\n\n**Multi-language messages**\n\nIf the action is a [multi-language](/messaging/channels/localization/getting-started/) message, you can retrieve metrics for a single language variant or all language variants. To retrieve metrics for a single language variant, pass the `id` of the action. To retrieve aggregate metrics and a breakdown for each language variant, pass the `multi_language_branch_action_id`, which is the same for each variant of a message. You can get both ids from the [List automation actions](/integrations/api/app/tag/automations/listCampaignActions/) endpoint.\n\nIf you pass the `multi_language_branch_action_id`, then the `metric` object shows the *total* across every variant. The `language_variants` object shows a breakdown for each language variant. \n\nIf you want to get the sum of all metrics across all of an automation's actions, you can use each action id of a multi-language message, like you would for other types of actions.\n",
         "tags": [
           "Automations"
         ],
@@ -149032,7 +149235,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Returns the actions that occur as a part of a broadcast.",
+        "description": "Returns the actions that occur as a part of a broadcast.\n\nIf a message block contains multiple languages, this endpoint returns an object for each language variant. Each language variant includes the `multi_language_branch_action_id` property with the same value. Use this id to retrieve metrics for each language variant in a single request through [Get broadcast action metrics](/integrations/api/app/tag/broadcasts/broadcastActionMetrics/).\n",
         "tags": [
           "Broadcasts"
         ],
@@ -149137,6 +149340,13 @@
                               "layout": {
                                 "type": "string",
                                 "description": "The layout used for the action, if it exists.",
+                                "readOnly": true
+                              },
+                              "multi_language_branch_action_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                                "example": 23,
                                 "readOnly": true
                               },
                               "name": {
@@ -149271,6 +149481,13 @@
                                 "description": "The layout used for the action, if it exists.",
                                 "readOnly": true
                               },
+                              "multi_language_branch_action_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                                "example": 23,
+                                "readOnly": true
+                              },
                               "name": {
                                 "type": "string",
                                 "description": "The name of the action.",
@@ -149355,6 +149572,13 @@
                                 "type": "string",
                                 "description": "The language variant for your message. If you don't use our [localization feature](/journeys/channels/localization/getting-started), or this is the default message, this value is an empty string.",
                                 "example": "fr",
+                                "readOnly": true
+                              },
+                              "multi_language_branch_action_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                                "example": 23,
                                 "readOnly": true
                               },
                               "name": {
@@ -149468,6 +149692,13 @@
                                   "patch"
                                 ],
                                 "example": "post"
+                              },
+                              "multi_language_branch_action_id": {
+                                "x-scalar-ignore": true,
+                                "type": "integer",
+                                "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                                "example": 23,
+                                "readOnly": true
                               },
                               "name": {
                                 "type": "string",
@@ -150370,6 +150601,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action, if it exists.",
@@ -150502,6 +150740,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action.",
@@ -150586,6 +150831,13 @@
                               "type": "string",
                               "description": "The language variant for your message. If you don't use our [localization feature](/journeys/channels/localization/getting-started), or this is the default message, this value is an empty string.",
                               "example": "fr",
+                              "readOnly": true
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
                               "readOnly": true
                             },
                             "name": {
@@ -150699,6 +150951,13 @@
                                 "patch"
                               ],
                               "example": "post"
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
                             },
                             "name": {
                               "type": "string",
@@ -151433,6 +151692,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action, if it exists.",
@@ -151565,6 +151831,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action.",
@@ -151649,6 +151922,13 @@
                               "type": "string",
                               "description": "The language variant for your message. If you don't use our [localization feature](/journeys/channels/localization/getting-started), or this is the default message, this value is an empty string.",
                               "example": "fr",
+                              "readOnly": true
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
                               "readOnly": true
                             },
                             "name": {
@@ -151762,6 +152042,13 @@
                                 "patch"
                               ],
                               "example": "post"
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
                             },
                             "name": {
                               "type": "string",
@@ -152053,6 +152340,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action, if it exists.",
@@ -152185,6 +152479,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action.",
@@ -152269,6 +152570,13 @@
                               "type": "string",
                               "description": "The language variant for your message. If you don't use our [localization feature](/journeys/channels/localization/getting-started), or this is the default message, this value is an empty string.",
                               "example": "fr",
+                              "readOnly": true
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
                               "readOnly": true
                             },
                             "name": {
@@ -152382,6 +152690,13 @@
                                 "patch"
                               ],
                               "example": "post"
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
                             },
                             "name": {
                               "type": "string",
@@ -153116,6 +153431,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action, if it exists.",
@@ -153248,6 +153570,13 @@
                               "description": "The layout used for the action, if it exists.",
                               "readOnly": true
                             },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
+                            },
                             "name": {
                               "type": "string",
                               "description": "The name of the action.",
@@ -153332,6 +153661,13 @@
                               "type": "string",
                               "description": "The language variant for your message. If you don't use our [localization feature](/journeys/channels/localization/getting-started), or this is the default message, this value is an empty string.",
                               "example": "fr",
+                              "readOnly": true
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
                               "readOnly": true
                             },
                             "name": {
@@ -153445,6 +153781,13 @@
                                 "patch"
                               ],
                               "example": "post"
+                            },
+                            "multi_language_branch_action_id": {
+                              "x-scalar-ignore": true,
+                              "type": "integer",
+                              "description": "Returned when the action is a language variant of a multi-language message. This id is the same for each variant of a message, so you can use this to retrieve metrics for a message and all its variants.",
+                              "example": 23,
+                              "readOnly": true
                             },
                             "name": {
                               "type": "string",
@@ -153608,7 +153951,7 @@
           "name": "action_id",
           "in": "path",
           "required": true,
-          "description": "The action you want to lookup or act on.",
+          "description": "The action in the broadcast. If the action is a message with translations, you can pass the `id` of the action to get metrics for a specific language variant or pass the `multi_language_branch_action_id` to get metrics for each language variant and total metrics across the variants.\n",
           "schema": {
             "type": "integer"
           }
@@ -153666,7 +154009,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Returns a list of metrics for an individual action both in total and in `steps` (days, weeks, etc) over a period of time. Stepped `series` metrics return from oldest to newest (i.e. the 0-index for any result is the oldest step/period).\n\nYou cannot request fewer than 2 steps of any period (2 hours, 2 days, 2 weeks, or 2 months). For instance, `?period=days&steps=1` means two days - the 48 hours before the API request was made. `?period=days&steps=0` returns the same as the maximum of the period - `?period=days&steps=45`. See the `steps` parameter below for the maximum count of each period.\n\n**Multi-language messages**\n\nIf the action is a [multi-language](/messaging/channels/localization/getting-started/) message, the response also includes a `language_variants` object with a breakdown for each language variant, keyed by the variant's action ID.\n\nIn this case, `metric` is the *total* across every variant. If you sum metrics across all of a broadcast's actions, skip actions that return `language_variants` or you will count those messages twice—once in the multi-language action's total, and again in each variant's own action.\n",
+        "description": "Returns a list of metrics for an individual action both in total and in `steps` (days, weeks, etc) over a period of time. Stepped `series` metrics return from oldest to newest (i.e. the 0-index for any result is the oldest step/period).\n\nYou cannot request fewer than 2 steps of any period (2 hours, 2 days, 2 weeks, or 2 months). For instance, `?period=days&steps=1` means two days - the 48 hours before the API request was made. `?period=days&steps=0` returns the same as the maximum of the period - `?period=days&steps=45`. See the `steps` parameter below for the maximum count of each period.\n\n**Multi-language messages**\n\nIf the action is a [multi-language](/messaging/channels/localization/getting-started/) message, you can retrieve metrics for a single language variant or all language variants. To retrieve metrics for a single language variant, pass the `id` of the action. To retrieve aggregate metrics and a breakdown for each language variant, pass the `multi_language_branch_action_id`, which is the same for each variant of a message. You can get both ids from the [List broadcast actions](/integrations/api/app/tag/broadcasts/broadcastActions/) endpoint.\n\nIf you pass the `multi_language_branch_action_id`, then the `metric` object shows the *total* across every variant. The `language_variants` object shows a breakdown for each language variant.\n\nIf you want to get the sum of all metrics across all of a broadcast's actions, you can use each action id of a multi-language message, like you would for other types of actions.\n",
         "tags": [
           "Broadcasts"
         ],
