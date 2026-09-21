@@ -8453,66 +8453,6 @@
                 "maxLength": 190,
                 "description": "The name of the one-time send."
               },
-              "recipients": {
-                "type": "object",
-                "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
-                "properties": {
-                  "and": {
-                    "type": "array",
-                    "description": "An array of conditions that must all be true.",
-                    "items": {
-                      "type": "object"
-                    }
-                  },
-                  "attribute": {
-                    "type": "object",
-                    "description": "A customer attribute condition.",
-                    "properties": {
-                      "field": {
-                        "type": "string",
-                        "description": "The attribute name."
-                      },
-                      "inverse": {
-                        "type": "boolean",
-                        "description": "Set to `true` for \"is not equal\" or \"does not exist\"."
-                      },
-                      "operator": {
-                        "type": "string",
-                        "description": "The comparison operator.",
-                        "enum": [
-                          "eq",
-                          "exists"
-                        ]
-                      },
-                      "value": {
-                        "type": "string",
-                        "description": "The value to compare against. Required when `operator` is `eq`."
-                      }
-                    }
-                  },
-                  "not": {
-                    "type": "object",
-                    "description": "A condition or group of conditions to exclude. On this endpoint, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array. An object with both `and` and `not` keys is rejected with an \"Invalid filter spec\" error."
-                  },
-                  "or": {
-                    "type": "array",
-                    "description": "An array of conditions where at least one must be true. On this endpoint, `or` arrays can contain only segment conditions.",
-                    "items": {
-                      "type": "object"
-                    }
-                  },
-                  "segment": {
-                    "type": "object",
-                    "description": "A segment condition.",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "description": "The ID of a segment."
-                      }
-                    }
-                  }
-                }
-              },
               "subject": {
                 "type": "string",
                 "description": "The subject line of the email."
@@ -8520,6 +8460,16 @@
               "body_plain": {
                 "type": "string",
                 "description": "The plaintext body of the email. If provided, this overwrites the auto-generated plaintext."
+              },
+              "deduped": {
+                "type": "boolean",
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+              },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
               },
               "from": {
                 "type": "string",
@@ -8558,6 +8508,71 @@
                 ],
                 "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
               },
+              "recipient_file_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+              },
+              "recipients": {
+                "type": "object",
+                "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "properties": {
+                  "and": {
+                    "type": "array",
+                    "description": "An array of conditions that must all be true.",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "attribute": {
+                    "type": "object",
+                    "description": "A customer attribute condition.",
+                    "properties": {
+                      "field": {
+                        "type": "string",
+                        "description": "The attribute name."
+                      },
+                      "inverse": {
+                        "type": "boolean",
+                        "description": "Set to `true` for \"is not equal\" or \"does not exist\"."
+                      },
+                      "operator": {
+                        "type": "string",
+                        "description": "The comparison operator.",
+                        "enum": [
+                          "eq",
+                          "exists"
+                        ]
+                      },
+                      "value": {
+                        "type": "string",
+                        "description": "The value to compare against. Required when `operator` is `eq`."
+                      }
+                    }
+                  },
+                  "not": {
+                    "type": "object",
+                    "description": "A condition or group of conditions to exclude. On this endpoint, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array. An object with both `and` and `not` keys is rejected with an \"Invalid filter spec\" error."
+                  },
+                  "or": {
+                    "type": "array",
+                    "description": "An array of conditions where at least one must be true. On this endpoint, `or` arrays can contain only segment conditions.",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "segment": {
+                    "type": "object",
+                    "description": "A segment condition.",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "The ID of a segment."
+                      }
+                    }
+                  }
+                }
+              },
               "scheduled_at": {
                 "type": "integer",
                 "format": "unix timestamp",
@@ -8570,12 +8585,18 @@
               "subscription_topic_id": {
                 "type": "integer",
                 "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+              },
+              "tag_ids": {
+                "type": "array",
+                "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                "items": {
+                  "type": "integer"
+                }
               }
             },
             "required": [
               "name",
               "type",
-              "recipients",
               "subject",
               "body"
             ]
@@ -8614,9 +8635,42 @@
                 "maxLength": 190,
                 "description": "The name of the one-time send."
               },
+              "deduped": {
+                "type": "boolean",
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+              },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+              },
+              "rate_limit_email_rate": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+              },
+              "rate_limit_spread": {
+                "type": "boolean",
+                "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+              },
+              "rate_limit_time_period": {
+                "type": "integer",
+                "enum": [
+                  60,
+                  3600,
+                  86400
+                ],
+                "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+              },
+              "recipient_file_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+              },
               "recipients": {
                 "type": "object",
-                "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                 "properties": {
                   "and": {
                     "type": "array",
@@ -8674,24 +8728,6 @@
                   }
                 }
               },
-              "rate_limit_email_rate": {
-                "type": "integer",
-                "minimum": 1,
-                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-              },
-              "rate_limit_spread": {
-                "type": "boolean",
-                "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-              },
-              "rate_limit_time_period": {
-                "type": "integer",
-                "enum": [
-                  60,
-                  3600,
-                  86400
-                ],
-                "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-              },
               "scheduled_at": {
                 "type": "integer",
                 "format": "unix timestamp",
@@ -8704,12 +8740,18 @@
               "subscription_topic_id": {
                 "type": "integer",
                 "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+              },
+              "tag_ids": {
+                "type": "array",
+                "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                "items": {
+                  "type": "integer"
+                }
               }
             },
             "required": [
               "name",
               "type",
-              "recipients",
               "body"
             ]
           },
@@ -8742,9 +8784,47 @@
                 "maxLength": 190,
                 "description": "The name of the one-time send."
               },
+              "body": {
+                "type": "string",
+                "description": "The body content of the push notification. You must provide `subject`, `body`, or both.",
+                "example": "Get 30% off everything. Tap to shop now."
+              },
+              "deduped": {
+                "type": "boolean",
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+              },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+              },
+              "rate_limit_email_rate": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+              },
+              "rate_limit_spread": {
+                "type": "boolean",
+                "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+              },
+              "rate_limit_time_period": {
+                "type": "integer",
+                "enum": [
+                  60,
+                  3600,
+                  86400
+                ],
+                "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+              },
+              "recipient_file_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+              },
               "recipients": {
                 "type": "object",
-                "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                 "properties": {
                   "and": {
                     "type": "array",
@@ -8802,29 +8882,6 @@
                   }
                 }
               },
-              "body": {
-                "type": "string",
-                "description": "The body content of the push notification. You must provide `subject`, `body`, or both.",
-                "example": "Get 30% off everything. Tap to shop now."
-              },
-              "rate_limit_email_rate": {
-                "type": "integer",
-                "minimum": 1,
-                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-              },
-              "rate_limit_spread": {
-                "type": "boolean",
-                "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-              },
-              "rate_limit_time_period": {
-                "type": "integer",
-                "enum": [
-                  60,
-                  3600,
-                  86400
-                ],
-                "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-              },
               "scheduled_at": {
                 "type": "integer",
                 "format": "unix timestamp",
@@ -8842,12 +8899,18 @@
               "subscription_topic_id": {
                 "type": "integer",
                 "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+              },
+              "tag_ids": {
+                "type": "array",
+                "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                "items": {
+                  "type": "integer"
+                }
               }
             },
             "required": [
               "name",
-              "type",
-              "recipients"
+              "type"
             ]
           },
           {
@@ -8885,9 +8948,42 @@
                 "maxLength": 190,
                 "description": "The name of the one-time send."
               },
+              "deduped": {
+                "type": "boolean",
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+              },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+              },
+              "rate_limit_email_rate": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+              },
+              "rate_limit_spread": {
+                "type": "boolean",
+                "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+              },
+              "rate_limit_time_period": {
+                "type": "integer",
+                "enum": [
+                  60,
+                  3600,
+                  86400
+                ],
+                "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+              },
+              "recipient_file_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+              },
               "recipients": {
                 "type": "object",
-                "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                 "properties": {
                   "and": {
                     "type": "array",
@@ -8945,24 +9041,6 @@
                   }
                 }
               },
-              "rate_limit_email_rate": {
-                "type": "integer",
-                "minimum": 1,
-                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-              },
-              "rate_limit_spread": {
-                "type": "boolean",
-                "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-              },
-              "rate_limit_time_period": {
-                "type": "integer",
-                "enum": [
-                  60,
-                  3600,
-                  86400
-                ],
-                "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-              },
               "scheduled_at": {
                 "type": "integer",
                 "format": "unix timestamp",
@@ -8975,12 +9053,18 @@
               "subscription_topic_id": {
                 "type": "integer",
                 "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+              },
+              "tag_ids": {
+                "type": "array",
+                "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                "items": {
+                  "type": "integer"
+                }
               }
             },
             "required": [
               "name",
               "type",
-              "recipients",
               "body_json"
             ]
           },
@@ -9018,9 +9102,57 @@
                 "maxLength": 190,
                 "description": "The name of the one-time send."
               },
+              "request_method": {
+                "type": "string",
+                "description": "The HTTP method for the webhook request.",
+                "enum": [
+                  "DELETE",
+                  "GET",
+                  "POST",
+                  "PUT",
+                  "PATCH"
+                ]
+              },
+              "url": {
+                "type": "string",
+                "description": "The URL to send the webhook request to."
+              },
+              "deduped": {
+                "type": "boolean",
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+              },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+              },
+              "rate_limit_email_rate": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+              },
+              "rate_limit_spread": {
+                "type": "boolean",
+                "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+              },
+              "rate_limit_time_period": {
+                "type": "integer",
+                "enum": [
+                  60,
+                  3600,
+                  86400
+                ],
+                "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+              },
+              "recipient_file_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+              },
               "recipients": {
                 "type": "object",
-                "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                 "properties": {
                   "and": {
                     "type": "array",
@@ -9078,39 +9210,6 @@
                   }
                 }
               },
-              "request_method": {
-                "type": "string",
-                "description": "The HTTP method for the webhook request.",
-                "enum": [
-                  "DELETE",
-                  "GET",
-                  "POST",
-                  "PUT",
-                  "PATCH"
-                ]
-              },
-              "url": {
-                "type": "string",
-                "description": "The URL to send the webhook request to."
-              },
-              "rate_limit_email_rate": {
-                "type": "integer",
-                "minimum": 1,
-                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-              },
-              "rate_limit_spread": {
-                "type": "boolean",
-                "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-              },
-              "rate_limit_time_period": {
-                "type": "integer",
-                "enum": [
-                  60,
-                  3600,
-                  86400
-                ],
-                "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-              },
               "scheduled_at": {
                 "type": "integer",
                 "format": "unix timestamp",
@@ -9123,12 +9222,18 @@
               "subscription_topic_id": {
                 "type": "integer",
                 "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+              },
+              "tag_ids": {
+                "type": "array",
+                "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                "items": {
+                  "type": "integer"
+                }
               }
             },
             "required": [
               "name",
               "type",
-              "recipients",
               "body",
               "request_method",
               "url"
@@ -9169,9 +9274,42 @@
                 "maxLength": 190,
                 "description": "The name of the one-time send."
               },
+              "deduped": {
+                "type": "boolean",
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+              },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+              },
+              "rate_limit_email_rate": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+              },
+              "rate_limit_spread": {
+                "type": "boolean",
+                "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+              },
+              "rate_limit_time_period": {
+                "type": "integer",
+                "enum": [
+                  60,
+                  3600,
+                  86400
+                ],
+                "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+              },
+              "recipient_file_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+              },
               "recipients": {
                 "type": "object",
-                "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                 "properties": {
                   "and": {
                     "type": "array",
@@ -9229,24 +9367,6 @@
                   }
                 }
               },
-              "rate_limit_email_rate": {
-                "type": "integer",
-                "minimum": 1,
-                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-              },
-              "rate_limit_spread": {
-                "type": "boolean",
-                "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-              },
-              "rate_limit_time_period": {
-                "type": "integer",
-                "enum": [
-                  60,
-                  3600,
-                  86400
-                ],
-                "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-              },
               "scheduled_at": {
                 "type": "integer",
                 "format": "unix timestamp",
@@ -9259,12 +9379,18 @@
               "subscription_topic_id": {
                 "type": "integer",
                 "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+              },
+              "tag_ids": {
+                "type": "array",
+                "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                "items": {
+                  "type": "integer"
+                }
               }
             },
             "required": [
               "name",
               "type",
-              "recipients",
               "body_json"
             ]
           }
@@ -9278,8 +9404,7 @@
         "type": "object",
         "required": [
           "name",
-          "type",
-          "recipients"
+          "type"
         ],
         "properties": {
           "name": {
@@ -9287,9 +9412,24 @@
             "maxLength": 190,
             "description": "The name of the one-time send."
           },
+          "deduped": {
+            "type": "boolean",
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+          },
+          "expires_after": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2592000,
+            "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+          },
+          "recipient_file_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+          },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -9359,6 +9499,13 @@
           "subscription_topic_id": {
             "type": "integer",
             "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+          },
+          "tag_ids": {
+            "type": "array",
+            "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+            "items": {
+              "type": "integer"
+            }
           }
         }
       },
@@ -9426,66 +9573,6 @@
             "maxLength": 190,
             "description": "The name of the one-time send."
           },
-          "recipients": {
-            "type": "object",
-            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
-            "properties": {
-              "and": {
-                "type": "array",
-                "description": "An array of conditions that must all be true.",
-                "items": {
-                  "type": "object"
-                }
-              },
-              "attribute": {
-                "type": "object",
-                "description": "A customer attribute condition.",
-                "properties": {
-                  "field": {
-                    "type": "string",
-                    "description": "The attribute name."
-                  },
-                  "inverse": {
-                    "type": "boolean",
-                    "description": "Set to `true` for \"is not equal\" or \"does not exist\"."
-                  },
-                  "operator": {
-                    "type": "string",
-                    "description": "The comparison operator.",
-                    "enum": [
-                      "eq",
-                      "exists"
-                    ]
-                  },
-                  "value": {
-                    "type": "string",
-                    "description": "The value to compare against. Required when `operator` is `eq`."
-                  }
-                }
-              },
-              "not": {
-                "type": "object",
-                "description": "A condition or group of conditions to exclude. On this endpoint, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array. An object with both `and` and `not` keys is rejected with an \"Invalid filter spec\" error."
-              },
-              "or": {
-                "type": "array",
-                "description": "An array of conditions where at least one must be true. On this endpoint, `or` arrays can contain only segment conditions.",
-                "items": {
-                  "type": "object"
-                }
-              },
-              "segment": {
-                "type": "object",
-                "description": "A segment condition.",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "description": "The ID of a segment."
-                  }
-                }
-              }
-            }
-          },
           "subject": {
             "type": "string",
             "description": "The subject line of the email."
@@ -9500,6 +9587,16 @@
           "body_plain": {
             "type": "string",
             "description": "The plaintext body of the email. If provided, this overwrites the auto-generated plaintext."
+          },
+          "deduped": {
+            "type": "boolean",
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+          },
+          "expires_after": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2592000,
+            "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
           },
           "from": {
             "type": "string",
@@ -9538,6 +9635,71 @@
             ],
             "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
           },
+          "recipient_file_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+          },
+          "recipients": {
+            "type": "object",
+            "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "properties": {
+              "and": {
+                "type": "array",
+                "description": "An array of conditions that must all be true.",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "attribute": {
+                "type": "object",
+                "description": "A customer attribute condition.",
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "description": "The attribute name."
+                  },
+                  "inverse": {
+                    "type": "boolean",
+                    "description": "Set to `true` for \"is not equal\" or \"does not exist\"."
+                  },
+                  "operator": {
+                    "type": "string",
+                    "description": "The comparison operator.",
+                    "enum": [
+                      "eq",
+                      "exists"
+                    ]
+                  },
+                  "value": {
+                    "type": "string",
+                    "description": "The value to compare against. Required when `operator` is `eq`."
+                  }
+                }
+              },
+              "not": {
+                "type": "object",
+                "description": "A condition or group of conditions to exclude. On this endpoint, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array. An object with both `and` and `not` keys is rejected with an \"Invalid filter spec\" error."
+              },
+              "or": {
+                "type": "array",
+                "description": "An array of conditions where at least one must be true. On this endpoint, `or` arrays can contain only segment conditions.",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "segment": {
+                "type": "object",
+                "description": "A segment condition.",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "The ID of a segment."
+                  }
+                }
+              }
+            }
+          },
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
@@ -9550,12 +9712,18 @@
           "subscription_topic_id": {
             "type": "integer",
             "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+          },
+          "tag_ids": {
+            "type": "array",
+            "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+            "items": {
+              "type": "integer"
+            }
           }
         },
         "required": [
           "name",
           "type",
-          "recipients",
           "subject",
           "body"
         ]
@@ -9587,9 +9755,49 @@
             "maxLength": 190,
             "description": "The name of the one-time send."
           },
+          "type": {
+            "type": "string",
+            "description": "The channel type for the one-time send.",
+            "enum": [
+              "twilio"
+            ]
+          },
+          "deduped": {
+            "type": "boolean",
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+          },
+          "expires_after": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2592000,
+            "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+          },
+          "rate_limit_email_rate": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+          },
+          "rate_limit_spread": {
+            "type": "boolean",
+            "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+          },
+          "rate_limit_time_period": {
+            "type": "integer",
+            "enum": [
+              60,
+              3600,
+              86400
+            ],
+            "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+          },
+          "recipient_file_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+          },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -9647,31 +9855,6 @@
               }
             }
           },
-          "type": {
-            "type": "string",
-            "description": "The channel type for the one-time send.",
-            "enum": [
-              "twilio"
-            ]
-          },
-          "rate_limit_email_rate": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-          },
-          "rate_limit_spread": {
-            "type": "boolean",
-            "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-          },
-          "rate_limit_time_period": {
-            "type": "integer",
-            "enum": [
-              60,
-              3600,
-              86400
-            ],
-            "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-          },
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
@@ -9684,12 +9867,18 @@
           "subscription_topic_id": {
             "type": "integer",
             "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+          },
+          "tag_ids": {
+            "type": "array",
+            "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+            "items": {
+              "type": "integer"
+            }
           }
         },
         "required": [
           "name",
           "type",
-          "recipients",
           "body"
         ]
       },
@@ -9715,9 +9904,54 @@
             "maxLength": 190,
             "description": "The name of the one-time send."
           },
+          "type": {
+            "type": "string",
+            "description": "The channel type for the one-time send.",
+            "enum": [
+              "push"
+            ]
+          },
+          "body": {
+            "type": "string",
+            "description": "The body content of the push notification. You must provide `subject`, `body`, or both.",
+            "example": "Get 30% off everything. Tap to shop now."
+          },
+          "deduped": {
+            "type": "boolean",
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+          },
+          "expires_after": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2592000,
+            "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+          },
+          "rate_limit_email_rate": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+          },
+          "rate_limit_spread": {
+            "type": "boolean",
+            "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+          },
+          "rate_limit_time_period": {
+            "type": "integer",
+            "enum": [
+              60,
+              3600,
+              86400
+            ],
+            "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+          },
+          "recipient_file_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+          },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -9775,36 +10009,6 @@
               }
             }
           },
-          "type": {
-            "type": "string",
-            "description": "The channel type for the one-time send.",
-            "enum": [
-              "push"
-            ]
-          },
-          "body": {
-            "type": "string",
-            "description": "The body content of the push notification. You must provide `subject`, `body`, or both.",
-            "example": "Get 30% off everything. Tap to shop now."
-          },
-          "rate_limit_email_rate": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-          },
-          "rate_limit_spread": {
-            "type": "boolean",
-            "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-          },
-          "rate_limit_time_period": {
-            "type": "integer",
-            "enum": [
-              60,
-              3600,
-              86400
-            ],
-            "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-          },
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
@@ -9822,12 +10026,18 @@
           "subscription_topic_id": {
             "type": "integer",
             "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+          },
+          "tag_ids": {
+            "type": "array",
+            "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+            "items": {
+              "type": "integer"
+            }
           }
         },
         "required": [
           "name",
-          "type",
-          "recipients"
+          "type"
         ]
       },
       "createInAppNewsletter": {
@@ -9858,9 +10068,49 @@
             "maxLength": 190,
             "description": "The name of the one-time send."
           },
+          "type": {
+            "type": "string",
+            "description": "The channel type for the one-time send.",
+            "enum": [
+              "in_app"
+            ]
+          },
+          "deduped": {
+            "type": "boolean",
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+          },
+          "expires_after": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2592000,
+            "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+          },
+          "rate_limit_email_rate": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+          },
+          "rate_limit_spread": {
+            "type": "boolean",
+            "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+          },
+          "rate_limit_time_period": {
+            "type": "integer",
+            "enum": [
+              60,
+              3600,
+              86400
+            ],
+            "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+          },
+          "recipient_file_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+          },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -9918,31 +10168,6 @@
               }
             }
           },
-          "type": {
-            "type": "string",
-            "description": "The channel type for the one-time send.",
-            "enum": [
-              "in_app"
-            ]
-          },
-          "rate_limit_email_rate": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-          },
-          "rate_limit_spread": {
-            "type": "boolean",
-            "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-          },
-          "rate_limit_time_period": {
-            "type": "integer",
-            "enum": [
-              60,
-              3600,
-              86400
-            ],
-            "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-          },
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
@@ -9955,12 +10180,18 @@
           "subscription_topic_id": {
             "type": "integer",
             "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+          },
+          "tag_ids": {
+            "type": "array",
+            "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+            "items": {
+              "type": "integer"
+            }
           }
         },
         "required": [
           "name",
           "type",
-          "recipients",
           "body_json"
         ]
       },
@@ -10004,9 +10235,49 @@
             "maxLength": 190,
             "description": "The name of the one-time send."
           },
+          "type": {
+            "type": "string",
+            "description": "The channel type for the one-time send.",
+            "enum": [
+              "inbox"
+            ]
+          },
+          "deduped": {
+            "type": "boolean",
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+          },
+          "expires_after": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2592000,
+            "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+          },
+          "rate_limit_email_rate": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+          },
+          "rate_limit_spread": {
+            "type": "boolean",
+            "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+          },
+          "rate_limit_time_period": {
+            "type": "integer",
+            "enum": [
+              60,
+              3600,
+              86400
+            ],
+            "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+          },
+          "recipient_file_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+          },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -10064,31 +10335,6 @@
               }
             }
           },
-          "type": {
-            "type": "string",
-            "description": "The channel type for the one-time send.",
-            "enum": [
-              "inbox"
-            ]
-          },
-          "rate_limit_email_rate": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-          },
-          "rate_limit_spread": {
-            "type": "boolean",
-            "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-          },
-          "rate_limit_time_period": {
-            "type": "integer",
-            "enum": [
-              60,
-              3600,
-              86400
-            ],
-            "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-          },
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
@@ -10101,12 +10347,18 @@
           "subscription_topic_id": {
             "type": "integer",
             "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+          },
+          "tag_ids": {
+            "type": "array",
+            "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+            "items": {
+              "type": "integer"
+            }
           }
         },
         "required": [
           "name",
           "type",
-          "recipients",
           "body_json"
         ]
       },
@@ -10137,9 +10389,64 @@
             "maxLength": 190,
             "description": "The name of the one-time send."
           },
+          "request_method": {
+            "type": "string",
+            "description": "The HTTP method for the webhook request.",
+            "enum": [
+              "DELETE",
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "description": "The channel type for the one-time send.",
+            "enum": [
+              "webhook"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "description": "The URL to send the webhook request to."
+          },
+          "deduped": {
+            "type": "boolean",
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+          },
+          "expires_after": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2592000,
+            "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+          },
+          "rate_limit_email_rate": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+          },
+          "rate_limit_spread": {
+            "type": "boolean",
+            "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+          },
+          "rate_limit_time_period": {
+            "type": "integer",
+            "enum": [
+              60,
+              3600,
+              86400
+            ],
+            "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+          },
+          "recipient_file_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+          },
           "recipients": {
             "type": "object",
-            "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
             "properties": {
               "and": {
                 "type": "array",
@@ -10197,46 +10504,6 @@
               }
             }
           },
-          "request_method": {
-            "type": "string",
-            "description": "The HTTP method for the webhook request.",
-            "enum": [
-              "DELETE",
-              "GET",
-              "POST",
-              "PUT",
-              "PATCH"
-            ]
-          },
-          "type": {
-            "type": "string",
-            "description": "The channel type for the one-time send.",
-            "enum": [
-              "webhook"
-            ]
-          },
-          "url": {
-            "type": "string",
-            "description": "The URL to send the webhook request to."
-          },
-          "rate_limit_email_rate": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-          },
-          "rate_limit_spread": {
-            "type": "boolean",
-            "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-          },
-          "rate_limit_time_period": {
-            "type": "integer",
-            "enum": [
-              60,
-              3600,
-              86400
-            ],
-            "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-          },
           "scheduled_at": {
             "type": "integer",
             "format": "unix timestamp",
@@ -10249,12 +10516,18 @@
           "subscription_topic_id": {
             "type": "integer",
             "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+          },
+          "tag_ids": {
+            "type": "array",
+            "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+            "items": {
+              "type": "integer"
+            }
           }
         },
         "required": [
           "name",
           "type",
-          "recipients",
           "body",
           "request_method",
           "url"
@@ -10616,6 +10889,12 @@
             "format": "unix timestamp",
             "description": "Unix timestamp for the send. Use `0` to deschedule. When greater than `0`, the time must be in the future and you must send `timezone` so the UI displays the time correctly.\n"
           },
+          "expires_after": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2592000,
+            "description": "A send window in seconds measured from the scheduled time, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes. You can't combine it with `tz_match_enabled`, with send time optimization, or with descheduling (`scheduled_at` of `0`), and on an A/B test it must outlast the test duration.\n"
+          },
           "rate_limit_email_rate": {
             "type": "integer",
             "minimum": 1,
@@ -10673,6 +10952,10 @@
             "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
           },
+          "expires_after": {
+            "type": "integer",
+            "description": "The send window in seconds, if you set one. Customer.io stops delivering the one-time send this long after it starts."
+          },
           "id": {
             "x-scalar-ignore": true,
             "description": "The identifier for a one-time send.",
@@ -10683,6 +10966,20 @@
             "type": "string",
             "description": "The name of the one-time send. Must be 190 characters or less.",
             "readOnly": true
+          },
+          "recipient_file_error": {
+            "type": "string",
+            "description": "Why the recipient file failed, when `recipient_file_status` is `error`. Customer.io omits it otherwise."
+          },
+          "recipient_file_status": {
+            "type": "string",
+            "description": "How far Customer.io has got with a recipient file, whether you uploaded it in the UI or passed `recipient_file_url`. Customer.io omits this field when the audience came from a `recipients` filter. Wait for `done` before you send or schedule.\n",
+            "enum": [
+              "pending",
+              "processing",
+              "done",
+              "error"
+            ]
           },
           "recipient_segment_ids": {
             "description": "If the recipient conditions included segments, this returns a list of those segment ids.",
@@ -133026,21 +133323,31 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Trigger a one-time send (referred to as a \"newsletter\" in our APIs) immediately. It must be in a draft state. If it has already been sent, you'll get a `400` error. The recipients are defined when you create/update the one-time send. If you're not sure who will receive it, you can use the [List one-time sends](/integrations/api/app/tag/newsletters/listNewsletters/) endpoint to get a list of one-time sends and their recipients.\n\nTo reschedule a one-time send, use the [Schedule a one-time send](/integrations/api/app/tag/send-messages/scheduleNewsletter/) endpoint instead.\n",
+        "description": "Trigger a one-time send (referred to as a \"newsletter\" in our APIs) immediately. It must be in a draft state. If it has already been sent, you'll get a `400` error. The recipients are fixed when you create the one-time send. If you're not sure who will receive it, you can use the [List one-time sends](/integrations/api/app/tag/newsletters/listNewsletters/) endpoint to get a list of one-time sends and their recipients.\n\nTo reschedule a one-time send, use the [Schedule a one-time send](/integrations/api/app/tag/send-messages/scheduleNewsletter/) endpoint instead.\n",
         "requestBody": {
           "required": false,
           "content": {
             "application/json": {
               "schema": {
-                "x-scalar-ignore": true,
-                "type": "object",
-                "example": {
-                  "rate_limit_email_rate": 500,
-                  "rate_limit_spread": true,
-                  "rate_limit_time_period": 60
-                },
-                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone.",
+                "allOf": [
+                  {
+                    "x-scalar-ignore": true,
+                    "type": "object",
+                    "example": {
+                      "rate_limit_email_rate": 500,
+                      "rate_limit_spread": true,
+                      "rate_limit_time_period": 60
+                    },
+                    "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                  }
+                ],
                 "properties": {
+                  "expires_after": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2592000,
+                    "description": "A send window in seconds measured from the moment the send starts, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes. You can't combine it with send time optimization, and on an A/B test it must outlast the test duration.\n"
+                  },
                   "rate_limit_email_rate": {
                     "type": "integer",
                     "minimum": 1,
@@ -133067,6 +133374,12 @@
                     "rate_limit_email_rate": 1000,
                     "rate_limit_spread": true,
                     "rate_limit_time_period": 3600
+                  }
+                },
+                "expiring": {
+                  "summary": "stop delivering after 6 hours",
+                  "value": {
+                    "expires_after": 21600
                   }
                 }
               }
@@ -133107,6 +133420,10 @@
                           "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                           "example": "15:1492548073"
                         },
+                        "expires_after": {
+                          "type": "integer",
+                          "description": "The send window in seconds, if you set one. Customer.io stops delivering the one-time send this long after it starts."
+                        },
                         "id": {
                           "x-scalar-ignore": true,
                           "description": "The identifier for a one-time send.",
@@ -133117,6 +133434,20 @@
                           "type": "string",
                           "description": "The name of the one-time send. Must be 190 characters or less.",
                           "readOnly": true
+                        },
+                        "recipient_file_error": {
+                          "type": "string",
+                          "description": "Why the recipient file failed, when `recipient_file_status` is `error`. Customer.io omits it otherwise."
+                        },
+                        "recipient_file_status": {
+                          "type": "string",
+                          "description": "How far Customer.io has got with a recipient file, whether you uploaded it in the UI or passed `recipient_file_url`. Customer.io omits this field when the audience came from a `recipients` filter. Wait for `done` before you send or schedule.\n",
+                          "enum": [
+                            "pending",
+                            "processing",
+                            "done",
+                            "error"
+                          ]
                         },
                         "recipient_segment_ids": {
                           "description": "If the recipient conditions included segments, this returns a list of those segment ids.",
@@ -133378,7 +133709,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Schedule a one-time send (referred to as a \"newsletter\" in our APIs) to send at a specific time. It must be in a draft state. If it has already been sent, you'll get a `400` error. If it's already scheduled, this endpoint updates the scheduled time.\n\nThe recipients are defined when you create/update the one-time send. If you're not sure who will receive it, you can use the [List one-time sends](/integrations/api/app/tag/newsletters/listNewsletters/) endpoint to get a list of one-time sends and their recipients.\n",
+        "description": "Schedule a one-time send (referred to as a \"newsletter\" in our APIs) to send at a specific time. It must be in a draft state. If it has already been sent, you'll get a `400` error. If it's already scheduled, this endpoint updates the scheduled time.\n\nThe recipients are fixed when you create the one-time send. If you're not sure who will receive it, you can use the [List one-time sends](/integrations/api/app/tag/newsletters/listNewsletters/) endpoint to get a list of one-time sends and their recipients.\n",
         "requestBody": {
           "required": true,
           "content": {
@@ -133411,6 +133742,12 @@
                     "type": "integer",
                     "format": "unix timestamp",
                     "description": "Unix timestamp for the send. Use `0` to deschedule. When greater than `0`, the time must be in the future and you must send `timezone` so the UI displays the time correctly.\n"
+                  },
+                  "expires_after": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2592000,
+                    "description": "A send window in seconds measured from the scheduled time, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes. You can't combine it with `tz_match_enabled`, with send time optimization, or with descheduling (`scheduled_at` of `0`), and on an A/B test it must outlast the test duration.\n"
                   },
                   "rate_limit_email_rate": {
                     "type": "integer",
@@ -133480,6 +133817,10 @@
                           "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                           "example": "15:1492548073"
                         },
+                        "expires_after": {
+                          "type": "integer",
+                          "description": "The send window in seconds, if you set one. Customer.io stops delivering the one-time send this long after it starts."
+                        },
                         "id": {
                           "x-scalar-ignore": true,
                           "description": "The identifier for a one-time send.",
@@ -133490,6 +133831,20 @@
                           "type": "string",
                           "description": "The name of the one-time send. Must be 190 characters or less.",
                           "readOnly": true
+                        },
+                        "recipient_file_error": {
+                          "type": "string",
+                          "description": "Why the recipient file failed, when `recipient_file_status` is `error`. Customer.io omits it otherwise."
+                        },
+                        "recipient_file_status": {
+                          "type": "string",
+                          "description": "How far Customer.io has got with a recipient file, whether you uploaded it in the UI or passed `recipient_file_url`. Customer.io omits this field when the audience came from a `recipients` filter. Wait for `done` before you send or schedule.\n",
+                          "enum": [
+                            "pending",
+                            "processing",
+                            "done",
+                            "error"
+                          ]
                         },
                         "recipient_segment_ids": {
                           "description": "If the recipient conditions included segments, this returns a list of those segment ids.",
@@ -174998,6 +175353,10 @@
                             "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                             "example": "15:1492548073"
                           },
+                          "expires_after": {
+                            "type": "integer",
+                            "description": "The send window in seconds, if you set one. Customer.io stops delivering the one-time send this long after it starts."
+                          },
                           "id": {
                             "x-scalar-ignore": true,
                             "description": "The identifier for a one-time send.",
@@ -175008,6 +175367,20 @@
                             "type": "string",
                             "description": "The name of the one-time send. Must be 190 characters or less.",
                             "readOnly": true
+                          },
+                          "recipient_file_error": {
+                            "type": "string",
+                            "description": "Why the recipient file failed, when `recipient_file_status` is `error`. Customer.io omits it otherwise."
+                          },
+                          "recipient_file_status": {
+                            "type": "string",
+                            "description": "How far Customer.io has got with a recipient file, whether you uploaded it in the UI or passed `recipient_file_url`. Customer.io omits this field when the audience came from a `recipients` filter. Wait for `done` before you send or schedule.\n",
+                            "enum": [
+                              "pending",
+                              "processing",
+                              "done",
+                              "error"
+                            ]
                           },
                           "recipient_segment_ids": {
                             "description": "If the recipient conditions included segments, this returns a list of those segment ids.",
@@ -175098,7 +175471,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Create a one-time send (referred to as a \"newsletter\" in our APIs) and optionally schedule it or send it immediately.\n\nTo send it immediately, set `send_now` to `true`. To schedule for later, set `scheduled_at` to a Unix timestamp in the future. If you don't set either, it's created as a draft.\n\nIf you [enabled a subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) in your workspace, `subscription_topic_id` is required. Use the [subscription center endpoint](/integrations/api/app/tag/subscription-center/getTopics/) to find IDs.\n\nUse standard HTML/CSS for the `body` of an email; this endpoint can't pull in global style variables or render our Design Studio's component syntax. You can create Design Studio emails through [other endpoints](/integrations/api/app/tag/design-studio/). All requests must be less than 1 MB.\n",
+        "description": "Create a one-time send (referred to as a \"newsletter\" in our APIs) and optionally schedule it or send it immediately.\n\nSet the audience with either `recipients` (a filter over segments and profile attributes) or `recipient_file_url` (a CSV of recipients). One of the two is required, and a request carrying both is rejected.\n\nTo send it immediately, set `send_now` to `true`. To schedule for later, set `scheduled_at` to a Unix timestamp in the future. If you don't set either, it's created as a draft.\n\nA `recipient_file_url` audience resolves in the background, so you can't send or schedule in the same request. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n\nThere's no endpoint that updates a one-time send, so `name`, the audience, and `deduped` are fixed once you create it. To change them on a draft, delete it and create a new one. You can still edit content through the [variant endpoints](/integrations/api/app/tag/newsletter-variants/listNewsletterVariants/) until it sends.\n\nIf you [enabled a subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) in your workspace, `subscription_topic_id` is required. Use the [subscription center endpoint](/integrations/api/app/tag/subscription-center/getTopics/) to find IDs.\n\nUse standard HTML/CSS for the `body` of an email; this endpoint can't pull in global style variables or render our Design Studio's component syntax. You can create Design Studio emails through [other endpoints](/integrations/api/app/tag/design-studio/). All requests must be less than 1 MB.\n",
         "tags": [
           "Newsletters"
         ],
@@ -175180,66 +175553,6 @@
                         "maxLength": 190,
                         "description": "The name of the one-time send."
                       },
-                      "recipients": {
-                        "type": "object",
-                        "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
-                        "properties": {
-                          "and": {
-                            "type": "array",
-                            "description": "An array of conditions that must all be true.",
-                            "items": {
-                              "type": "object"
-                            }
-                          },
-                          "attribute": {
-                            "type": "object",
-                            "description": "A customer attribute condition.",
-                            "properties": {
-                              "field": {
-                                "type": "string",
-                                "description": "The attribute name."
-                              },
-                              "inverse": {
-                                "type": "boolean",
-                                "description": "Set to `true` for \"is not equal\" or \"does not exist\"."
-                              },
-                              "operator": {
-                                "type": "string",
-                                "description": "The comparison operator.",
-                                "enum": [
-                                  "eq",
-                                  "exists"
-                                ]
-                              },
-                              "value": {
-                                "type": "string",
-                                "description": "The value to compare against. Required when `operator` is `eq`."
-                              }
-                            }
-                          },
-                          "not": {
-                            "type": "object",
-                            "description": "A condition or group of conditions to exclude. On this endpoint, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array. An object with both `and` and `not` keys is rejected with an \"Invalid filter spec\" error."
-                          },
-                          "or": {
-                            "type": "array",
-                            "description": "An array of conditions where at least one must be true. On this endpoint, `or` arrays can contain only segment conditions.",
-                            "items": {
-                              "type": "object"
-                            }
-                          },
-                          "segment": {
-                            "type": "object",
-                            "description": "A segment condition.",
-                            "properties": {
-                              "id": {
-                                "type": "integer",
-                                "description": "The ID of a segment."
-                              }
-                            }
-                          }
-                        }
-                      },
                       "subject": {
                         "type": "string",
                         "description": "The subject line of the email."
@@ -175247,6 +175560,16 @@
                       "body_plain": {
                         "type": "string",
                         "description": "The plaintext body of the email. If provided, this overwrites the auto-generated plaintext."
+                      },
+                      "deduped": {
+                        "type": "boolean",
+                        "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+                      },
+                      "expires_after": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2592000,
+                        "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
                       },
                       "from": {
                         "type": "string",
@@ -175285,6 +175608,71 @@
                         ],
                         "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
                       },
+                      "recipient_file_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+                      },
+                      "recipients": {
+                        "type": "object",
+                        "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                        "properties": {
+                          "and": {
+                            "type": "array",
+                            "description": "An array of conditions that must all be true.",
+                            "items": {
+                              "type": "object"
+                            }
+                          },
+                          "attribute": {
+                            "type": "object",
+                            "description": "A customer attribute condition.",
+                            "properties": {
+                              "field": {
+                                "type": "string",
+                                "description": "The attribute name."
+                              },
+                              "inverse": {
+                                "type": "boolean",
+                                "description": "Set to `true` for \"is not equal\" or \"does not exist\"."
+                              },
+                              "operator": {
+                                "type": "string",
+                                "description": "The comparison operator.",
+                                "enum": [
+                                  "eq",
+                                  "exists"
+                                ]
+                              },
+                              "value": {
+                                "type": "string",
+                                "description": "The value to compare against. Required when `operator` is `eq`."
+                              }
+                            }
+                          },
+                          "not": {
+                            "type": "object",
+                            "description": "A condition or group of conditions to exclude. On this endpoint, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array. An object with both `and` and `not` keys is rejected with an \"Invalid filter spec\" error."
+                          },
+                          "or": {
+                            "type": "array",
+                            "description": "An array of conditions where at least one must be true. On this endpoint, `or` arrays can contain only segment conditions.",
+                            "items": {
+                              "type": "object"
+                            }
+                          },
+                          "segment": {
+                            "type": "object",
+                            "description": "A segment condition.",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "The ID of a segment."
+                              }
+                            }
+                          }
+                        }
+                      },
                       "scheduled_at": {
                         "type": "integer",
                         "format": "unix timestamp",
@@ -175297,12 +175685,18 @@
                       "subscription_topic_id": {
                         "type": "integer",
                         "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+                      },
+                      "tag_ids": {
+                        "type": "array",
+                        "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                        "items": {
+                          "type": "integer"
+                        }
                       }
                     },
                     "required": [
                       "name",
                       "type",
-                      "recipients",
                       "subject",
                       "body"
                     ]
@@ -175341,9 +175735,42 @@
                         "maxLength": 190,
                         "description": "The name of the one-time send."
                       },
+                      "deduped": {
+                        "type": "boolean",
+                        "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+                      },
+                      "expires_after": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2592000,
+                        "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+                      },
+                      "rate_limit_email_rate": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+                      },
+                      "rate_limit_spread": {
+                        "type": "boolean",
+                        "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+                      },
+                      "rate_limit_time_period": {
+                        "type": "integer",
+                        "enum": [
+                          60,
+                          3600,
+                          86400
+                        ],
+                        "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+                      },
+                      "recipient_file_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+                      },
                       "recipients": {
                         "type": "object",
-                        "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                        "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                         "properties": {
                           "and": {
                             "type": "array",
@@ -175401,24 +175828,6 @@
                           }
                         }
                       },
-                      "rate_limit_email_rate": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-                      },
-                      "rate_limit_spread": {
-                        "type": "boolean",
-                        "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-                      },
-                      "rate_limit_time_period": {
-                        "type": "integer",
-                        "enum": [
-                          60,
-                          3600,
-                          86400
-                        ],
-                        "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-                      },
                       "scheduled_at": {
                         "type": "integer",
                         "format": "unix timestamp",
@@ -175431,12 +175840,18 @@
                       "subscription_topic_id": {
                         "type": "integer",
                         "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+                      },
+                      "tag_ids": {
+                        "type": "array",
+                        "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                        "items": {
+                          "type": "integer"
+                        }
                       }
                     },
                     "required": [
                       "name",
                       "type",
-                      "recipients",
                       "body"
                     ]
                   },
@@ -175469,9 +175884,47 @@
                         "maxLength": 190,
                         "description": "The name of the one-time send."
                       },
+                      "body": {
+                        "type": "string",
+                        "description": "The body content of the push notification. You must provide `subject`, `body`, or both.",
+                        "example": "Get 30% off everything. Tap to shop now."
+                      },
+                      "deduped": {
+                        "type": "boolean",
+                        "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+                      },
+                      "expires_after": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2592000,
+                        "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+                      },
+                      "rate_limit_email_rate": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+                      },
+                      "rate_limit_spread": {
+                        "type": "boolean",
+                        "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+                      },
+                      "rate_limit_time_period": {
+                        "type": "integer",
+                        "enum": [
+                          60,
+                          3600,
+                          86400
+                        ],
+                        "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+                      },
+                      "recipient_file_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+                      },
                       "recipients": {
                         "type": "object",
-                        "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                        "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                         "properties": {
                           "and": {
                             "type": "array",
@@ -175529,29 +175982,6 @@
                           }
                         }
                       },
-                      "body": {
-                        "type": "string",
-                        "description": "The body content of the push notification. You must provide `subject`, `body`, or both.",
-                        "example": "Get 30% off everything. Tap to shop now."
-                      },
-                      "rate_limit_email_rate": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-                      },
-                      "rate_limit_spread": {
-                        "type": "boolean",
-                        "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-                      },
-                      "rate_limit_time_period": {
-                        "type": "integer",
-                        "enum": [
-                          60,
-                          3600,
-                          86400
-                        ],
-                        "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-                      },
                       "scheduled_at": {
                         "type": "integer",
                         "format": "unix timestamp",
@@ -175569,12 +175999,18 @@
                       "subscription_topic_id": {
                         "type": "integer",
                         "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+                      },
+                      "tag_ids": {
+                        "type": "array",
+                        "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                        "items": {
+                          "type": "integer"
+                        }
                       }
                     },
                     "required": [
                       "name",
-                      "type",
-                      "recipients"
+                      "type"
                     ]
                   },
                   {
@@ -175612,9 +176048,42 @@
                         "maxLength": 190,
                         "description": "The name of the one-time send."
                       },
+                      "deduped": {
+                        "type": "boolean",
+                        "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+                      },
+                      "expires_after": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2592000,
+                        "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+                      },
+                      "rate_limit_email_rate": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+                      },
+                      "rate_limit_spread": {
+                        "type": "boolean",
+                        "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+                      },
+                      "rate_limit_time_period": {
+                        "type": "integer",
+                        "enum": [
+                          60,
+                          3600,
+                          86400
+                        ],
+                        "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+                      },
+                      "recipient_file_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+                      },
                       "recipients": {
                         "type": "object",
-                        "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                        "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                         "properties": {
                           "and": {
                             "type": "array",
@@ -175672,24 +176141,6 @@
                           }
                         }
                       },
-                      "rate_limit_email_rate": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-                      },
-                      "rate_limit_spread": {
-                        "type": "boolean",
-                        "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-                      },
-                      "rate_limit_time_period": {
-                        "type": "integer",
-                        "enum": [
-                          60,
-                          3600,
-                          86400
-                        ],
-                        "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-                      },
                       "scheduled_at": {
                         "type": "integer",
                         "format": "unix timestamp",
@@ -175702,12 +176153,18 @@
                       "subscription_topic_id": {
                         "type": "integer",
                         "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+                      },
+                      "tag_ids": {
+                        "type": "array",
+                        "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                        "items": {
+                          "type": "integer"
+                        }
                       }
                     },
                     "required": [
                       "name",
                       "type",
-                      "recipients",
                       "body_json"
                     ]
                   },
@@ -175745,9 +176202,57 @@
                         "maxLength": 190,
                         "description": "The name of the one-time send."
                       },
+                      "request_method": {
+                        "type": "string",
+                        "description": "The HTTP method for the webhook request.",
+                        "enum": [
+                          "DELETE",
+                          "GET",
+                          "POST",
+                          "PUT",
+                          "PATCH"
+                        ]
+                      },
+                      "url": {
+                        "type": "string",
+                        "description": "The URL to send the webhook request to."
+                      },
+                      "deduped": {
+                        "type": "boolean",
+                        "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+                      },
+                      "expires_after": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2592000,
+                        "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+                      },
+                      "rate_limit_email_rate": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+                      },
+                      "rate_limit_spread": {
+                        "type": "boolean",
+                        "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+                      },
+                      "rate_limit_time_period": {
+                        "type": "integer",
+                        "enum": [
+                          60,
+                          3600,
+                          86400
+                        ],
+                        "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+                      },
+                      "recipient_file_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+                      },
                       "recipients": {
                         "type": "object",
-                        "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                        "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                         "properties": {
                           "and": {
                             "type": "array",
@@ -175805,39 +176310,6 @@
                           }
                         }
                       },
-                      "request_method": {
-                        "type": "string",
-                        "description": "The HTTP method for the webhook request.",
-                        "enum": [
-                          "DELETE",
-                          "GET",
-                          "POST",
-                          "PUT",
-                          "PATCH"
-                        ]
-                      },
-                      "url": {
-                        "type": "string",
-                        "description": "The URL to send the webhook request to."
-                      },
-                      "rate_limit_email_rate": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-                      },
-                      "rate_limit_spread": {
-                        "type": "boolean",
-                        "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-                      },
-                      "rate_limit_time_period": {
-                        "type": "integer",
-                        "enum": [
-                          60,
-                          3600,
-                          86400
-                        ],
-                        "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-                      },
                       "scheduled_at": {
                         "type": "integer",
                         "format": "unix timestamp",
@@ -175850,12 +176322,18 @@
                       "subscription_topic_id": {
                         "type": "integer",
                         "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+                      },
+                      "tag_ids": {
+                        "type": "array",
+                        "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                        "items": {
+                          "type": "integer"
+                        }
                       }
                     },
                     "required": [
                       "name",
                       "type",
-                      "recipients",
                       "body",
                       "request_method",
                       "url"
@@ -175896,9 +176374,42 @@
                         "maxLength": 190,
                         "description": "The name of the one-time send."
                       },
+                      "deduped": {
+                        "type": "boolean",
+                        "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+                      },
+                      "expires_after": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2592000,
+                        "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+                      },
+                      "rate_limit_email_rate": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+                      },
+                      "rate_limit_spread": {
+                        "type": "boolean",
+                        "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+                      },
+                      "rate_limit_time_period": {
+                        "type": "integer",
+                        "enum": [
+                          60,
+                          3600,
+                          86400
+                        ],
+                        "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+                      },
+                      "recipient_file_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+                      },
                       "recipients": {
                         "type": "object",
-                        "description": "Filter conditions that define the one-time send's recipients. Combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                        "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
                         "properties": {
                           "and": {
                             "type": "array",
@@ -175956,24 +176467,6 @@
                           }
                         }
                       },
-                      "rate_limit_email_rate": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
-                      },
-                      "rate_limit_spread": {
-                        "type": "boolean",
-                        "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
-                      },
-                      "rate_limit_time_period": {
-                        "type": "integer",
-                        "enum": [
-                          60,
-                          3600,
-                          86400
-                        ],
-                        "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
-                      },
                       "scheduled_at": {
                         "type": "integer",
                         "format": "unix timestamp",
@@ -175986,12 +176479,18 @@
                       "subscription_topic_id": {
                         "type": "integer",
                         "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+                      },
+                      "tag_ids": {
+                        "type": "array",
+                        "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                        "items": {
+                          "type": "integer"
+                        }
                       }
                     },
                     "required": [
                       "name",
                       "type",
-                      "recipients",
                       "body_json"
                     ]
                   }
@@ -176007,6 +176506,12 @@
                     "type": "email",
                     "body": "<html><body><h1>Product Updates</h1><p>Here's what we shipped this week...</p></body></html>",
                     "name": "Weekly Product Update",
+                    "subject": "What's new this week, {{ customer.first_name }}",
+                    "from": "Product Team <updates@example.com>",
+                    "preheader_text": "Check out our latest features and improvements",
+                    "rate_limit_email_rate": 500,
+                    "rate_limit_spread": true,
+                    "rate_limit_time_period": 60,
                     "recipients": {
                       "and": [
                         {
@@ -176032,14 +176537,20 @@
                         }
                       ]
                     },
-                    "subject": "What's new this week, {{ customer.first_name }}",
-                    "from": "Product Team <updates@example.com>",
-                    "preheader_text": "Check out our latest features and improvements",
-                    "rate_limit_email_rate": 500,
-                    "rate_limit_spread": true,
-                    "rate_limit_time_period": 60,
                     "send_now": true,
                     "subscription_topic_id": 5
+                  }
+                },
+                "recipient_file": {
+                  "summary": "audience from a CSV file",
+                  "description": "A file audience resolves in the background, so this request can't also send or\nschedule. Poll Get a one-time send until `recipient_file_status` is `done`, then\ncall send or schedule.\n",
+                  "value": {
+                    "type": "email",
+                    "body": "<html><body><p>It was good to meet you.</p></body></html>",
+                    "name": "Conference Attendee Follow-up",
+                    "subject": "Thanks for stopping by, {{ customer.first_name }}",
+                    "from": "Events Team <events@example.com>",
+                    "recipient_file_url": "https://files.example.com/exports/attendees.csv"
                   }
                 },
                 "include_exclude_segments": {
@@ -176049,6 +176560,8 @@
                     "type": "email",
                     "body": "<html><body><h1>Product Updates</h1><p>Here's what we shipped this week...</p></body></html>",
                     "name": "Weekly Product Update",
+                    "subject": "What's new this week, {{ customer.first_name }}",
+                    "from": "Product Team <updates@example.com>",
                     "recipients": {
                       "and": [
                         {
@@ -176073,8 +176586,6 @@
                         }
                       ]
                     },
-                    "subject": "What's new this week, {{ customer.first_name }}",
-                    "from": "Product Team <updates@example.com>",
                     "send_now": true,
                     "subscription_topic_id": 5
                   }
@@ -176117,6 +176628,10 @@
                           "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                           "example": "15:1492548073"
                         },
+                        "expires_after": {
+                          "type": "integer",
+                          "description": "The send window in seconds, if you set one. Customer.io stops delivering the one-time send this long after it starts."
+                        },
                         "id": {
                           "x-scalar-ignore": true,
                           "description": "The identifier for a one-time send.",
@@ -176127,6 +176642,20 @@
                           "type": "string",
                           "description": "The name of the one-time send. Must be 190 characters or less.",
                           "readOnly": true
+                        },
+                        "recipient_file_error": {
+                          "type": "string",
+                          "description": "Why the recipient file failed, when `recipient_file_status` is `error`. Customer.io omits it otherwise."
+                        },
+                        "recipient_file_status": {
+                          "type": "string",
+                          "description": "How far Customer.io has got with a recipient file, whether you uploaded it in the UI or passed `recipient_file_url`. Customer.io omits this field when the audience came from a `recipients` filter. Wait for `done` before you send or schedule.\n",
+                          "enum": [
+                            "pending",
+                            "processing",
+                            "done",
+                            "error"
+                          ]
                         },
                         "recipient_segment_ids": {
                           "description": "If the recipient conditions included segments, this returns a list of those segment ids.",
@@ -176351,7 +176880,7 @@
           {
             "lang": "json",
             "label": "JSON",
-            "source": "{\n  \"type\": \"email\",\n  \"body\": \"<html><body><h1>Product Updates</h1><p>Here's what we shipped this week...</p></body></html>\",\n  \"name\": \"Weekly Product Update\",\n  \"recipients\": {\n    \"and\": [\n      {\n        \"or\": [\n          {\n            \"segment\": {\n              \"id\": 42\n            }\n          },\n          {\n            \"segment\": {\n              \"id\": 99\n            }\n          }\n        ]\n      },\n      {\n        \"attribute\": {\n          \"field\": \"plan\",\n          \"operator\": \"eq\",\n          \"value\": \"enterprise\"\n        }\n      }\n    ]\n  },\n  \"subject\": \"What's new this week, {{ customer.first_name }}\",\n  \"from\": \"Product Team <updates@example.com>\",\n  \"preheader_text\": \"Check out our latest features and improvements\",\n  \"rate_limit_email_rate\": 500,\n  \"rate_limit_spread\": true,\n  \"rate_limit_time_period\": 60,\n  \"send_now\": true,\n  \"subscription_topic_id\": 5\n}"
+            "source": "{\n  \"type\": \"email\",\n  \"body\": \"<html><body><h1>Product Updates</h1><p>Here's what we shipped this week...</p></body></html>\",\n  \"name\": \"Weekly Product Update\",\n  \"subject\": \"What's new this week, {{ customer.first_name }}\",\n  \"from\": \"Product Team <updates@example.com>\",\n  \"preheader_text\": \"Check out our latest features and improvements\",\n  \"rate_limit_email_rate\": 500,\n  \"rate_limit_spread\": true,\n  \"rate_limit_time_period\": 60,\n  \"recipients\": {\n    \"and\": [\n      {\n        \"or\": [\n          {\n            \"segment\": {\n              \"id\": 42\n            }\n          },\n          {\n            \"segment\": {\n              \"id\": 99\n            }\n          }\n        ]\n      },\n      {\n        \"attribute\": {\n          \"field\": \"plan\",\n          \"operator\": \"eq\",\n          \"value\": \"enterprise\"\n        }\n      }\n    ]\n  },\n  \"send_now\": true,\n  \"subscription_topic_id\": 5\n}"
           }
         ]
       }
@@ -176420,6 +176949,10 @@
                           "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                           "example": "15:1492548073"
                         },
+                        "expires_after": {
+                          "type": "integer",
+                          "description": "The send window in seconds, if you set one. Customer.io stops delivering the one-time send this long after it starts."
+                        },
                         "id": {
                           "x-scalar-ignore": true,
                           "description": "The identifier for a one-time send.",
@@ -176430,6 +176963,20 @@
                           "type": "string",
                           "description": "The name of the one-time send. Must be 190 characters or less.",
                           "readOnly": true
+                        },
+                        "recipient_file_error": {
+                          "type": "string",
+                          "description": "Why the recipient file failed, when `recipient_file_status` is `error`. Customer.io omits it otherwise."
+                        },
+                        "recipient_file_status": {
+                          "type": "string",
+                          "description": "How far Customer.io has got with a recipient file, whether you uploaded it in the UI or passed `recipient_file_url`. Customer.io omits this field when the audience came from a `recipients` filter. Wait for `done` before you send or schedule.\n",
+                          "enum": [
+                            "pending",
+                            "processing",
+                            "done",
+                            "error"
+                          ]
                         },
                         "recipient_segment_ids": {
                           "description": "If the recipient conditions included segments, this returns a list of those segment ids.",
@@ -179063,6 +179610,10 @@
                           "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                           "example": "15:1492548073"
                         },
+                        "expires_after": {
+                          "type": "integer",
+                          "description": "The send window in seconds, if you set one. Customer.io stops delivering the one-time send this long after it starts."
+                        },
                         "id": {
                           "x-scalar-ignore": true,
                           "description": "The identifier for a one-time send.",
@@ -179073,6 +179624,20 @@
                           "type": "string",
                           "description": "The name of the one-time send. Must be 190 characters or less.",
                           "readOnly": true
+                        },
+                        "recipient_file_error": {
+                          "type": "string",
+                          "description": "Why the recipient file failed, when `recipient_file_status` is `error`. Customer.io omits it otherwise."
+                        },
+                        "recipient_file_status": {
+                          "type": "string",
+                          "description": "How far Customer.io has got with a recipient file, whether you uploaded it in the UI or passed `recipient_file_url`. Customer.io omits this field when the audience came from a `recipients` filter. Wait for `done` before you send or schedule.\n",
+                          "enum": [
+                            "pending",
+                            "processing",
+                            "done",
+                            "error"
+                          ]
                         },
                         "recipient_segment_ids": {
                           "description": "If the recipient conditions included segments, this returns a list of those segment ids.",
@@ -180389,6 +180954,10 @@
                           "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                           "example": "15:1492548073"
                         },
+                        "expires_after": {
+                          "type": "integer",
+                          "description": "The send window in seconds, if you set one. Customer.io stops delivering the one-time send this long after it starts."
+                        },
                         "id": {
                           "x-scalar-ignore": true,
                           "description": "The identifier for a one-time send.",
@@ -180399,6 +180968,20 @@
                           "type": "string",
                           "description": "The name of the one-time send. Must be 190 characters or less.",
                           "readOnly": true
+                        },
+                        "recipient_file_error": {
+                          "type": "string",
+                          "description": "Why the recipient file failed, when `recipient_file_status` is `error`. Customer.io omits it otherwise."
+                        },
+                        "recipient_file_status": {
+                          "type": "string",
+                          "description": "How far Customer.io has got with a recipient file, whether you uploaded it in the UI or passed `recipient_file_url`. Customer.io omits this field when the audience came from a `recipients` filter. Wait for `done` before you send or schedule.\n",
+                          "enum": [
+                            "pending",
+                            "processing",
+                            "done",
+                            "error"
+                          ]
                         },
                         "recipient_segment_ids": {
                           "description": "If the recipient conditions included segments, this returns a list of those segment ids.",
@@ -180782,6 +181365,10 @@
                           "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                           "example": "15:1492548073"
                         },
+                        "expires_after": {
+                          "type": "integer",
+                          "description": "The send window in seconds, if you set one. Customer.io stops delivering the one-time send this long after it starts."
+                        },
                         "id": {
                           "x-scalar-ignore": true,
                           "description": "The identifier for a one-time send.",
@@ -180792,6 +181379,20 @@
                           "type": "string",
                           "description": "The name of the one-time send. Must be 190 characters or less.",
                           "readOnly": true
+                        },
+                        "recipient_file_error": {
+                          "type": "string",
+                          "description": "Why the recipient file failed, when `recipient_file_status` is `error`. Customer.io omits it otherwise."
+                        },
+                        "recipient_file_status": {
+                          "type": "string",
+                          "description": "How far Customer.io has got with a recipient file, whether you uploaded it in the UI or passed `recipient_file_url`. Customer.io omits this field when the audience came from a `recipients` filter. Wait for `done` before you send or schedule.\n",
+                          "enum": [
+                            "pending",
+                            "processing",
+                            "done",
+                            "error"
+                          ]
                         },
                         "recipient_segment_ids": {
                           "description": "If the recipient conditions included segments, this returns a list of those segment ids.",
