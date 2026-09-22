@@ -817,7 +817,7 @@
         "name": "id",
         "in": "path",
         "required": true,
-        "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+        "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
         "schema": {
           "type": "string",
           "format": "uuid"
@@ -158246,7 +158246,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+            "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -158846,7 +158846,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+            "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -159449,7 +159449,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+            "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -159602,7 +159602,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+            "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -160203,7 +160203,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+            "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -161329,7 +161329,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+            "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -161936,7 +161936,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+            "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -162530,7 +162530,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+            "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -162692,7 +162692,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+            "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -163015,7 +163015,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+            "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -163308,7 +163308,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+            "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -163606,7 +163606,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "The UUID of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
+            "description": "The id of the email. If your email has multiple languages, you must provide the ID of the **default** language template. This links the workflow to all of the language variants for the template.",
             "schema": {
               "type": "string",
               "format": "uuid"
@@ -164380,6 +164380,387 @@
             "lang": "json",
             "label": "JSON",
             "source": "{\n  \"customer\": {\n    \"first_name\": \"Jane\",\n    \"email\": \"jane@example.com\",\n    \"plan\": \"enterprise\"\n  },\n  \"event\": {\n    \"name\": \"order_completed\",\n    \"total\": 149.99\n  }\n}"
+          }
+        ]
+      }
+    },
+    "/v1/design_studio/emails/{id}/test_send": {
+      "post": {
+        "tags": [
+          "Design Studio emails"
+        ],
+        "summary": "Send a test email",
+        "description": "Sends a test email to a real inbox through your sending domain using the content saved to Design Studio. The test includes the tracking pixel and link parameters a real send would add, so you can see your email as it would appear in an actual email client. To get the rendered HTML back in the API response instead, use [Preview an email](/integrations/api/app/tag/design-studio-emails/previewEmail/).\n\n* **If you already linked the email to a workflow**, then keep in mind that what's *saved* to Design Studio may differ from what's *published* to the linked workflow. Make sure you publish your changes when you're ready to push them to your linked workflow.\n\n* **If your email has translations**, you have to send this request separately for each language variant. Pass the ID of the specific translation you want to test, which you can retrieve from [List email translations](/integrations/api/app/tag/design-studio-emails/listEmailTranslations/).\n\n* **If the email contains liquid variables**, you can provide sample data in the request body to check how the liquid renders. Without sample data, the send still succeeds, but each variable renders as an empty string and the response includes a warning. A variable with a fallback filter like `default` renders its fallback instead. A liquid syntax error, like a missing close tag, always fails the request.\n\nYour account has a set number of test emails you can send per day. This endpoint counts towards that quota. Learn more in [Plan features](/accounts/billing/plan-features/#general-features).\n",
+        "operationId": "testSendEmail",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The UUID of the email. If your email has translations, this is the ID of a specific language variant.\n",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "to"
+                ],
+                "properties": {
+                  "to": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The email addresses you want to send the test to. You can send to up to 25 addresses per request; up to three addresses on a trial account; or a single address (the account owner's address or your workspace's delivery address) if your account isn't verified yet.\n"
+                  },
+                  "customer": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "description": "Sample profile attributes for `customer.*` liquid variables, as a flat object of values. Encode a nested value as a JSON string. You can pass this alongside `customer_id`: Customer.io uses the profile's attributes, and a value here overrides the profile's value for the same key.\n",
+                    "additionalProperties": true
+                  },
+                  "customer_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The person whose profile attributes fill in `customer.*` liquid variables. Pass the person's `cio_id` or the `id` that identifies them in your workspace. If nobody matches, the request fails. When you omit this field and don't pass `customer` values, the email renders with empty `customer.*` values and the response includes a warning.\n"
+                  },
+                  "event": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "description": "Sample event data for `event.*` liquid variables. The `event` key references trigger data for event-triggered automations.\n",
+                    "additionalProperties": true
+                  },
+                  "lax": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set to `true` to render a liquid variable your sample data doesn't cover as an empty string rather than failing the request. Only applies when you pass `customer_id` or `customer`; without sample data, the email renders this way anyway and the response includes a warning.\n"
+                  },
+                  "prepend_test": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Set to `true` to add `[TEST]` to the start of the subject line."
+                  },
+                  "tracked": {
+                    "type": "boolean",
+                    "description": "Set to `true` to add a tracking pixel or `false` to leave it out. If you don't pass this field, Customer.io uses the tracking setting of the workflow message the email is linked to, and adds the pixel when the email isn't linked to a workflow message. Customer.io never adds the pixel for unverified accounts.\n"
+                  },
+                  "trigger": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "description": "Sample trigger data for `trigger.*` liquid variables. The `trigger` key references trigger data for these specific workflows: API-triggered broadcasts or transactional messages.\n",
+                    "additionalProperties": true
+                  }
+                }
+              },
+              "example": {
+                "to": [
+                  "pigeon@customer.io",
+                  "penguin@customer.io"
+                ],
+                "customer": {
+                  "first_name": "Ada",
+                  "vip": "gold",
+                  "cio_subscription_preferences": "{\"topics\":{\"topic_2\":true}}"
+                },
+                "customer_id": "5",
+                "prepend_test": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Test accepted for delivery",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accepted": {
+                      "type": "boolean",
+                      "description": "Always `true` in a 200 response. Anything that stops the send returns a 4xx instead. Acceptance isn't proof of delivery."
+                    },
+                    "from": {
+                      "type": "string",
+                      "description": "The rendered `From` header the test was sent with.\n"
+                    },
+                    "language": {
+                      "type": "string",
+                      "description": "The language code if the message is a language variant. Omitted for the default-language node."
+                    },
+                    "node_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "The email node that was tested."
+                    },
+                    "node_type": {
+                      "type": "string",
+                      "enum": [
+                        "EMAIL"
+                      ],
+                      "description": "The response represents an email."
+                    },
+                    "subject": {
+                      "type": "string",
+                      "description": "The rendered subject line, including the `[TEST]` prefix if you set `prepend_test`."
+                    },
+                    "to": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "The recipients the test was sent to."
+                    },
+                    "warnings": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "The ways this test differs from a real send. Customer.io delivered the email anyway, so read these before you trust what landed in the inbox. You might see that no profile data was available, that context a test send can't supply rendered as empty strings (like `campaign.*` or `message.*` on an email that isn't linked to a workflow), that Customer.io ignored a routing key like `recipient` or `from_address` in your `event` or `trigger` data, or that a recipient field in the template failed to render. That last one doesn't change who got the test: it goes only to the addresses in `to`. Omitted when there's nothing to report.\n"
+                    }
+                  }
+                },
+                "example": {
+                  "accepted": true,
+                  "from": "\"No reply\" <noreply@customer.io>",
+                  "node_id": "1a0cbb4e-09d3-402e-949e-f6732f021650",
+                  "node_type": "EMAIL",
+                  "subject": "[TEST] Welcome Ada",
+                  "to": [
+                    "pigeon@customer.io",
+                    "penguin@customer.io"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The ID isn't a valid email node, your account isn't verified yet and `to` holds an address it can't send to, or you've reached your [daily test-send limit](/accounts/billing/plan-features/#general-features).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "unauthorized",
+                      "status": "401"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The email node doesn't exist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "email not found",
+                      "status": "404"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "A request field is invalid or the email's liquid didn't render. Each error's `source.pointer` names what failed, as `/data/attributes/<name>`. That name isn't always something you sent: `node_id` points at the email itself, and a liquid error can name `url_params`, `layout`, or `snippets`.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "to is required: a test send made with an API key has no user to default the recipient to",
+                      "status": "422",
+                      "source": {
+                        "pointer": "/data/attributes/to"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited. Every request to this endpoint draws from two buckets: a per-workspace bucket (burst of 20, refilling one every 9 seconds), the same limit the dashboard applies to its own test sends, and a per-IP bucket (burst of 30, refilling one every 10 seconds) that catches one IP address spread across many accounts. Hitting either limit returns this response. The response carries a `Retry-After` header.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "An error response containing one or more error details.",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "A list of errors that occurred while processing the request.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "Reason for error"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "description": "Additional detail about the error, when there is any. A failed publish uses this to list Liquid errors per language."
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "Response code"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "json",
+            "label": "JSON",
+            "source": "{\n  \"to\": [\n    \"pigeon@customer.io\",\n    \"penguin@customer.io\"\n  ],\n  \"customer\": {\n    \"first_name\": \"Ada\",\n    \"vip\": \"gold\",\n    \"cio_subscription_preferences\": \"{\\\"topics\\\":{\\\"topic_2\\\":true}}\"\n  },\n  \"customer_id\": \"5\",\n  \"prepend_test\": true\n}"
           }
         ]
       }
