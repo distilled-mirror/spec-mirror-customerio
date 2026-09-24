@@ -11571,10 +11571,24 @@
             "default": false,
             "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
           },
+          "expires_after": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2592000,
+            "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+            "example": 3600
+          },
           "id_ignore_missing": {
             "type": "boolean",
             "default": false,
             "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+          },
+          "scheduled_at": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+            "example": 1796128200
           }
         }
       },
@@ -11608,10 +11622,24 @@
                 "default": false,
                 "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
               },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "example": 3600
+              },
               "id_ignore_missing": {
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "scheduled_at": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647,
+                "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+                "example": 1796128200
               }
             }
           },
@@ -13359,10 +13387,24 @@
                 "default": false,
                 "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
               },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "example": 3600
+              },
               "id_ignore_missing": {
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "scheduled_at": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647,
+                "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+                "example": 1796128200
               }
             },
             "required": [
@@ -13408,10 +13450,24 @@
                 "default": false,
                 "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
               },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "example": 3600
+              },
               "id_ignore_missing": {
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "scheduled_at": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647,
+                "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+                "example": 1796128200
               }
             },
             "required": [
@@ -13457,10 +13513,24 @@
                 "default": false,
                 "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
               },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "example": 3600
+              },
               "id_ignore_missing": {
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "scheduled_at": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647,
+                "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+                "example": 1796128200
               }
             },
             "required": [
@@ -13571,10 +13641,24 @@
                 "default": false,
                 "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
               },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "example": 3600
+              },
               "id_ignore_missing": {
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "scheduled_at": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647,
+                "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+                "example": 1796128200
               }
             },
             "required": [
@@ -13614,10 +13698,24 @@
                 "default": false,
                 "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
               },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "example": 3600
+              },
               "id_ignore_missing": {
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "scheduled_at": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647,
+                "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+                "example": 1796128200
               }
             },
             "required": [
@@ -13883,6 +13981,11 @@
             "description": "The identifier for a broadcast.",
             "example": 2
           },
+          "cancelled_at": {
+            "type": "integer",
+            "format": "unix timestamp",
+            "description": "The date-time you canceled this trigger, or `0` if you haven't canceled it."
+          },
           "created_at": {
             "x-scalar-ignore": true,
             "type": "integer",
@@ -13890,6 +13993,10 @@
             "description": "The date time when the referenced ID was created.",
             "example": 1552341937,
             "readOnly": true
+          },
+          "expires_after": {
+            "type": "integer",
+            "description": "The send window in seconds that you set when you triggered the broadcast, or `0` if the send has no expiry."
           },
           "id": {
             "type": "integer",
@@ -13899,6 +14006,11 @@
             "type": "integer",
             "format": "unix timestamp",
             "description": "The date-time when Customer.io processed the trigger."
+          },
+          "scheduled_at": {
+            "type": "integer",
+            "format": "unix timestamp",
+            "description": "The date-time this trigger is scheduled to send at, or `0` if you didn't schedule it."
           }
         }
       },
@@ -130193,7 +130305,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Trigger a broadcast (not a one-time send) and optionally provide data to populate liquid placeholders in the message.\n\nThe shape of the request depends on how you define your audience: default (the recipients set in the UI), custom filter conditions, a list of emails, a list of customer IDs, a map of users, or a data file.\n\n**You can only trigger broadcasts to send to people you've already added to your workspace.** A broadcast cannot add or identify new people. If you reference people who don't exist in your broadcast audience, the broadcast will fail by default. You can override this behavior by setting the `email_ignore_missing` and/or `id_ignore_missing` flags to `true`. The broadcast will skip over any people who don't exist in your workspace and send to the remaining recipients.\n\nYou can reference properties in the `data` object in your broadcast using liquid—`{{trigger.<property_in_data_obj>}}`.\n\nIf your broadcast produces a `422` error, you can [get more information about the errors](/integrations/api/app/tag/broadcasts/broadcastErrors/) to see what went wrong.\n\n**This endpoint is rate-limited to one request every 10 seconds.** After exceeding this, you'll receive a status of `429`. Learn more about [API-triggered broadcast limits](/integrations/api/app/tag/send-messages/) above.\n\nBroadcasts are optimized to send messages to a large audience and not for one-to-one interactions. Use our [transactional API](/integrations/api/app/tag/send-messages/sendEmail/) or [event-triggered automations](/journeys/send/campaigns/triggers/#event-trigger) to respond to your audience on an individual, one-to-one basis.\n",
+        "description": "Trigger a broadcast (not a one-time send) and optionally provide data to populate liquid placeholders in the message.\n\nThe shape of the request depends on how you define your audience: default (the recipients set in the UI), custom filter conditions, a list of emails, a list of customer IDs, a map of users, or a data file.\n\n**You can only trigger broadcasts to send to people you've already added to your workspace.** A broadcast cannot add or identify new people. If you reference people who don't exist in your broadcast audience, the broadcast will fail by default. You can override this behavior by setting the `email_ignore_missing` and/or `id_ignore_missing` flags to `true`. The broadcast will skip over any people who don't exist in your workspace and send to the remaining recipients.\n\nYou can reference properties in the `data` object in your broadcast using liquid—`{{trigger.<property_in_data_obj>}}`.\n\nBy default, we send your broadcast as soon as you trigger it. Set `scheduled_at` to send it at a future time instead. You can [cancel the trigger](/integrations/api/app/tag/send-messages/cancelBroadcastTrigger/) to stop a scheduled send before it starts sending. You can't change a trigger's `scheduled_at` value later; if you need to reschedule your broadcast, you must cancel the trigger and re-trigger the broadcast with the new timestamp.\n\nIf your broadcast produces a `422` error, you can [get more information about the errors](/integrations/api/app/tag/broadcasts/broadcastErrors/) to see what went wrong.\n\n**This endpoint is rate-limited to one request every 10 seconds.** After exceeding this, you'll receive a status of `429`. Learn more about [API-triggered broadcast limits](/integrations/api/app/tag/send-messages/) above.\n\nBroadcasts are optimized to send messages to a large audience and not for one-to-one interactions. Use our [transactional API](/integrations/api/app/tag/send-messages/sendEmail/) or [event-triggered automations](/journeys/send/campaigns/triggers/#event-trigger) to respond to your audience on an individual, one-to-one basis.\n",
         "requestBody": {
           "content": {
             "application/json": {
@@ -130228,10 +130340,24 @@
                         "default": false,
                         "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
                       },
+                      "expires_after": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2592000,
+                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                        "example": 3600
+                      },
                       "id_ignore_missing": {
                         "type": "boolean",
                         "default": false,
                         "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+                      },
+                      "scheduled_at": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2147483647,
+                        "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+                        "example": 1796128200
                       }
                     }
                   },
@@ -131979,10 +132105,24 @@
                         "default": false,
                         "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
                       },
+                      "expires_after": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2592000,
+                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                        "example": 3600
+                      },
                       "id_ignore_missing": {
                         "type": "boolean",
                         "default": false,
                         "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+                      },
+                      "scheduled_at": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2147483647,
+                        "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+                        "example": 1796128200
                       }
                     },
                     "required": [
@@ -132028,10 +132168,24 @@
                         "default": false,
                         "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
                       },
+                      "expires_after": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2592000,
+                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                        "example": 3600
+                      },
                       "id_ignore_missing": {
                         "type": "boolean",
                         "default": false,
                         "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+                      },
+                      "scheduled_at": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2147483647,
+                        "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+                        "example": 1796128200
                       }
                     },
                     "required": [
@@ -132077,10 +132231,24 @@
                         "default": false,
                         "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
                       },
+                      "expires_after": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2592000,
+                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                        "example": 3600
+                      },
                       "id_ignore_missing": {
                         "type": "boolean",
                         "default": false,
                         "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+                      },
+                      "scheduled_at": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2147483647,
+                        "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+                        "example": 1796128200
                       }
                     },
                     "required": [
@@ -132191,10 +132359,24 @@
                         "default": false,
                         "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
                       },
+                      "expires_after": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2592000,
+                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                        "example": 3600
+                      },
                       "id_ignore_missing": {
                         "type": "boolean",
                         "default": false,
                         "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+                      },
+                      "scheduled_at": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2147483647,
+                        "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+                        "example": 1796128200
                       }
                     },
                     "required": [
@@ -132234,10 +132416,24 @@
                         "default": false,
                         "description": "If false, a missing email causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have emails, and continue sending to the rest of your audience."
                       },
+                      "expires_after": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2592000,
+                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                        "example": 3600
+                      },
                       "id_ignore_missing": {
                         "type": "boolean",
                         "default": false,
                         "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+                      },
+                      "scheduled_at": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2147483647,
+                        "description": "Unix timestamp (in seconds) when the broadcast will send. Omit it or set it to `0` to send right away. We reject a timestamp more than 5 minutes in the past. Scheduling also changes when we work out your audience: `ids`, `emails`, `per_user_data`, and `data_file_url` set a fixed audience when you make this request, while a `recipients` filter runs when the send fires.\n",
+                        "example": 1796128200
                       }
                     },
                     "required": [
@@ -132322,7 +132518,7 @@
           {
             "lang": "json",
             "label": "JSON",
-            "source": "{\n  \"data\": {\n    \"headline\": \"Roadrunner spotted in Albuquerque!\",\n    \"date\": 1511315635,\n    \"text\": \"We received reports of a roadrunner in your immediate area! Head to your dashboard to view more information!\"\n  },\n  \"email_add_duplicates\": false,\n  \"email_ignore_missing\": false,\n  \"id_ignore_missing\": false\n}"
+            "source": "{\n  \"data\": {\n    \"headline\": \"Roadrunner spotted in Albuquerque!\",\n    \"date\": 1511315635,\n    \"text\": \"We received reports of a roadrunner in your immediate area! Head to your dashboard to view more information!\"\n  },\n  \"email_add_duplicates\": false,\n  \"email_ignore_missing\": false,\n  \"expires_after\": 3600,\n  \"id_ignore_missing\": false,\n  \"scheduled_at\": 1796128200\n}"
           },
           {
             "label": "Node.js (SDK)",
@@ -132330,6 +132526,115 @@
             "source": "const { APIClient, RegionUS } = require('customerio-node');\nconst api = new APIClient('bearer-app-key', { region: RegionUS });\n\nconst data = {\n  headline: 'Roadrunner spotted in Albuquerque!',\n  date: 1511315635,\n  text:\n    \"We've received reports of a roadrunner in your immediate area! Head to your dashboard to view more information!\",\n};\n\napi.triggerBroadcast(campaignId, data, { segment: { id: 7 } });\n"
           }
         ]
+      }
+    },
+    "/v1/campaigns/{broadcast_id}/triggers/{trigger_id}/cancel": {
+      "servers": [
+        {
+          "url": "https://api.customer.io",
+          "description": "This API uses bearer authorization, requiring a [token that you generate in the UI](https://fly.customer.io/settings/api_credentials?keyType=app)."
+        }
+      ],
+      "parameters": [
+        {
+          "name": "broadcast_id",
+          "in": "path",
+          "required": true,
+          "description": "The ID of the broadcast you triggered.",
+          "schema": {
+            "type": "integer",
+            "example": 3
+          }
+        },
+        {
+          "name": "trigger_id",
+          "in": "path",
+          "required": true,
+          "description": "The ID of the trigger you want to cancel. You get it back from the [trigger](/integrations/api/app/tag/send-messages/triggerBroadcast/) request that scheduled the send.",
+          "schema": {
+            "type": "integer",
+            "example": 12
+          }
+        }
+      ],
+      "post": {
+        "operationId": "cancelBroadcastTrigger",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "tags": [
+          "Send Messages"
+        ],
+        "summary": "Cancel a scheduled broadcast",
+        "description": "Cancel a trigger you [scheduled](/integrations/api/app/tag/send-messages/triggerBroadcast/) with `scheduled_at`, before it fires.\n\nThe request fails if the broadcast has started calculating its audience, is already sending, or has already sent.\n",
+        "responses": {
+          "200": {
+            "description": "The trigger was canceled. Returns the trigger's current state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "trigger": {
+                      "type": "object",
+                      "properties": {
+                        "broadcast_id": {
+                          "type": "integer",
+                          "description": "The ID of the broadcast you cancelled the trigger for. Canceling a trigger doesn't cancel the broadcast itself, so you can trigger it again.",
+                          "example": 3
+                        },
+                        "cancelled_at": {
+                          "type": "integer",
+                          "description": "Unix timestamp when the trigger was cancelled, or `0` if it hasn't been cancelled.",
+                          "example": 1796041200
+                        },
+                        "created_at": {
+                          "type": "integer",
+                          "description": "Unix timestamp when you created this trigger.",
+                          "example": 1796040000
+                        },
+                        "expires_after": {
+                          "type": "integer",
+                          "description": "The send window in seconds that you set when you triggered the broadcast, or `0` if the send has no expiry.",
+                          "example": 0
+                        },
+                        "id": {
+                          "type": "integer",
+                          "description": "The ID of the trigger you canceled.",
+                          "example": 12
+                        },
+                        "processed_at": {
+                          "type": "integer",
+                          "description": "Unix timestamp when Customer.io processed the trigger, or `0` if it hasn't. A canceled trigger usually shows `0`. In rare cases the send job starts before it sees the cancel request, exits without sending anything, and stamps this value anyway.",
+                          "example": 0
+                        },
+                        "scheduled_at": {
+                          "type": "integer",
+                          "description": "Unix timestamp when the trigger was scheduled to send.",
+                          "example": 1796128200
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The `broadcastID`, `actionID` or `triggerID` is invalid."
+          },
+          "401": {
+            "description": "Unauthorized request. Make sure that you provided the right credentials."
+          },
+          "404": {
+            "description": "The broadcast, action, and/or trigger do not exist."
+          },
+          "409": {
+            "description": "When the broadcast is resolving its audience, already sending, or already sent."
+          }
+        }
       }
     },
     "/v1/campaigns/{broadcast_id}/triggers/{trigger_id}/errors": {
@@ -148845,6 +149150,11 @@
                       "description": "The identifier for a broadcast.",
                       "example": 2
                     },
+                    "cancelled_at": {
+                      "type": "integer",
+                      "format": "unix timestamp",
+                      "description": "The date-time you canceled this trigger, or `0` if you haven't canceled it."
+                    },
                     "created_at": {
                       "x-scalar-ignore": true,
                       "type": "integer",
@@ -148852,6 +149162,10 @@
                       "description": "The date time when the referenced ID was created.",
                       "example": 1552341937,
                       "readOnly": true
+                    },
+                    "expires_after": {
+                      "type": "integer",
+                      "description": "The send window in seconds that you set when you triggered the broadcast, or `0` if the send has no expiry."
                     },
                     "id": {
                       "type": "integer",
@@ -148861,6 +149175,11 @@
                       "type": "integer",
                       "format": "unix timestamp",
                       "description": "The date-time when Customer.io processed the trigger."
+                    },
+                    "scheduled_at": {
+                      "type": "integer",
+                      "format": "unix timestamp",
+                      "description": "The date-time this trigger is scheduled to send at, or `0` if you didn't schedule it."
                     }
                   }
                 }
@@ -155183,6 +155502,11 @@
                             "description": "The identifier for a broadcast.",
                             "example": 2
                           },
+                          "cancelled_at": {
+                            "type": "integer",
+                            "format": "unix timestamp",
+                            "description": "The date-time you canceled this trigger, or `0` if you haven't canceled it."
+                          },
                           "created_at": {
                             "x-scalar-ignore": true,
                             "type": "integer",
@@ -155190,6 +155514,10 @@
                             "description": "The date time when the referenced ID was created.",
                             "example": 1552341937,
                             "readOnly": true
+                          },
+                          "expires_after": {
+                            "type": "integer",
+                            "description": "The send window in seconds that you set when you triggered the broadcast, or `0` if the send has no expiry."
                           },
                           "id": {
                             "type": "integer",
@@ -155199,6 +155527,11 @@
                             "type": "integer",
                             "format": "unix timestamp",
                             "description": "The date-time when Customer.io processed the trigger."
+                          },
+                          "scheduled_at": {
+                            "type": "integer",
+                            "format": "unix timestamp",
+                            "description": "The date-time this trigger is scheduled to send at, or `0` if you didn't schedule it."
                           }
                         }
                       }
