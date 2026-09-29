@@ -13652,6 +13652,47 @@
         "x-scalar-ignore": true,
         "type": "object",
         "properties": {
+          "conditions": {
+            "type": "object",
+            "description": "The conditions that determine who belongs to the segment, as a tree of nested `and` and `or` groups. Customer.io includes this object for data-driven segments and omits it for manual segments, which don't have conditions. A profile attribute condition appears as an `attribute_change` event with a `to` filter and an inverted `from` filter, and filter values are always strings, even for numeric or boolean attributes.",
+            "additionalProperties": true,
+            "example": {
+              "and": [
+                {
+                  "event": {
+                    "filters": {
+                      "and": [
+                        {
+                          "field": "to",
+                          "inverse": false,
+                          "operator": "eq",
+                          "value": "premium"
+                        },
+                        {
+                          "field": "from",
+                          "inverse": true,
+                          "operator": "eq",
+                          "value": "premium"
+                        }
+                      ]
+                    },
+                    "id": 12,
+                    "name": "plan",
+                    "type": "attribute_change"
+                  },
+                  "inverse": false,
+                  "times": 1,
+                  "within": 0
+                },
+                {
+                  "segment": {
+                    "id": 7,
+                    "inverse": false
+                  }
+                }
+              ]
+            }
+          },
           "created_at": {
             "x-scalar-ignore": true,
             "type": "integer",
@@ -13687,22 +13728,20 @@
           },
           "progress": {
             "type": [
-              "integer",
+              "number",
               "null"
             ],
-            "description": "If Customer.io has not finished processing the segment, this indicates the percentage complete. Otherwise, this key is null.",
+            "description": "Customer.io returns `0` while the segment is in the `build` state and `null` when it's `finished`. This field doesn't report partial progress, so use `state` to tell whether the segment is still building.",
             "example": null
           },
           "state": {
             "type": "string",
-            "description": "The segment build state:\n- `events`—handling event conditions for this segment\n- `build`—handling profile attribute conditions for this segment\n- `events_queued`—waiting to start handling event conditions\n- `build_queued`—waiting to start handling profile attribute conditions\n- `finished`—the segment is finished building\n",
+            "description": "The segment's build state. The state is `build` while Customer.io calculates who belongs to the segment, and `finished` when membership is up to date.",
             "enum": [
-              "events",
               "build",
-              "events_queued",
-              "build_queued",
               "finished"
-            ]
+            ],
+            "example": "finished"
           },
           "tags": {
             "type": [
