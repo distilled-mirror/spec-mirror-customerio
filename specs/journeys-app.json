@@ -8394,8 +8394,7 @@
                   "rate_limit_email_rate": 500,
                   "rate_limit_spread": true,
                   "rate_limit_time_period": 60
-                },
-                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                }
               },
               {
                 "type": "object",
@@ -8613,8 +8612,7 @@
                   "rate_limit_email_rate": 500,
                   "rate_limit_spread": true,
                   "rate_limit_time_period": 60
-                },
-                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                }
               }
             ],
             "properties": {
@@ -8767,8 +8765,7 @@
                   "rate_limit_email_rate": 500,
                   "rate_limit_spread": true,
                   "rate_limit_time_period": 60
-                },
-                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                }
               }
             ],
             "properties": {
@@ -8925,8 +8922,7 @@
                   "rate_limit_email_rate": 500,
                   "rate_limit_spread": true,
                   "rate_limit_time_period": 60
-                },
-                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                }
               }
             ],
             "properties": {
@@ -9080,8 +9076,7 @@
                   "rate_limit_email_rate": 500,
                   "rate_limit_spread": true,
                   "rate_limit_time_period": 60
-                },
-                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                }
               }
             ],
             "properties": {
@@ -9251,8 +9246,7 @@
                   "rate_limit_email_rate": 500,
                   "rate_limit_spread": true,
                   "rate_limit_time_period": 60
-                },
-                "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                }
               }
             ],
             "properties": {
@@ -9521,8 +9515,7 @@
               "rate_limit_email_rate": 500,
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
-            },
-            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            }
           },
           {
             "type": "object",
@@ -9740,8 +9733,7 @@
               "rate_limit_email_rate": 500,
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
-            },
-            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            }
           }
         ],
         "properties": {
@@ -9894,8 +9886,7 @@
               "rate_limit_email_rate": 500,
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
-            },
-            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            }
           }
         ],
         "properties": {
@@ -10052,8 +10043,7 @@
               "rate_limit_email_rate": 500,
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
-            },
-            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            }
           }
         ],
         "properties": {
@@ -10219,8 +10209,7 @@
               "rate_limit_email_rate": 500,
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
-            },
-            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            }
           }
         ],
         "properties": {
@@ -10374,8 +10363,7 @@
               "rate_limit_email_rate": 500,
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
-            },
-            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            }
           }
         ],
         "properties": {
@@ -10838,7 +10826,6 @@
           "rate_limit_spread": true,
           "rate_limit_time_period": 60
         },
-        "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone.",
         "properties": {
           "rate_limit_email_rate": {
             "type": "integer",
@@ -10862,6 +10849,7 @@
       },
       "newsletterScheduleRequest": {
         "x-scalar-ignore": true,
+        "description": "Only `scheduled_at` is required. If you want to send with a rate limit, set both `rate_limit_email_rate` or `rate_limit_time_period`. `rate_limit_spread` can be set alone.",
         "type": "object",
         "example": {
           "scheduled_at": 1719849600,
@@ -10879,8 +10867,7 @@
               "rate_limit_email_rate": 500,
               "rate_limit_spread": true,
               "rate_limit_time_period": 60
-            },
-            "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+            }
           }
         ],
         "properties": {
@@ -10988,10 +10975,37 @@
               "type": "integer"
             }
           },
-          "sent_at": {
-            "type": "integer",
+          "scheduled_at": {
+            "type": [
+              "integer",
+              "null"
+            ],
             "format": "unix timestamp",
-            "description": "The last time the one-time send was sent."
+            "readOnly": true,
+            "description": "When the one-time send is scheduled to go out, or `null` if it has no active schedule. Always included.\n\n- A paused one-time send keeps its schedule, so this still has a value while `send_state` is `paused`.\n- After sending starts, this stores the next scheduled send if there is one, like the next timezone batch or the remainder of an A/B test.\n- When `tz_match_enabled` is `true`, the `scheduled_at` property is the time you asked for in the [schedule request](/integrations/api/app/tag/send-messages/scheduleNewsletter/) until sending starts.\n- If you send immediately instead of scheduling, there's a short delay before Customer.io starts sending. During that delay, `scheduled_at` isn't `null` and isn't a future time: it's the time you made the request, an earlier time, or `0`.\n"
+          },
+          "send_state": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Where the one-time send is in its lifecycle. Always included. This matches the status shown in Customer.io, with one exception noted under `awaiting_winner`.\n\n- `drafted`: The one-time send isn't scheduled and hasn't been sent.\n- `scheduled`: A send time is set and sending hasn't started.\n- `sending`: Sending has started and is still in progress. More batches are due (timezone-match batches or the remainder of an A/B test), or messages are still being delivered.\n- `sent`: The one-time send is no longer sending. This doesn't mean that every individual message has reached a final state.\n- `paused`: The one-time send is paused.\n- `stopped`: The one-time send was stopped.\n- `failed`: The one-time send failed.\n- `awaiting_winner`: An A/B test has started and is waiting for you to pick a winner before the rest of the audience gets it. Test messages might still be going out. Customer.io's UI stops showing \"awaiting winner\" 30 days after the first send, but the API keeps reporting `awaiting_winner` because you can still pick a winner.\n\nWhen more than one state applies, Customer.io reports the first match in this order: `stopped`, `failed`, `paused`, `awaiting_winner`, `sending`, `sent`, `scheduled`, `drafted`.\n",
+            "enum": [
+              "drafted",
+              "scheduled",
+              "sending",
+              "sent",
+              "paused",
+              "stopped",
+              "failed",
+              "awaiting_winner"
+            ]
+          },
+          "sent_at": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "unix timestamp",
+            "description": "The last time the one-time send was sent, or `null` if it hasn't been sent."
           },
           "subscription_topic_id": {
             "type": "integer",
@@ -11003,6 +11017,11 @@
             "items": {
               "type": "string"
             }
+          },
+          "timezone": {
+            "type": "string",
+            "readOnly": true,
+            "description": "The [IANA timezone name](/journeys/send/timezones/example-timezones/#region-format) of the schedule (for example, `America/New_York`). Customer.io includes this field only when the active schedule has a timezone. It's omitted otherwise.\n"
           },
           "type": {
             "x-scalar-ignore": true,
@@ -11019,6 +11038,11 @@
             "readOnly": true,
             "example": "email"
           },
+          "tz_match_enabled": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "`true` when the pending schedule sends at the same local time in each person's timezone. Customer.io includes this field only while a timezone-match schedule is pending. It's omitted otherwise and is never `false`.\n"
+          },
           "updated": {
             "x-scalar-ignore": true,
             "type": "integer",
@@ -11033,13 +11057,15 @@
             45
           ],
           "created": 1481653919,
-          "deduplicate_id": "128275:1484870424",
+          "deduplicate_id": "128275:1481653929",
           "id": 128275,
           "name": "Weekly Product Update",
           "recipient_segment_ids": [
             42,
             99
           ],
+          "scheduled_at": null,
+          "send_state": "sent",
           "sent_at": 1481653929,
           "subscription_topic_id": 5,
           "tags": [
@@ -135540,8 +135566,7 @@
                       "rate_limit_email_rate": 500,
                       "rate_limit_spread": true,
                       "rate_limit_time_period": 60
-                    },
-                    "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                    }
                   }
                 ],
                 "properties": {
@@ -135659,10 +135684,37 @@
                             "type": "integer"
                           }
                         },
-                        "sent_at": {
-                          "type": "integer",
+                        "scheduled_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
                           "format": "unix timestamp",
-                          "description": "The last time the one-time send was sent."
+                          "readOnly": true,
+                          "description": "When the one-time send is scheduled to go out, or `null` if it has no active schedule. Always included.\n\n- A paused one-time send keeps its schedule, so this still has a value while `send_state` is `paused`.\n- After sending starts, this stores the next scheduled send if there is one, like the next timezone batch or the remainder of an A/B test.\n- When `tz_match_enabled` is `true`, the `scheduled_at` property is the time you asked for in the [schedule request](/integrations/api/app/tag/send-messages/scheduleNewsletter/) until sending starts.\n- If you send immediately instead of scheduling, there's a short delay before Customer.io starts sending. During that delay, `scheduled_at` isn't `null` and isn't a future time: it's the time you made the request, an earlier time, or `0`.\n"
+                        },
+                        "send_state": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "Where the one-time send is in its lifecycle. Always included. This matches the status shown in Customer.io, with one exception noted under `awaiting_winner`.\n\n- `drafted`: The one-time send isn't scheduled and hasn't been sent.\n- `scheduled`: A send time is set and sending hasn't started.\n- `sending`: Sending has started and is still in progress. More batches are due (timezone-match batches or the remainder of an A/B test), or messages are still being delivered.\n- `sent`: The one-time send is no longer sending. This doesn't mean that every individual message has reached a final state.\n- `paused`: The one-time send is paused.\n- `stopped`: The one-time send was stopped.\n- `failed`: The one-time send failed.\n- `awaiting_winner`: An A/B test has started and is waiting for you to pick a winner before the rest of the audience gets it. Test messages might still be going out. Customer.io's UI stops showing \"awaiting winner\" 30 days after the first send, but the API keeps reporting `awaiting_winner` because you can still pick a winner.\n\nWhen more than one state applies, Customer.io reports the first match in this order: `stopped`, `failed`, `paused`, `awaiting_winner`, `sending`, `sent`, `scheduled`, `drafted`.\n",
+                          "enum": [
+                            "drafted",
+                            "scheduled",
+                            "sending",
+                            "sent",
+                            "paused",
+                            "stopped",
+                            "failed",
+                            "awaiting_winner"
+                          ]
+                        },
+                        "sent_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "format": "unix timestamp",
+                          "description": "The last time the one-time send was sent, or `null` if it hasn't been sent."
                         },
                         "subscription_topic_id": {
                           "type": "integer",
@@ -135674,6 +135726,11 @@
                           "items": {
                             "type": "string"
                           }
+                        },
+                        "timezone": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "The [IANA timezone name](/journeys/send/timezones/example-timezones/#region-format) of the schedule (for example, `America/New_York`). Customer.io includes this field only when the active schedule has a timezone. It's omitted otherwise.\n"
                         },
                         "type": {
                           "x-scalar-ignore": true,
@@ -135690,6 +135747,11 @@
                           "readOnly": true,
                           "example": "email"
                         },
+                        "tz_match_enabled": {
+                          "type": "boolean",
+                          "readOnly": true,
+                          "description": "`true` when the pending schedule sends at the same local time in each person's timezone. Customer.io includes this field only while a timezone-match schedule is pending. It's omitted otherwise and is never `false`.\n"
+                        },
                         "updated": {
                           "x-scalar-ignore": true,
                           "type": "integer",
@@ -135704,13 +135766,15 @@
                           45
                         ],
                         "created": 1481653919,
-                        "deduplicate_id": "128275:1484870424",
+                        "deduplicate_id": "128275:1481653929",
                         "id": 128275,
                         "name": "Weekly Product Update",
                         "recipient_segment_ids": [
                           42,
                           99
                         ],
+                        "scheduled_at": null,
+                        "send_state": "sent",
                         "sent_at": 1481653929,
                         "subscription_topic_id": 5,
                         "tags": [
@@ -135912,13 +135976,14 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Schedule a one-time send (referred to as a \"newsletter\" in our APIs) to send at a specific time. It must be in a draft state. If it has already been sent, you'll get a `400` error. If it's already scheduled, this endpoint updates the scheduled time.\n\nThe recipients are fixed when you create the one-time send. If you're not sure who will receive it, you can use the [List one-time sends](/integrations/api/app/tag/newsletters/listNewsletters/) endpoint to get a list of one-time sends and their recipients.\n",
+        "description": "Schedule a one-time send (referred to as a \"newsletter\" in our APIs) to send at a specific time. It must be in a draft state. If it has already been sent, you'll get a `400` error. If it's already scheduled, this endpoint updates the scheduled time.\n\nThe response returns the one-time send, so you can read back the schedule you set: `send_state` and `scheduled_at` are always included, and `timezone` and `tz_match_enabled` are included when they apply.\n\nTo retrieve the schedule parameters after scheduling with [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/). After you start a send with timezone-match, `scheduled_at` reports the next timezone batch or the remainder of an A/B test instead of the time you requested.\n\nThe recipients are fixed when you create the one-time send. If you're not sure who will receive it, you can use the [List one-time sends](/integrations/api/app/tag/newsletters/listNewsletters/) endpoint to get a list of one-time sends and their recipients.\n",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "x-scalar-ignore": true,
+                "description": "Only `scheduled_at` is required. If you want to send with a rate limit, set both `rate_limit_email_rate` or `rate_limit_time_period`. `rate_limit_spread` can be set alone.",
                 "type": "object",
                 "example": {
                   "scheduled_at": 1719849600,
@@ -135936,8 +136001,7 @@
                       "rate_limit_email_rate": 500,
                       "rate_limit_spread": true,
                       "rate_limit_time_period": 60
-                    },
-                    "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                    }
                   }
                 ],
                 "properties": {
@@ -136056,10 +136120,37 @@
                             "type": "integer"
                           }
                         },
-                        "sent_at": {
-                          "type": "integer",
+                        "scheduled_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
                           "format": "unix timestamp",
-                          "description": "The last time the one-time send was sent."
+                          "readOnly": true,
+                          "description": "When the one-time send is scheduled to go out, or `null` if it has no active schedule. Always included.\n\n- A paused one-time send keeps its schedule, so this still has a value while `send_state` is `paused`.\n- After sending starts, this stores the next scheduled send if there is one, like the next timezone batch or the remainder of an A/B test.\n- When `tz_match_enabled` is `true`, the `scheduled_at` property is the time you asked for in the [schedule request](/integrations/api/app/tag/send-messages/scheduleNewsletter/) until sending starts.\n- If you send immediately instead of scheduling, there's a short delay before Customer.io starts sending. During that delay, `scheduled_at` isn't `null` and isn't a future time: it's the time you made the request, an earlier time, or `0`.\n"
+                        },
+                        "send_state": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "Where the one-time send is in its lifecycle. Always included. This matches the status shown in Customer.io, with one exception noted under `awaiting_winner`.\n\n- `drafted`: The one-time send isn't scheduled and hasn't been sent.\n- `scheduled`: A send time is set and sending hasn't started.\n- `sending`: Sending has started and is still in progress. More batches are due (timezone-match batches or the remainder of an A/B test), or messages are still being delivered.\n- `sent`: The one-time send is no longer sending. This doesn't mean that every individual message has reached a final state.\n- `paused`: The one-time send is paused.\n- `stopped`: The one-time send was stopped.\n- `failed`: The one-time send failed.\n- `awaiting_winner`: An A/B test has started and is waiting for you to pick a winner before the rest of the audience gets it. Test messages might still be going out. Customer.io's UI stops showing \"awaiting winner\" 30 days after the first send, but the API keeps reporting `awaiting_winner` because you can still pick a winner.\n\nWhen more than one state applies, Customer.io reports the first match in this order: `stopped`, `failed`, `paused`, `awaiting_winner`, `sending`, `sent`, `scheduled`, `drafted`.\n",
+                          "enum": [
+                            "drafted",
+                            "scheduled",
+                            "sending",
+                            "sent",
+                            "paused",
+                            "stopped",
+                            "failed",
+                            "awaiting_winner"
+                          ]
+                        },
+                        "sent_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "format": "unix timestamp",
+                          "description": "The last time the one-time send was sent, or `null` if it hasn't been sent."
                         },
                         "subscription_topic_id": {
                           "type": "integer",
@@ -136071,6 +136162,11 @@
                           "items": {
                             "type": "string"
                           }
+                        },
+                        "timezone": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "The [IANA timezone name](/journeys/send/timezones/example-timezones/#region-format) of the schedule (for example, `America/New_York`). Customer.io includes this field only when the active schedule has a timezone. It's omitted otherwise.\n"
                         },
                         "type": {
                           "x-scalar-ignore": true,
@@ -136087,6 +136183,11 @@
                           "readOnly": true,
                           "example": "email"
                         },
+                        "tz_match_enabled": {
+                          "type": "boolean",
+                          "readOnly": true,
+                          "description": "`true` when the pending schedule sends at the same local time in each person's timezone. Customer.io includes this field only while a timezone-match schedule is pending. It's omitted otherwise and is never `false`.\n"
+                        },
                         "updated": {
                           "x-scalar-ignore": true,
                           "type": "integer",
@@ -136101,13 +136202,15 @@
                           45
                         ],
                         "created": 1481653919,
-                        "deduplicate_id": "128275:1484870424",
+                        "deduplicate_id": "128275:1481653929",
                         "id": 128275,
                         "name": "Weekly Product Update",
                         "recipient_segment_ids": [
                           42,
                           99
                         ],
+                        "scheduled_at": null,
+                        "send_state": "sent",
                         "sent_at": 1481653929,
                         "subscription_topic_id": 5,
                         "tags": [
@@ -136125,15 +136228,18 @@
                       45
                     ],
                     "created": 1481653919,
-                    "deduplicate_id": "128275:1484870424",
+                    "deduplicate_id": "128275:1481653929",
                     "id": 128275,
                     "name": "Weekly Product Update",
                     "recipient_segment_ids": [
                       42,
                       99
                     ],
+                    "scheduled_at": 1719849600,
+                    "send_state": "scheduled",
                     "sent_at": null,
                     "subscription_topic_id": 5,
+                    "timezone": "America/New_York",
                     "type": "email",
                     "updated": 1481653929
                   }
@@ -178001,10 +178107,37 @@
                               "type": "integer"
                             }
                           },
-                          "sent_at": {
-                            "type": "integer",
+                          "scheduled_at": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
                             "format": "unix timestamp",
-                            "description": "The last time the one-time send was sent."
+                            "readOnly": true,
+                            "description": "When the one-time send is scheduled to go out, or `null` if it has no active schedule. Always included.\n\n- A paused one-time send keeps its schedule, so this still has a value while `send_state` is `paused`.\n- After sending starts, this stores the next scheduled send if there is one, like the next timezone batch or the remainder of an A/B test.\n- When `tz_match_enabled` is `true`, the `scheduled_at` property is the time you asked for in the [schedule request](/integrations/api/app/tag/send-messages/scheduleNewsletter/) until sending starts.\n- If you send immediately instead of scheduling, there's a short delay before Customer.io starts sending. During that delay, `scheduled_at` isn't `null` and isn't a future time: it's the time you made the request, an earlier time, or `0`.\n"
+                          },
+                          "send_state": {
+                            "type": "string",
+                            "readOnly": true,
+                            "description": "Where the one-time send is in its lifecycle. Always included. This matches the status shown in Customer.io, with one exception noted under `awaiting_winner`.\n\n- `drafted`: The one-time send isn't scheduled and hasn't been sent.\n- `scheduled`: A send time is set and sending hasn't started.\n- `sending`: Sending has started and is still in progress. More batches are due (timezone-match batches or the remainder of an A/B test), or messages are still being delivered.\n- `sent`: The one-time send is no longer sending. This doesn't mean that every individual message has reached a final state.\n- `paused`: The one-time send is paused.\n- `stopped`: The one-time send was stopped.\n- `failed`: The one-time send failed.\n- `awaiting_winner`: An A/B test has started and is waiting for you to pick a winner before the rest of the audience gets it. Test messages might still be going out. Customer.io's UI stops showing \"awaiting winner\" 30 days after the first send, but the API keeps reporting `awaiting_winner` because you can still pick a winner.\n\nWhen more than one state applies, Customer.io reports the first match in this order: `stopped`, `failed`, `paused`, `awaiting_winner`, `sending`, `sent`, `scheduled`, `drafted`.\n",
+                            "enum": [
+                              "drafted",
+                              "scheduled",
+                              "sending",
+                              "sent",
+                              "paused",
+                              "stopped",
+                              "failed",
+                              "awaiting_winner"
+                            ]
+                          },
+                          "sent_at": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "unix timestamp",
+                            "description": "The last time the one-time send was sent, or `null` if it hasn't been sent."
                           },
                           "subscription_topic_id": {
                             "type": "integer",
@@ -178016,6 +178149,11 @@
                             "items": {
                               "type": "string"
                             }
+                          },
+                          "timezone": {
+                            "type": "string",
+                            "readOnly": true,
+                            "description": "The [IANA timezone name](/journeys/send/timezones/example-timezones/#region-format) of the schedule (for example, `America/New_York`). Customer.io includes this field only when the active schedule has a timezone. It's omitted otherwise.\n"
                           },
                           "type": {
                             "x-scalar-ignore": true,
@@ -178032,6 +178170,11 @@
                             "readOnly": true,
                             "example": "email"
                           },
+                          "tz_match_enabled": {
+                            "type": "boolean",
+                            "readOnly": true,
+                            "description": "`true` when the pending schedule sends at the same local time in each person's timezone. Customer.io includes this field only while a timezone-match schedule is pending. It's omitted otherwise and is never `false`.\n"
+                          },
                           "updated": {
                             "x-scalar-ignore": true,
                             "type": "integer",
@@ -178046,13 +178189,15 @@
                             45
                           ],
                           "created": 1481653919,
-                          "deduplicate_id": "128275:1484870424",
+                          "deduplicate_id": "128275:1481653929",
                           "id": 128275,
                           "name": "Weekly Product Update",
                           "recipient_segment_ids": [
                             42,
                             99
                           ],
+                          "scheduled_at": null,
+                          "send_state": "sent",
                           "sent_at": 1481653929,
                           "subscription_topic_id": 5,
                           "tags": [
@@ -178106,8 +178251,7 @@
                           "rate_limit_email_rate": 500,
                           "rate_limit_spread": true,
                           "rate_limit_time_period": 60
-                        },
-                        "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                        }
                       },
                       {
                         "type": "object",
@@ -178325,8 +178469,7 @@
                           "rate_limit_email_rate": 500,
                           "rate_limit_spread": true,
                           "rate_limit_time_period": 60
-                        },
-                        "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                        }
                       }
                     ],
                     "properties": {
@@ -178479,8 +178622,7 @@
                           "rate_limit_email_rate": 500,
                           "rate_limit_spread": true,
                           "rate_limit_time_period": 60
-                        },
-                        "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                        }
                       }
                     ],
                     "properties": {
@@ -178637,8 +178779,7 @@
                           "rate_limit_email_rate": 500,
                           "rate_limit_spread": true,
                           "rate_limit_time_period": 60
-                        },
-                        "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                        }
                       }
                     ],
                     "properties": {
@@ -178792,8 +178933,7 @@
                           "rate_limit_email_rate": 500,
                           "rate_limit_spread": true,
                           "rate_limit_time_period": 60
-                        },
-                        "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                        }
                       }
                     ],
                     "properties": {
@@ -178963,8 +179103,7 @@
                           "rate_limit_email_rate": 500,
                           "rate_limit_spread": true,
                           "rate_limit_time_period": 60
-                        },
-                        "description": "Optional one-time send rate limiting. If you set `rate_limit_email_rate` or `rate_limit_time_period`, set both; `rate_limit_spread` can be set alone."
+                        }
                       }
                     ],
                     "properties": {
@@ -179276,10 +179415,37 @@
                             "type": "integer"
                           }
                         },
-                        "sent_at": {
-                          "type": "integer",
+                        "scheduled_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
                           "format": "unix timestamp",
-                          "description": "The last time the one-time send was sent."
+                          "readOnly": true,
+                          "description": "When the one-time send is scheduled to go out, or `null` if it has no active schedule. Always included.\n\n- A paused one-time send keeps its schedule, so this still has a value while `send_state` is `paused`.\n- After sending starts, this stores the next scheduled send if there is one, like the next timezone batch or the remainder of an A/B test.\n- When `tz_match_enabled` is `true`, the `scheduled_at` property is the time you asked for in the [schedule request](/integrations/api/app/tag/send-messages/scheduleNewsletter/) until sending starts.\n- If you send immediately instead of scheduling, there's a short delay before Customer.io starts sending. During that delay, `scheduled_at` isn't `null` and isn't a future time: it's the time you made the request, an earlier time, or `0`.\n"
+                        },
+                        "send_state": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "Where the one-time send is in its lifecycle. Always included. This matches the status shown in Customer.io, with one exception noted under `awaiting_winner`.\n\n- `drafted`: The one-time send isn't scheduled and hasn't been sent.\n- `scheduled`: A send time is set and sending hasn't started.\n- `sending`: Sending has started and is still in progress. More batches are due (timezone-match batches or the remainder of an A/B test), or messages are still being delivered.\n- `sent`: The one-time send is no longer sending. This doesn't mean that every individual message has reached a final state.\n- `paused`: The one-time send is paused.\n- `stopped`: The one-time send was stopped.\n- `failed`: The one-time send failed.\n- `awaiting_winner`: An A/B test has started and is waiting for you to pick a winner before the rest of the audience gets it. Test messages might still be going out. Customer.io's UI stops showing \"awaiting winner\" 30 days after the first send, but the API keeps reporting `awaiting_winner` because you can still pick a winner.\n\nWhen more than one state applies, Customer.io reports the first match in this order: `stopped`, `failed`, `paused`, `awaiting_winner`, `sending`, `sent`, `scheduled`, `drafted`.\n",
+                          "enum": [
+                            "drafted",
+                            "scheduled",
+                            "sending",
+                            "sent",
+                            "paused",
+                            "stopped",
+                            "failed",
+                            "awaiting_winner"
+                          ]
+                        },
+                        "sent_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "format": "unix timestamp",
+                          "description": "The last time the one-time send was sent, or `null` if it hasn't been sent."
                         },
                         "subscription_topic_id": {
                           "type": "integer",
@@ -179291,6 +179457,11 @@
                           "items": {
                             "type": "string"
                           }
+                        },
+                        "timezone": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "The [IANA timezone name](/journeys/send/timezones/example-timezones/#region-format) of the schedule (for example, `America/New_York`). Customer.io includes this field only when the active schedule has a timezone. It's omitted otherwise.\n"
                         },
                         "type": {
                           "x-scalar-ignore": true,
@@ -179307,6 +179478,11 @@
                           "readOnly": true,
                           "example": "email"
                         },
+                        "tz_match_enabled": {
+                          "type": "boolean",
+                          "readOnly": true,
+                          "description": "`true` when the pending schedule sends at the same local time in each person's timezone. Customer.io includes this field only while a timezone-match schedule is pending. It's omitted otherwise and is never `false`.\n"
+                        },
                         "updated": {
                           "x-scalar-ignore": true,
                           "type": "integer",
@@ -179321,13 +179497,15 @@
                           45
                         ],
                         "created": 1481653919,
-                        "deduplicate_id": "128275:1484870424",
+                        "deduplicate_id": "128275:1481653929",
                         "id": 128275,
                         "name": "Weekly Product Update",
                         "recipient_segment_ids": [
                           42,
                           99
                         ],
+                        "scheduled_at": null,
+                        "send_state": "sent",
                         "sent_at": 1481653929,
                         "subscription_topic_id": 5,
                         "tags": [
@@ -179597,10 +179775,37 @@
                             "type": "integer"
                           }
                         },
-                        "sent_at": {
-                          "type": "integer",
+                        "scheduled_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
                           "format": "unix timestamp",
-                          "description": "The last time the one-time send was sent."
+                          "readOnly": true,
+                          "description": "When the one-time send is scheduled to go out, or `null` if it has no active schedule. Always included.\n\n- A paused one-time send keeps its schedule, so this still has a value while `send_state` is `paused`.\n- After sending starts, this stores the next scheduled send if there is one, like the next timezone batch or the remainder of an A/B test.\n- When `tz_match_enabled` is `true`, the `scheduled_at` property is the time you asked for in the [schedule request](/integrations/api/app/tag/send-messages/scheduleNewsletter/) until sending starts.\n- If you send immediately instead of scheduling, there's a short delay before Customer.io starts sending. During that delay, `scheduled_at` isn't `null` and isn't a future time: it's the time you made the request, an earlier time, or `0`.\n"
+                        },
+                        "send_state": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "Where the one-time send is in its lifecycle. Always included. This matches the status shown in Customer.io, with one exception noted under `awaiting_winner`.\n\n- `drafted`: The one-time send isn't scheduled and hasn't been sent.\n- `scheduled`: A send time is set and sending hasn't started.\n- `sending`: Sending has started and is still in progress. More batches are due (timezone-match batches or the remainder of an A/B test), or messages are still being delivered.\n- `sent`: The one-time send is no longer sending. This doesn't mean that every individual message has reached a final state.\n- `paused`: The one-time send is paused.\n- `stopped`: The one-time send was stopped.\n- `failed`: The one-time send failed.\n- `awaiting_winner`: An A/B test has started and is waiting for you to pick a winner before the rest of the audience gets it. Test messages might still be going out. Customer.io's UI stops showing \"awaiting winner\" 30 days after the first send, but the API keeps reporting `awaiting_winner` because you can still pick a winner.\n\nWhen more than one state applies, Customer.io reports the first match in this order: `stopped`, `failed`, `paused`, `awaiting_winner`, `sending`, `sent`, `scheduled`, `drafted`.\n",
+                          "enum": [
+                            "drafted",
+                            "scheduled",
+                            "sending",
+                            "sent",
+                            "paused",
+                            "stopped",
+                            "failed",
+                            "awaiting_winner"
+                          ]
+                        },
+                        "sent_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "format": "unix timestamp",
+                          "description": "The last time the one-time send was sent, or `null` if it hasn't been sent."
                         },
                         "subscription_topic_id": {
                           "type": "integer",
@@ -179612,6 +179817,11 @@
                           "items": {
                             "type": "string"
                           }
+                        },
+                        "timezone": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "The [IANA timezone name](/journeys/send/timezones/example-timezones/#region-format) of the schedule (for example, `America/New_York`). Customer.io includes this field only when the active schedule has a timezone. It's omitted otherwise.\n"
                         },
                         "type": {
                           "x-scalar-ignore": true,
@@ -179628,6 +179838,11 @@
                           "readOnly": true,
                           "example": "email"
                         },
+                        "tz_match_enabled": {
+                          "type": "boolean",
+                          "readOnly": true,
+                          "description": "`true` when the pending schedule sends at the same local time in each person's timezone. Customer.io includes this field only while a timezone-match schedule is pending. It's omitted otherwise and is never `false`.\n"
+                        },
                         "updated": {
                           "x-scalar-ignore": true,
                           "type": "integer",
@@ -179642,18 +179857,89 @@
                           45
                         ],
                         "created": 1481653919,
-                        "deduplicate_id": "128275:1484870424",
+                        "deduplicate_id": "128275:1481653929",
                         "id": 128275,
                         "name": "Weekly Product Update",
                         "recipient_segment_ids": [
                           42,
                           99
                         ],
+                        "scheduled_at": null,
+                        "send_state": "sent",
                         "sent_at": 1481653929,
                         "subscription_topic_id": 5,
                         "tags": [
                           "Product Updates"
                         ],
+                        "type": "email",
+                        "updated": 1481653929
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "drafted": {
+                    "summary": "A draft",
+                    "value": {
+                      "newsletter": {
+                        "content_ids": [
+                          45
+                        ],
+                        "created": 1481653919,
+                        "deduplicate_id": "128275:1481653919",
+                        "id": 128275,
+                        "name": "Weekly Product Update",
+                        "recipient_segment_ids": [
+                          42
+                        ],
+                        "scheduled_at": null,
+                        "send_state": "drafted",
+                        "sent_at": null,
+                        "type": "email",
+                        "updated": 1481653919
+                      }
+                    }
+                  },
+                  "scheduled": {
+                    "summary": "A scheduled send",
+                    "value": {
+                      "newsletter": {
+                        "content_ids": [
+                          45
+                        ],
+                        "created": 1481653919,
+                        "deduplicate_id": "128275:1481653929",
+                        "id": 128275,
+                        "name": "Weekly Product Update",
+                        "recipient_segment_ids": [
+                          42
+                        ],
+                        "scheduled_at": 1719849600,
+                        "send_state": "scheduled",
+                        "sent_at": null,
+                        "timezone": "America/New_York",
+                        "type": "email",
+                        "updated": 1481653929
+                      }
+                    }
+                  },
+                  "sent": {
+                    "summary": "A finished send",
+                    "value": {
+                      "newsletter": {
+                        "content_ids": [
+                          45
+                        ],
+                        "created": 1481653919,
+                        "deduplicate_id": "128275:1481653929",
+                        "id": 128275,
+                        "name": "Weekly Product Update",
+                        "recipient_segment_ids": [
+                          42
+                        ],
+                        "scheduled_at": null,
+                        "send_state": "sent",
+                        "sent_at": 1481653929,
                         "type": "email",
                         "updated": 1481653929
                       }
@@ -182258,10 +182544,37 @@
                             "type": "integer"
                           }
                         },
-                        "sent_at": {
-                          "type": "integer",
+                        "scheduled_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
                           "format": "unix timestamp",
-                          "description": "The last time the one-time send was sent."
+                          "readOnly": true,
+                          "description": "When the one-time send is scheduled to go out, or `null` if it has no active schedule. Always included.\n\n- A paused one-time send keeps its schedule, so this still has a value while `send_state` is `paused`.\n- After sending starts, this stores the next scheduled send if there is one, like the next timezone batch or the remainder of an A/B test.\n- When `tz_match_enabled` is `true`, the `scheduled_at` property is the time you asked for in the [schedule request](/integrations/api/app/tag/send-messages/scheduleNewsletter/) until sending starts.\n- If you send immediately instead of scheduling, there's a short delay before Customer.io starts sending. During that delay, `scheduled_at` isn't `null` and isn't a future time: it's the time you made the request, an earlier time, or `0`.\n"
+                        },
+                        "send_state": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "Where the one-time send is in its lifecycle. Always included. This matches the status shown in Customer.io, with one exception noted under `awaiting_winner`.\n\n- `drafted`: The one-time send isn't scheduled and hasn't been sent.\n- `scheduled`: A send time is set and sending hasn't started.\n- `sending`: Sending has started and is still in progress. More batches are due (timezone-match batches or the remainder of an A/B test), or messages are still being delivered.\n- `sent`: The one-time send is no longer sending. This doesn't mean that every individual message has reached a final state.\n- `paused`: The one-time send is paused.\n- `stopped`: The one-time send was stopped.\n- `failed`: The one-time send failed.\n- `awaiting_winner`: An A/B test has started and is waiting for you to pick a winner before the rest of the audience gets it. Test messages might still be going out. Customer.io's UI stops showing \"awaiting winner\" 30 days after the first send, but the API keeps reporting `awaiting_winner` because you can still pick a winner.\n\nWhen more than one state applies, Customer.io reports the first match in this order: `stopped`, `failed`, `paused`, `awaiting_winner`, `sending`, `sent`, `scheduled`, `drafted`.\n",
+                          "enum": [
+                            "drafted",
+                            "scheduled",
+                            "sending",
+                            "sent",
+                            "paused",
+                            "stopped",
+                            "failed",
+                            "awaiting_winner"
+                          ]
+                        },
+                        "sent_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "format": "unix timestamp",
+                          "description": "The last time the one-time send was sent, or `null` if it hasn't been sent."
                         },
                         "subscription_topic_id": {
                           "type": "integer",
@@ -182273,6 +182586,11 @@
                           "items": {
                             "type": "string"
                           }
+                        },
+                        "timezone": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "The [IANA timezone name](/journeys/send/timezones/example-timezones/#region-format) of the schedule (for example, `America/New_York`). Customer.io includes this field only when the active schedule has a timezone. It's omitted otherwise.\n"
                         },
                         "type": {
                           "x-scalar-ignore": true,
@@ -182289,6 +182607,11 @@
                           "readOnly": true,
                           "example": "email"
                         },
+                        "tz_match_enabled": {
+                          "type": "boolean",
+                          "readOnly": true,
+                          "description": "`true` when the pending schedule sends at the same local time in each person's timezone. Customer.io includes this field only while a timezone-match schedule is pending. It's omitted otherwise and is never `false`.\n"
+                        },
                         "updated": {
                           "x-scalar-ignore": true,
                           "type": "integer",
@@ -182303,13 +182626,15 @@
                           45
                         ],
                         "created": 1481653919,
-                        "deduplicate_id": "128275:1484870424",
+                        "deduplicate_id": "128275:1481653929",
                         "id": 128275,
                         "name": "Weekly Product Update",
                         "recipient_segment_ids": [
                           42,
                           99
                         ],
+                        "scheduled_at": null,
+                        "send_state": "sent",
                         "sent_at": 1481653929,
                         "subscription_topic_id": 5,
                         "tags": [
@@ -183602,10 +183927,37 @@
                             "type": "integer"
                           }
                         },
-                        "sent_at": {
-                          "type": "integer",
+                        "scheduled_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
                           "format": "unix timestamp",
-                          "description": "The last time the one-time send was sent."
+                          "readOnly": true,
+                          "description": "When the one-time send is scheduled to go out, or `null` if it has no active schedule. Always included.\n\n- A paused one-time send keeps its schedule, so this still has a value while `send_state` is `paused`.\n- After sending starts, this stores the next scheduled send if there is one, like the next timezone batch or the remainder of an A/B test.\n- When `tz_match_enabled` is `true`, the `scheduled_at` property is the time you asked for in the [schedule request](/integrations/api/app/tag/send-messages/scheduleNewsletter/) until sending starts.\n- If you send immediately instead of scheduling, there's a short delay before Customer.io starts sending. During that delay, `scheduled_at` isn't `null` and isn't a future time: it's the time you made the request, an earlier time, or `0`.\n"
+                        },
+                        "send_state": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "Where the one-time send is in its lifecycle. Always included. This matches the status shown in Customer.io, with one exception noted under `awaiting_winner`.\n\n- `drafted`: The one-time send isn't scheduled and hasn't been sent.\n- `scheduled`: A send time is set and sending hasn't started.\n- `sending`: Sending has started and is still in progress. More batches are due (timezone-match batches or the remainder of an A/B test), or messages are still being delivered.\n- `sent`: The one-time send is no longer sending. This doesn't mean that every individual message has reached a final state.\n- `paused`: The one-time send is paused.\n- `stopped`: The one-time send was stopped.\n- `failed`: The one-time send failed.\n- `awaiting_winner`: An A/B test has started and is waiting for you to pick a winner before the rest of the audience gets it. Test messages might still be going out. Customer.io's UI stops showing \"awaiting winner\" 30 days after the first send, but the API keeps reporting `awaiting_winner` because you can still pick a winner.\n\nWhen more than one state applies, Customer.io reports the first match in this order: `stopped`, `failed`, `paused`, `awaiting_winner`, `sending`, `sent`, `scheduled`, `drafted`.\n",
+                          "enum": [
+                            "drafted",
+                            "scheduled",
+                            "sending",
+                            "sent",
+                            "paused",
+                            "stopped",
+                            "failed",
+                            "awaiting_winner"
+                          ]
+                        },
+                        "sent_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "format": "unix timestamp",
+                          "description": "The last time the one-time send was sent, or `null` if it hasn't been sent."
                         },
                         "subscription_topic_id": {
                           "type": "integer",
@@ -183617,6 +183969,11 @@
                           "items": {
                             "type": "string"
                           }
+                        },
+                        "timezone": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "The [IANA timezone name](/journeys/send/timezones/example-timezones/#region-format) of the schedule (for example, `America/New_York`). Customer.io includes this field only when the active schedule has a timezone. It's omitted otherwise.\n"
                         },
                         "type": {
                           "x-scalar-ignore": true,
@@ -183633,6 +183990,11 @@
                           "readOnly": true,
                           "example": "email"
                         },
+                        "tz_match_enabled": {
+                          "type": "boolean",
+                          "readOnly": true,
+                          "description": "`true` when the pending schedule sends at the same local time in each person's timezone. Customer.io includes this field only while a timezone-match schedule is pending. It's omitted otherwise and is never `false`.\n"
+                        },
                         "updated": {
                           "x-scalar-ignore": true,
                           "type": "integer",
@@ -183647,13 +184009,15 @@
                           45
                         ],
                         "created": 1481653919,
-                        "deduplicate_id": "128275:1484870424",
+                        "deduplicate_id": "128275:1481653929",
                         "id": 128275,
                         "name": "Weekly Product Update",
                         "recipient_segment_ids": [
                           42,
                           99
                         ],
+                        "scheduled_at": null,
+                        "send_state": "sent",
                         "sent_at": 1481653929,
                         "subscription_topic_id": 5,
                         "tags": [
@@ -184013,10 +184377,37 @@
                             "type": "integer"
                           }
                         },
-                        "sent_at": {
-                          "type": "integer",
+                        "scheduled_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
                           "format": "unix timestamp",
-                          "description": "The last time the one-time send was sent."
+                          "readOnly": true,
+                          "description": "When the one-time send is scheduled to go out, or `null` if it has no active schedule. Always included.\n\n- A paused one-time send keeps its schedule, so this still has a value while `send_state` is `paused`.\n- After sending starts, this stores the next scheduled send if there is one, like the next timezone batch or the remainder of an A/B test.\n- When `tz_match_enabled` is `true`, the `scheduled_at` property is the time you asked for in the [schedule request](/integrations/api/app/tag/send-messages/scheduleNewsletter/) until sending starts.\n- If you send immediately instead of scheduling, there's a short delay before Customer.io starts sending. During that delay, `scheduled_at` isn't `null` and isn't a future time: it's the time you made the request, an earlier time, or `0`.\n"
+                        },
+                        "send_state": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "Where the one-time send is in its lifecycle. Always included. This matches the status shown in Customer.io, with one exception noted under `awaiting_winner`.\n\n- `drafted`: The one-time send isn't scheduled and hasn't been sent.\n- `scheduled`: A send time is set and sending hasn't started.\n- `sending`: Sending has started and is still in progress. More batches are due (timezone-match batches or the remainder of an A/B test), or messages are still being delivered.\n- `sent`: The one-time send is no longer sending. This doesn't mean that every individual message has reached a final state.\n- `paused`: The one-time send is paused.\n- `stopped`: The one-time send was stopped.\n- `failed`: The one-time send failed.\n- `awaiting_winner`: An A/B test has started and is waiting for you to pick a winner before the rest of the audience gets it. Test messages might still be going out. Customer.io's UI stops showing \"awaiting winner\" 30 days after the first send, but the API keeps reporting `awaiting_winner` because you can still pick a winner.\n\nWhen more than one state applies, Customer.io reports the first match in this order: `stopped`, `failed`, `paused`, `awaiting_winner`, `sending`, `sent`, `scheduled`, `drafted`.\n",
+                          "enum": [
+                            "drafted",
+                            "scheduled",
+                            "sending",
+                            "sent",
+                            "paused",
+                            "stopped",
+                            "failed",
+                            "awaiting_winner"
+                          ]
+                        },
+                        "sent_at": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "format": "unix timestamp",
+                          "description": "The last time the one-time send was sent, or `null` if it hasn't been sent."
                         },
                         "subscription_topic_id": {
                           "type": "integer",
@@ -184028,6 +184419,11 @@
                           "items": {
                             "type": "string"
                           }
+                        },
+                        "timezone": {
+                          "type": "string",
+                          "readOnly": true,
+                          "description": "The [IANA timezone name](/journeys/send/timezones/example-timezones/#region-format) of the schedule (for example, `America/New_York`). Customer.io includes this field only when the active schedule has a timezone. It's omitted otherwise.\n"
                         },
                         "type": {
                           "x-scalar-ignore": true,
@@ -184044,6 +184440,11 @@
                           "readOnly": true,
                           "example": "email"
                         },
+                        "tz_match_enabled": {
+                          "type": "boolean",
+                          "readOnly": true,
+                          "description": "`true` when the pending schedule sends at the same local time in each person's timezone. Customer.io includes this field only while a timezone-match schedule is pending. It's omitted otherwise and is never `false`.\n"
+                        },
                         "updated": {
                           "x-scalar-ignore": true,
                           "type": "integer",
@@ -184058,13 +184459,15 @@
                           45
                         ],
                         "created": 1481653919,
-                        "deduplicate_id": "128275:1484870424",
+                        "deduplicate_id": "128275:1481653929",
                         "id": 128275,
                         "name": "Weekly Product Update",
                         "recipient_segment_ids": [
                           42,
                           99
                         ],
+                        "scheduled_at": null,
+                        "send_state": "sent",
                         "sent_at": 1481653929,
                         "subscription_topic_id": 5,
                         "tags": [
