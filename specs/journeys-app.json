@@ -107,6 +107,7 @@
             "clicked_push",
             "clicked_twilio",
             "clicked_webhook",
+            "consent",
             "converted_action",
             "converted_content",
             "converted_email",
@@ -230,7 +231,7 @@
       "activityName": {
         "name": "name",
         "in": "query",
-        "description": "The name of the event or attribute you want to return.",
+        "description": "The name of the event or attribute you want to return. For `consent` activities, the consent action, like `opted_in` or `opted_out`.",
         "required": false,
         "schema": {
           "type": "string",
@@ -1418,6 +1419,95 @@
                     "to": "newPerson@customer.io"
                   }
                 }
+              },
+              {
+                "title": "Consent record",
+                "description": "The data for a `consent` activity. The activity's `name` is the action, `opted_in` or `opted_out`. Customer.io fills in the optional fields when the change that created the record has that information. See [Consent records](/messaging/channels/subscriptions/consent-records/#what-a-record-contains).",
+                "type": "object",
+                "properties": {
+                  "channel": {
+                    "type": "string",
+                    "description": "The channel the consent applies to, like `email` or `sms`. Absent when the consent applies to all of your messages."
+                  },
+                  "collection_point": {
+                    "type": "string",
+                    "description": "Where the change came from, like your subscription center or an SMS reply. The `subscription_preference_migration` and `sender_optout_migration` values mark records that Customer.io imported from preferences and opt-outs that existed before your account recorded consent.",
+                    "enum": [
+                      "api",
+                      "carrier_report",
+                      "double_opt_in_confirmation",
+                      "form",
+                      "import",
+                      "in_app_prompt",
+                      "inbound_reply",
+                      "list_unsubscribe_header",
+                      "one_click_unsubscribe",
+                      "operator",
+                      "sender_optout_migration",
+                      "subscription_center",
+                      "subscription_preference_migration",
+                      "unsubscribe_link"
+                    ]
+                  },
+                  "consent_state": {
+                    "type": "string",
+                    "description": "The state the change left the person in.",
+                    "enum": [
+                      "subscribed",
+                      "unsubscribed"
+                    ]
+                  },
+                  "delivery_id": {
+                    "type": "string",
+                    "description": "The message the person responded to, like the email that contained the unsubscribe link."
+                  },
+                  "from": {
+                    "type": "string",
+                    "description": "The sender's email address or phone number when the change happened."
+                  },
+                  "profile_identifier": {
+                    "type": "string",
+                    "description": "The identifier your request used to find the person."
+                  },
+                  "profile_identifier_type": {
+                    "type": "string",
+                    "description": "The type of `profile_identifier`, like `email` or `id`."
+                  },
+                  "received_on": {
+                    "type": "string",
+                    "description": "The address or phone number the person's reply came from."
+                  },
+                  "response": {
+                    "type": "string",
+                    "description": "What the person sent back, like the body of an SMS reply."
+                  },
+                  "sender_id": {
+                    "type": "integer",
+                    "description": "The sender identity the consent applies to, if any."
+                  },
+                  "source_event_id": {
+                    "type": "string",
+                    "description": "The ID of the activity that produced this record, like the inbound SMS that contained STOP."
+                  },
+                  "topic_id": {
+                    "type": "integer",
+                    "description": "The subscription topic the consent applies to, if any."
+                  },
+                  "topic_name": {
+                    "type": "string",
+                    "description": "The topic's name when the change happened. Renaming the topic later doesn't change this value."
+                  }
+                },
+                "example": {
+                  "channel": "sms",
+                  "collection_point": "inbound_reply",
+                  "consent_state": "unsubscribed",
+                  "delivery_id": "RPILAgUBcRhIBqSfeiIwdIYJKxTY",
+                  "from": "+15485712226",
+                  "received_on": "+15555550123",
+                  "response": "STOP",
+                  "sender_id": 19
+                }
               }
             ]
           },
@@ -1444,7 +1534,7 @@
           },
           "name": {
             "type": "string",
-            "description": "The name of the event, for `event` and `screen` activities."
+            "description": "The name of the event, for `event` and `screen` activities. For `consent` activities, the consent action, which is `opted_in`, `opted_out`, or `voided`."
           },
           "timestamp": {
             "type": "integer",
@@ -1480,6 +1570,7 @@
               "clicked_push",
               "clicked_twilio",
               "clicked_webhook",
+              "consent",
               "converted_action",
               "converted_content",
               "converted_email",
@@ -1617,6 +1708,7 @@
           "clicked_push",
           "clicked_twilio",
           "clicked_webhook",
+          "consent",
           "converted_action",
           "converted_content",
           "converted_email",
@@ -184624,6 +184716,7 @@
                 "clicked_push",
                 "clicked_twilio",
                 "clicked_webhook",
+                "consent",
                 "converted_action",
                 "converted_content",
                 "converted_email",
@@ -184725,7 +184818,7 @@
           {
             "name": "name",
             "in": "query",
-            "description": "The name of the event or attribute you want to return.",
+            "description": "The name of the event or attribute you want to return. For `consent` activities, the consent action, like `opted_in` or `opted_out`.",
             "required": false,
             "schema": {
               "type": "string",
@@ -184902,6 +184995,95 @@
                                     "to": "newPerson@customer.io"
                                   }
                                 }
+                              },
+                              {
+                                "title": "Consent record",
+                                "description": "The data for a `consent` activity. The activity's `name` is the action, `opted_in` or `opted_out`. Customer.io fills in the optional fields when the change that created the record has that information. See [Consent records](/messaging/channels/subscriptions/consent-records/#what-a-record-contains).",
+                                "type": "object",
+                                "properties": {
+                                  "channel": {
+                                    "type": "string",
+                                    "description": "The channel the consent applies to, like `email` or `sms`. Absent when the consent applies to all of your messages."
+                                  },
+                                  "collection_point": {
+                                    "type": "string",
+                                    "description": "Where the change came from, like your subscription center or an SMS reply. The `subscription_preference_migration` and `sender_optout_migration` values mark records that Customer.io imported from preferences and opt-outs that existed before your account recorded consent.",
+                                    "enum": [
+                                      "api",
+                                      "carrier_report",
+                                      "double_opt_in_confirmation",
+                                      "form",
+                                      "import",
+                                      "in_app_prompt",
+                                      "inbound_reply",
+                                      "list_unsubscribe_header",
+                                      "one_click_unsubscribe",
+                                      "operator",
+                                      "sender_optout_migration",
+                                      "subscription_center",
+                                      "subscription_preference_migration",
+                                      "unsubscribe_link"
+                                    ]
+                                  },
+                                  "consent_state": {
+                                    "type": "string",
+                                    "description": "The state the change left the person in.",
+                                    "enum": [
+                                      "subscribed",
+                                      "unsubscribed"
+                                    ]
+                                  },
+                                  "delivery_id": {
+                                    "type": "string",
+                                    "description": "The message the person responded to, like the email that contained the unsubscribe link."
+                                  },
+                                  "from": {
+                                    "type": "string",
+                                    "description": "The sender's email address or phone number when the change happened."
+                                  },
+                                  "profile_identifier": {
+                                    "type": "string",
+                                    "description": "The identifier your request used to find the person."
+                                  },
+                                  "profile_identifier_type": {
+                                    "type": "string",
+                                    "description": "The type of `profile_identifier`, like `email` or `id`."
+                                  },
+                                  "received_on": {
+                                    "type": "string",
+                                    "description": "The address or phone number the person's reply came from."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "What the person sent back, like the body of an SMS reply."
+                                  },
+                                  "sender_id": {
+                                    "type": "integer",
+                                    "description": "The sender identity the consent applies to, if any."
+                                  },
+                                  "source_event_id": {
+                                    "type": "string",
+                                    "description": "The ID of the activity that produced this record, like the inbound SMS that contained STOP."
+                                  },
+                                  "topic_id": {
+                                    "type": "integer",
+                                    "description": "The subscription topic the consent applies to, if any."
+                                  },
+                                  "topic_name": {
+                                    "type": "string",
+                                    "description": "The topic's name when the change happened. Renaming the topic later doesn't change this value."
+                                  }
+                                },
+                                "example": {
+                                  "channel": "sms",
+                                  "collection_point": "inbound_reply",
+                                  "consent_state": "unsubscribed",
+                                  "delivery_id": "RPILAgUBcRhIBqSfeiIwdIYJKxTY",
+                                  "from": "+15485712226",
+                                  "received_on": "+15555550123",
+                                  "response": "STOP",
+                                  "sender_id": 19
+                                }
                               }
                             ]
                           },
@@ -184928,7 +185110,7 @@
                           },
                           "name": {
                             "type": "string",
-                            "description": "The name of the event, for `event` and `screen` activities."
+                            "description": "The name of the event, for `event` and `screen` activities. For `consent` activities, the consent action, which is `opted_in`, `opted_out`, or `voided`."
                           },
                           "timestamp": {
                             "type": "integer",
@@ -184964,6 +185146,7 @@
                               "clicked_push",
                               "clicked_twilio",
                               "clicked_webhook",
+                              "consent",
                               "converted_action",
                               "converted_content",
                               "converted_email",
@@ -223726,6 +223909,7 @@
               "clicked_push",
               "clicked_twilio",
               "clicked_webhook",
+              "consent",
               "converted_action",
               "converted_content",
               "converted_email",
@@ -223827,7 +224011,7 @@
         {
           "name": "name",
           "in": "query",
-          "description": "For `event` and `attribute_update` types, you can search by event or attribute name respectively.",
+          "description": "For `event` and `attribute_update` types, you can search by event or attribute name respectively. For the `consent` type, you can search by consent action, like `opted_in` or `opted_out`.",
           "required": false,
           "schema": {
             "type": "string"
@@ -223960,6 +224144,95 @@
                                     "to": "newPerson@customer.io"
                                   }
                                 }
+                              },
+                              {
+                                "title": "Consent record",
+                                "description": "The data for a `consent` activity. The activity's `name` is the action, `opted_in` or `opted_out`. Customer.io fills in the optional fields when the change that created the record has that information. See [Consent records](/messaging/channels/subscriptions/consent-records/#what-a-record-contains).",
+                                "type": "object",
+                                "properties": {
+                                  "channel": {
+                                    "type": "string",
+                                    "description": "The channel the consent applies to, like `email` or `sms`. Absent when the consent applies to all of your messages."
+                                  },
+                                  "collection_point": {
+                                    "type": "string",
+                                    "description": "Where the change came from, like your subscription center or an SMS reply. The `subscription_preference_migration` and `sender_optout_migration` values mark records that Customer.io imported from preferences and opt-outs that existed before your account recorded consent.",
+                                    "enum": [
+                                      "api",
+                                      "carrier_report",
+                                      "double_opt_in_confirmation",
+                                      "form",
+                                      "import",
+                                      "in_app_prompt",
+                                      "inbound_reply",
+                                      "list_unsubscribe_header",
+                                      "one_click_unsubscribe",
+                                      "operator",
+                                      "sender_optout_migration",
+                                      "subscription_center",
+                                      "subscription_preference_migration",
+                                      "unsubscribe_link"
+                                    ]
+                                  },
+                                  "consent_state": {
+                                    "type": "string",
+                                    "description": "The state the change left the person in.",
+                                    "enum": [
+                                      "subscribed",
+                                      "unsubscribed"
+                                    ]
+                                  },
+                                  "delivery_id": {
+                                    "type": "string",
+                                    "description": "The message the person responded to, like the email that contained the unsubscribe link."
+                                  },
+                                  "from": {
+                                    "type": "string",
+                                    "description": "The sender's email address or phone number when the change happened."
+                                  },
+                                  "profile_identifier": {
+                                    "type": "string",
+                                    "description": "The identifier your request used to find the person."
+                                  },
+                                  "profile_identifier_type": {
+                                    "type": "string",
+                                    "description": "The type of `profile_identifier`, like `email` or `id`."
+                                  },
+                                  "received_on": {
+                                    "type": "string",
+                                    "description": "The address or phone number the person's reply came from."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "What the person sent back, like the body of an SMS reply."
+                                  },
+                                  "sender_id": {
+                                    "type": "integer",
+                                    "description": "The sender identity the consent applies to, if any."
+                                  },
+                                  "source_event_id": {
+                                    "type": "string",
+                                    "description": "The ID of the activity that produced this record, like the inbound SMS that contained STOP."
+                                  },
+                                  "topic_id": {
+                                    "type": "integer",
+                                    "description": "The subscription topic the consent applies to, if any."
+                                  },
+                                  "topic_name": {
+                                    "type": "string",
+                                    "description": "The topic's name when the change happened. Renaming the topic later doesn't change this value."
+                                  }
+                                },
+                                "example": {
+                                  "channel": "sms",
+                                  "collection_point": "inbound_reply",
+                                  "consent_state": "unsubscribed",
+                                  "delivery_id": "RPILAgUBcRhIBqSfeiIwdIYJKxTY",
+                                  "from": "+15485712226",
+                                  "received_on": "+15555550123",
+                                  "response": "STOP",
+                                  "sender_id": 19
+                                }
                               }
                             ]
                           },
@@ -223986,7 +224259,7 @@
                           },
                           "name": {
                             "type": "string",
-                            "description": "The name of the event, for `event` and `screen` activities."
+                            "description": "The name of the event, for `event` and `screen` activities. For `consent` activities, the consent action, which is `opted_in`, `opted_out`, or `voided`."
                           },
                           "timestamp": {
                             "type": "integer",
@@ -224022,6 +224295,7 @@
                               "clicked_push",
                               "clicked_twilio",
                               "clicked_webhook",
+                              "consent",
                               "converted_action",
                               "converted_content",
                               "converted_email",
@@ -224760,7 +225034,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Opt a person out of, or back in to, specific senders and channels. Provide one entry per sender/channel in the `optouts` array.\n\nSet `optout` to `true` to opt the person out of a sender, or `false` to opt them back in. The `channel` field is optional and defaults to `sms`.\n\nThis request is processed asynchronously; it may take a moment for changes to reflect in read requests.\n",
+        "description": "Opt a person out of, or back in to, specific senders and channels. Provide one entry per sender/channel in the `optouts` array.\n\nSet `optout` to `true` to opt the person out of a sender, or `false` to opt them back in. The `channel` field is optional and defaults to `sms`.\n\nThis request is processed asynchronously; it may take a moment for changes to reflect in read requests.\n\nCustomer.io also writes a [consent record](/messaging/channels/subscriptions/consent-records/) for each entry, with the collection point `api`.\n",
         "requestBody": {
           "content": {
             "application/json": {
