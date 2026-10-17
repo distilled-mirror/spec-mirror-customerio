@@ -11742,7 +11742,7 @@
       "body_content": {
         "x-scalar-ignore": true,
         "type": "string",
-        "description": "Message content in reporting webhooks when Body Content is enabled and the metric is `sent`. Email content includes headers; push and in-app content is stringified payload."
+        "description": "Message content in reporting webhooks when you enable the **Body content** option (`with_content`) and the metric is `sent`. Email content includes headers; push and in-app content is stringified payload."
       },
       "reportingWebhook": {
         "x-scalar-ignore": true,
@@ -11879,7 +11879,7 @@
           },
           "with_content": {
             "type": "boolean",
-            "description": "Set to `true` to include the message `body` in `_sent` events.",
+            "description": "Set to `true` to include message content in `sent` events and topic preferences in `cio_subscription_preferences_changed` events. This is the **Body content** option in the UI.",
             "example": false
           }
         }
@@ -12039,13 +12039,50 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 2592000,
-            "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+            "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
             "example": 3600
           },
           "id_ignore_missing": {
             "type": "boolean",
             "default": false,
             "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+          },
+          "rate_limit": {
+            "type": "object",
+            "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+            "required": [
+              "rate",
+              "period"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "period": {
+                "type": "string",
+                "enum": [
+                  "minute",
+                  "hour",
+                  "day"
+                ],
+                "description": "The length of each period.",
+                "example": "hour"
+              },
+              "rate": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10000000,
+                "description": "The maximum number of people that enter the broadcast in each `period`.",
+                "example": 1000
+              },
+              "spread": {
+                "type": "boolean",
+                "default": true,
+                "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+              }
+            },
+            "example": {
+              "period": "hour",
+              "rate": 1000
+            }
           },
           "scheduled_at": {
             "type": "integer",
@@ -22530,13 +22567,50 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 2592000,
-                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                 "example": 3600
               },
               "id_ignore_missing": {
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "rate_limit": {
+                "type": "object",
+                "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                "required": [
+                  "rate",
+                  "period"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "minute",
+                      "hour",
+                      "day"
+                    ],
+                    "description": "The length of each period.",
+                    "example": "hour"
+                  },
+                  "rate": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000,
+                    "description": "The maximum number of people that enter the broadcast in each `period`.",
+                    "example": 1000
+                  },
+                  "spread": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                  }
+                },
+                "example": {
+                  "period": "hour",
+                  "rate": 1000
+                }
               },
               "scheduled_at": {
                 "type": "integer",
@@ -24535,7 +24609,7 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 2592000,
-                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                 "example": 3600
               },
               "filter": {
@@ -27586,6 +27660,43 @@
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "rate_limit": {
+                "type": "object",
+                "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                "required": [
+                  "rate",
+                  "period"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "minute",
+                      "hour",
+                      "day"
+                    ],
+                    "description": "The length of each period.",
+                    "example": "hour"
+                  },
+                  "rate": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000,
+                    "description": "The maximum number of people that enter the broadcast in each `period`.",
+                    "example": 1000
+                  },
+                  "spread": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                  }
+                },
+                "example": {
+                  "period": "hour",
+                  "rate": 1000
+                }
               },
               "scheduled_at": {
                 "type": "integer",
@@ -27642,7 +27753,7 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 2592000,
-                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                 "example": 3600
               },
               "filter": {
@@ -30693,6 +30804,43 @@
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "rate_limit": {
+                "type": "object",
+                "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                "required": [
+                  "rate",
+                  "period"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "minute",
+                      "hour",
+                      "day"
+                    ],
+                    "description": "The length of each period.",
+                    "example": "hour"
+                  },
+                  "rate": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000,
+                    "description": "The maximum number of people that enter the broadcast in each `period`.",
+                    "example": 1000
+                  },
+                  "spread": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                  }
+                },
+                "example": {
+                  "period": "hour",
+                  "rate": 1000
+                }
               },
               "scheduled_at": {
                 "type": "integer",
@@ -30749,7 +30897,7 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 2592000,
-                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                 "example": 3600
               },
               "filter": {
@@ -33800,6 +33948,43 @@
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "rate_limit": {
+                "type": "object",
+                "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                "required": [
+                  "rate",
+                  "period"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "minute",
+                      "hour",
+                      "day"
+                    ],
+                    "description": "The length of each period.",
+                    "example": "hour"
+                  },
+                  "rate": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000,
+                    "description": "The maximum number of people that enter the broadcast in each `period`.",
+                    "example": 1000
+                  },
+                  "spread": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                  }
+                },
+                "example": {
+                  "period": "hour",
+                  "rate": 1000
+                }
               },
               "scheduled_at": {
                 "type": "integer",
@@ -33921,7 +34106,7 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 2592000,
-                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                 "example": 3600
               },
               "filter": {
@@ -36972,6 +37157,43 @@
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "rate_limit": {
+                "type": "object",
+                "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                "required": [
+                  "rate",
+                  "period"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "minute",
+                      "hour",
+                      "day"
+                    ],
+                    "description": "The length of each period.",
+                    "example": "hour"
+                  },
+                  "rate": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000,
+                    "description": "The maximum number of people that enter the broadcast in each `period`.",
+                    "example": 1000
+                  },
+                  "spread": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                  }
+                },
+                "example": {
+                  "period": "hour",
+                  "rate": 1000
+                }
               },
               "scheduled_at": {
                 "type": "integer",
@@ -37022,7 +37244,7 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 2592000,
-                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                 "example": 3600
               },
               "filter": {
@@ -40073,6 +40295,43 @@
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "rate_limit": {
+                "type": "object",
+                "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                "required": [
+                  "rate",
+                  "period"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "minute",
+                      "hour",
+                      "day"
+                    ],
+                    "description": "The length of each period.",
+                    "example": "hour"
+                  },
+                  "rate": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000,
+                    "description": "The maximum number of people that enter the broadcast in each `period`.",
+                    "example": 1000
+                  },
+                  "spread": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                  }
+                },
+                "example": {
+                  "period": "hour",
+                  "rate": 1000
+                }
               },
               "scheduled_at": {
                 "type": "integer",
@@ -40378,6 +40637,10 @@
         "type": "object",
         "description": "You can get triggers to know when you triggered a broadcast and whether or not it's been processed.",
         "properties": {
+          "audience_count": {
+            "type": "integer",
+            "description": "The number of people in the trigger's audience. For a send without a `rate_limit`, we set it when the send finishes. For a rate-limited send, we set it when the first people enter. It is `0` until then."
+          },
           "broadcast_id": {
             "x-scalar-ignore": true,
             "type": "integer",
@@ -40409,6 +40672,29 @@
             "type": "integer",
             "format": "unix timestamp",
             "description": "The date-time when Customer.io processed the trigger."
+          },
+          "rate_limit": {
+            "type": "object",
+            "description": "The rate limit you set when you triggered the broadcast. We omit this field if you didn't set one.",
+            "properties": {
+              "period": {
+                "type": "string",
+                "enum": [
+                  "minute",
+                  "hour",
+                  "day"
+                ],
+                "description": "The length of each period."
+              },
+              "rate": {
+                "type": "integer",
+                "description": "The maximum number of people that enter the broadcast in each `period`."
+              },
+              "spread": {
+                "type": "boolean",
+                "description": "Whether we let people in at an even pace across the period."
+              }
+            }
           },
           "scheduled_at": {
             "type": "integer",
@@ -56859,7 +57145,7 @@
   "info": {
     "version": "1.0.0",
     "title": "Customer.io Track API",
-    "description": "# Overview\n\nOur Track API provides ways to send real-time customer data to your Customer.io workspace including customer identification and event tracking.\n\n# Use our Postman collection\n\nWe've generated a Postman collection to help you get started with our APIs.\n\nIf you fork this collection, you might want to disable the *Watch original collection* option. We automatically update our Postman collection whenever we release changes to our documentation, even if we don't change our APIs—which happens daily! Rather than being flooded with Postman notifications, you can check out our [Release Notes](/release-notes/) for updates to our APIs.\n\n**NOTE**: Postman endpoints default to our US APIs. If you're in our European (EU) region, you'll need to add `-eu` to the server variables (`track_api_url` and `app_api_url`).\n\n[<img src=\"https://run.pstmn.io/button.svg\" alt=\"Run In Postman\" style=\"width: 128px; height: 32px;\">](https://god.gw.postman.com/run-collection/23697545-0f7ae1e8-8177-46fc-808a-2fd363dd52b9?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D23697545-0f7ae1e8-8177-46fc-808a-2fd363dd52b9%26entityType%3Dcollection%26workspaceId%3Db886877f-fc09-475f-84fe-6221a98f4d18#?env%5BCustomer.io%20API%20Environment%5D=W3sia2V5IjoidHJhY2tfYXBpX3VybCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiJ0cmFjay5jdXN0b21lci5pbyIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBwX2FwaV91cmwiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiYXBpLmN1c3RvbWVyLmlvIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzaXRlX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBpX2tleSIsInR5cGUiOiJzZWNyZXQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYmVhcmVyIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYnJvYWRjYXN0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaW1wb3J0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiZW1haWxfYWRkcmVzcyIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InN1cHByZXNzaW9uX3R5cGUiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjb2xsZWN0aW9uX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoic25pcHBldF9uYW1lIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoid2ViaG9va19pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InNlbmRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImV4cG9ydF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6Im1lc3NhZ2VfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzZWdtZW50X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoibmV3c2xldHRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImNvbnRlbnRfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjYW1wYWlnbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImFjdGlvbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImN1c3RvbWVyX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoidHJhbnNhY3Rpb25hbF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRyaWdnZXJfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJmb3JtX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaWRlbnRpZmllciIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRldmljZV9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRlbGl2ZXJ5X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9XQ==)\n\n# Server addresses: US and EU\nCustomer.io hosts services in the United States (US) and European Union. Select the appropriate server address for your region.\n\n| Region | Server Address |\n| :-- | :-- |\n| US | https://track.customer.io |\n| EU | https://track-eu.customer.io |\n\nNote that if your account is in the EU region and you send traffic to our US endpoints, we'll redirect it accordingly but this traffic still passes through US servers and data could be logged in the US.\n\n# Authentication \n\nYou can find all of your API authentication information in your [Account Settings](https://fly.customer.io/settings/api_credentials). Our Tracking API uses HTTP basic authorization. The App API uses bearer authorization, and you can generate tokens supporting different scopes. Each operation in this document references the authorization header it requires.\n\n# v1 vs v2 APIs\n\nMost of the time, when we talk about *The Track API*, we're talking about the v1 API because the v2 API isn't used in any of our libraries and rarely used in libraries built by third parties; it's much more common that you'd encounter the v1 API.\n\nIf you're integrating with Customer.io using one of our libraries, or a third party customer data platform (CDP) like Segment or Rudderstack, you'll be using the v1 API.\n\nThe v2 API is newer and supports two important features that the v1 API doesn't natively support: objects and batching. But, if you're integrating directly with our API, we suggest you use the [Pipelines API](/integrations/api/cdp/). The Pipelines API supports both objects, batching, *and* all of our newest integrations and libraries are based on it.\n\n# Rate Limits\n\nThe Track API has a rate limit of 1000 requests per second for both active data integrations and historical backfill scripts. This limit applies to both our v1 and v2 APIs. \n\nWhile this rate is not strictly enforced, consistently exceeding it may lead to throttling or dropped data, especially during periods of high system load. If we detect a sustained high volume that could impact other customers, we may contact you to help adjust your integration or, in rare cases, temporarily block requests.\n\n**Rate limits are subject to change. We may adjust these thresholds to ensure stable performance for all customers.**\n\nBelow are the payload size limits for the Track API. If any of these limits are too restrictive for your needs, contact support to let us know your situation as we may be able to accommodate special circumstances. \n\n## Customer limits\n\nThese limits apply to people and their attributes, often referred to as \"customers\" in our APIs.\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| ID | 150 bytes | Max length of a person's ID value |\n| Attribute Name | 150 bytes | Max length of each attribute name |\n| Attribute Value | 1000 bytes | Max length of attribute values |\n| Unique attributes | 300 | Max number of attributes allowed per person or Identify call |\n\n## Object and relationship limits\n\nObjects (groups) and relationships between people and objects can have their own attributes. Their limits are similar to people (customers).\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Object ID | 150 bytes | Max length of a object's ID |\n| Attribute Names | 150 bytes | Max length of each attribute name |\n| Attribute Values | 1000 bytes | Max length of attribute values |\n| Unique attributes | 300 | Max number of attributes allowed per object or relationship |\n| Total attribute size | 100 Kilobytes | Max size of all attributes associated with an object or relationship |\n\n## Track API Event limits\n\nThese limits apply to events that you'll send with the `/v1/track` call.\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Event Name | 100 bytes | Max length of each event name |\n| Event Data | 100000 bytes | Max length of each event data |\n\n\n## v2 API Limits\n\nThe v2 API has two endpoints, both of which have limits on the total size of requests. \n* `/entity` is limited to requests 32kb or smaller.\n* `/batch` is limited to requests 500kb or smaller.\n  \n  Each of the requests within a batch must also be 32kb or smaller.\n"
+    "description": "# Overview\n\nOur Track API provides ways to send real-time customer data to your Customer.io workspace including customer identification and event tracking.\n\n# Use our Postman collection\n\nWe've generated a Postman collection to help you get started with our APIs.\n\nIf you fork this collection, you might want to disable the *Watch original collection* option. We automatically update our Postman collection whenever we release changes to our documentation, even if we don't change our APIs—which happens daily! Rather than being flooded with Postman notifications, you can check out our [Release Notes](/release-notes/) for updates to our APIs.\n\n**NOTE**: Postman endpoints default to our US APIs. If you're in our European (EU) region, you'll need to add `-eu` to the server variables (`track_api_url` and `app_api_url`).\n\n[<img src=\"https://run.pstmn.io/button.svg\" alt=\"Run In Postman\" style=\"width: 128px; height: 32px;\">](https://god.gw.postman.com/run-collection/23697545-0f7ae1e8-8177-46fc-808a-2fd363dd52b9?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D23697545-0f7ae1e8-8177-46fc-808a-2fd363dd52b9%26entityType%3Dcollection%26workspaceId%3Db886877f-fc09-475f-84fe-6221a98f4d18#?env%5BCustomer.io%20API%20Environment%5D=W3sia2V5IjoidHJhY2tfYXBpX3VybCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiJ0cmFjay5jdXN0b21lci5pbyIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBwX2FwaV91cmwiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiYXBpLmN1c3RvbWVyLmlvIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzaXRlX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBpX2tleSIsInR5cGUiOiJzZWNyZXQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYmVhcmVyIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYnJvYWRjYXN0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaW1wb3J0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiZW1haWxfYWRkcmVzcyIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InN1cHByZXNzaW9uX3R5cGUiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjb2xsZWN0aW9uX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoic25pcHBldF9uYW1lIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoid2ViaG9va19pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InNlbmRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImV4cG9ydF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6Im1lc3NhZ2VfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzZWdtZW50X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoibmV3c2xldHRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImNvbnRlbnRfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjYW1wYWlnbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImFjdGlvbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImN1c3RvbWVyX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoidHJhbnNhY3Rpb25hbF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRyaWdnZXJfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJmb3JtX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaWRlbnRpZmllciIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRldmljZV9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRlbGl2ZXJ5X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9XQ==)\n\n# Server addresses: US and EU\nCustomer.io hosts services in the United States (US) and European Union. Select the appropriate server address for your region.\n\n| Region | Server Address |\n| :-- | :-- |\n| US | https://track.customer.io |\n| EU | https://track-eu.customer.io |\n\nNote that if your account is in the EU region and you send traffic to our US endpoints, we'll redirect it accordingly but this traffic still passes through US servers and data could be logged in the US.\n\n# Authentication \n\nYou can find all of your API authentication information in your [Account Settings](https://fly.customer.io/settings/api_credentials). Our Tracking API uses HTTP basic authorization. The App API uses bearer authorization, and you can generate tokens supporting different scopes. Each operation in this document references the authorization header it requires.\n\n# v1 vs v2 APIs\n\nMost of the time, when we talk about *The Track API*, we're talking about the v1 API because the v2 API isn't used in any of our libraries and rarely used in libraries built by third parties; it's much more common that you'd encounter the v1 API.\n\nIf you're integrating with Customer.io using one of our libraries, or a third party customer data platform (CDP) like Segment or Rudderstack, you'll be using the v1 API.\n\nThe v2 API is newer and supports two important features that the v1 API doesn't natively support: objects and batching. But, if you're integrating directly with our API, we suggest you use the [Pipelines API](/integrations/api/cdp/). The Pipelines API supports both objects, batching, *and* all of our newest integrations and libraries are based on it.\n\n# Rate Limits\n\nThe Track API has no fixed rate limit. Customer.io accepts your requests as fast as you send them and doesn't reject or drop them because of volume. Our general guideline is about 3000 requests per 3 seconds, an average of 1000 requests per second. The 3-second window leaves room for short bursts.\n\nTraffic above this level usually comes from high-volume integrations, which our Premium and Enterprise plans support. If your traffic regularly goes above this, we may contact you to learn more about your integration and talk about optimizing it, or about a plan that better suits your volume.\n\n**This guideline is subject to change.**\n\nBelow are the payload size limits for the Track API. If any of these limits are too restrictive for your needs, contact support to let us know your situation as we may be able to accommodate special circumstances. \n\n## Customer limits\n\nThese limits apply to people and their attributes, often referred to as \"customers\" in our APIs.\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| ID | 150 bytes | Max length of a person's ID value |\n| Attribute Name | 150 bytes | Max length of each attribute name |\n| Attribute Value | 1000 bytes | Max length of attribute values |\n| Unique attributes | 300 | Max number of attributes allowed per person or Identify call |\n\n## Object and relationship limits\n\nObjects (groups) and relationships between people and objects can have their own attributes. Their limits are similar to people (customers).\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Object ID | 150 bytes | Max length of a object's ID |\n| Attribute Names | 150 bytes | Max length of each attribute name |\n| Attribute Values | 1000 bytes | Max length of attribute values |\n| Unique attributes | 300 | Max number of attributes allowed per object or relationship |\n| Total attribute size | 100 Kilobytes | Max size of all attributes associated with an object or relationship |\n\n## Track API Event limits\n\nThese limits apply to events that you'll send with the `/v1/track` call.\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Event Name | 100 bytes | Max length of each event name |\n| Event Data | 100000 bytes | Max length of each event data |\n\n\n## v2 API Limits\n\nThe v2 API has two endpoints, both of which have limits on the total size of requests. \n* `/entity` is limited to requests 32kb or smaller.\n* `/batch` is limited to requests 500kb or smaller.\n  \n  Each of the requests within a batch must also be 32kb or smaller.\n"
   },
   "tags": [
     {

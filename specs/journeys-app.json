@@ -11775,7 +11775,7 @@
       "body_content": {
         "x-scalar-ignore": true,
         "type": "string",
-        "description": "Message content in reporting webhooks when Body Content is enabled and the metric is `sent`. Email content includes headers; push and in-app content is stringified payload."
+        "description": "Message content in reporting webhooks when you enable the **Body content** option (`with_content`) and the metric is `sent`. Email content includes headers; push and in-app content is stringified payload."
       },
       "reportingWebhook": {
         "x-scalar-ignore": true,
@@ -11912,7 +11912,7 @@
           },
           "with_content": {
             "type": "boolean",
-            "description": "Set to `true` to include the message `body` in `_sent` events.",
+            "description": "Set to `true` to include message content in `sent` events and topic preferences in `cio_subscription_preferences_changed` events. This is the **Body content** option in the UI.",
             "example": false
           }
         }
@@ -12072,13 +12072,50 @@
             "type": "integer",
             "minimum": 0,
             "maximum": 2592000,
-            "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+            "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
             "example": 3600
           },
           "id_ignore_missing": {
             "type": "boolean",
             "default": false,
             "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+          },
+          "rate_limit": {
+            "type": "object",
+            "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+            "required": [
+              "rate",
+              "period"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "period": {
+                "type": "string",
+                "enum": [
+                  "minute",
+                  "hour",
+                  "day"
+                ],
+                "description": "The length of each period.",
+                "example": "hour"
+              },
+              "rate": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10000000,
+                "description": "The maximum number of people that enter the broadcast in each `period`.",
+                "example": 1000
+              },
+              "spread": {
+                "type": "boolean",
+                "default": true,
+                "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+              }
+            },
+            "example": {
+              "period": "hour",
+              "rate": 1000
+            }
           },
           "scheduled_at": {
             "type": "integer",
@@ -22563,13 +22600,50 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 2592000,
-                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                 "example": 3600
               },
               "id_ignore_missing": {
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "rate_limit": {
+                "type": "object",
+                "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                "required": [
+                  "rate",
+                  "period"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "minute",
+                      "hour",
+                      "day"
+                    ],
+                    "description": "The length of each period.",
+                    "example": "hour"
+                  },
+                  "rate": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000,
+                    "description": "The maximum number of people that enter the broadcast in each `period`.",
+                    "example": 1000
+                  },
+                  "spread": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                  }
+                },
+                "example": {
+                  "period": "hour",
+                  "rate": 1000
+                }
               },
               "scheduled_at": {
                 "type": "integer",
@@ -24568,7 +24642,7 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 2592000,
-                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                 "example": 3600
               },
               "filter": {
@@ -27619,6 +27693,43 @@
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "rate_limit": {
+                "type": "object",
+                "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                "required": [
+                  "rate",
+                  "period"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "minute",
+                      "hour",
+                      "day"
+                    ],
+                    "description": "The length of each period.",
+                    "example": "hour"
+                  },
+                  "rate": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000,
+                    "description": "The maximum number of people that enter the broadcast in each `period`.",
+                    "example": 1000
+                  },
+                  "spread": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                  }
+                },
+                "example": {
+                  "period": "hour",
+                  "rate": 1000
+                }
               },
               "scheduled_at": {
                 "type": "integer",
@@ -27675,7 +27786,7 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 2592000,
-                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                 "example": 3600
               },
               "filter": {
@@ -30726,6 +30837,43 @@
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "rate_limit": {
+                "type": "object",
+                "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                "required": [
+                  "rate",
+                  "period"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "minute",
+                      "hour",
+                      "day"
+                    ],
+                    "description": "The length of each period.",
+                    "example": "hour"
+                  },
+                  "rate": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000,
+                    "description": "The maximum number of people that enter the broadcast in each `period`.",
+                    "example": 1000
+                  },
+                  "spread": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                  }
+                },
+                "example": {
+                  "period": "hour",
+                  "rate": 1000
+                }
               },
               "scheduled_at": {
                 "type": "integer",
@@ -30782,7 +30930,7 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 2592000,
-                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                 "example": 3600
               },
               "filter": {
@@ -33833,6 +33981,43 @@
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "rate_limit": {
+                "type": "object",
+                "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                "required": [
+                  "rate",
+                  "period"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "minute",
+                      "hour",
+                      "day"
+                    ],
+                    "description": "The length of each period.",
+                    "example": "hour"
+                  },
+                  "rate": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000,
+                    "description": "The maximum number of people that enter the broadcast in each `period`.",
+                    "example": 1000
+                  },
+                  "spread": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                  }
+                },
+                "example": {
+                  "period": "hour",
+                  "rate": 1000
+                }
               },
               "scheduled_at": {
                 "type": "integer",
@@ -33954,7 +34139,7 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 2592000,
-                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                 "example": 3600
               },
               "filter": {
@@ -37005,6 +37190,43 @@
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "rate_limit": {
+                "type": "object",
+                "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                "required": [
+                  "rate",
+                  "period"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "minute",
+                      "hour",
+                      "day"
+                    ],
+                    "description": "The length of each period.",
+                    "example": "hour"
+                  },
+                  "rate": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000,
+                    "description": "The maximum number of people that enter the broadcast in each `period`.",
+                    "example": 1000
+                  },
+                  "spread": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                  }
+                },
+                "example": {
+                  "period": "hour",
+                  "rate": 1000
+                }
               },
               "scheduled_at": {
                 "type": "integer",
@@ -37055,7 +37277,7 @@
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 2592000,
-                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                 "example": 3600
               },
               "filter": {
@@ -40106,6 +40328,43 @@
                 "type": "boolean",
                 "default": false,
                 "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+              },
+              "rate_limit": {
+                "type": "object",
+                "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                "required": [
+                  "rate",
+                  "period"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "period": {
+                    "type": "string",
+                    "enum": [
+                      "minute",
+                      "hour",
+                      "day"
+                    ],
+                    "description": "The length of each period.",
+                    "example": "hour"
+                  },
+                  "rate": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000000,
+                    "description": "The maximum number of people that enter the broadcast in each `period`.",
+                    "example": 1000
+                  },
+                  "spread": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                  }
+                },
+                "example": {
+                  "period": "hour",
+                  "rate": 1000
+                }
               },
               "scheduled_at": {
                 "type": "integer",
@@ -40411,6 +40670,10 @@
         "type": "object",
         "description": "You can get triggers to know when you triggered a broadcast and whether or not it's been processed.",
         "properties": {
+          "audience_count": {
+            "type": "integer",
+            "description": "The number of people in the trigger's audience. For a send without a `rate_limit`, we set it when the send finishes. For a rate-limited send, we set it when the first people enter. It is `0` until then."
+          },
           "broadcast_id": {
             "x-scalar-ignore": true,
             "type": "integer",
@@ -40442,6 +40705,29 @@
             "type": "integer",
             "format": "unix timestamp",
             "description": "The date-time when Customer.io processed the trigger."
+          },
+          "rate_limit": {
+            "type": "object",
+            "description": "The rate limit you set when you triggered the broadcast. We omit this field if you didn't set one.",
+            "properties": {
+              "period": {
+                "type": "string",
+                "enum": [
+                  "minute",
+                  "hour",
+                  "day"
+                ],
+                "description": "The length of each period."
+              },
+              "rate": {
+                "type": "integer",
+                "description": "The maximum number of people that enter the broadcast in each `period`."
+              },
+              "spread": {
+                "type": "boolean",
+                "description": "Whether we let people in at an even pace across the period."
+              }
+            }
           },
           "scheduled_at": {
             "type": "integer",
@@ -57111,7 +57397,7 @@
                       },
                       "content": {
                         "type": "string",
-                        "description": "If you enable the *Include body content and headers in all Sent events* when you set up your reporting webhook, you'll see this field. It contains the subscription preferences that a person changed in a stringified object format. The `topic_1` key refers to a topic with an ID of `1`; you can get more information about each topic from our [App API](/integrations/api/app/tag/subscription-center/getTopics/).",
+                        "description": "Included if you enabled the **Body content** option (`with_content` in the App API) when you set up your reporting webhook. This contains the person's topic preferences in a stringified object format. The `topic_1` key refers to a topic with an ID of `1`; you can get more information about each topic from our [App API](/integrations/api/app/tag/subscription-center/getTopics/). An empty string means the person unsubscribed from everything, not from one topic.",
                         "example": "{\"topics\":{\"topic_1\":true}}"
                       }
                     },
@@ -58214,7 +58500,7 @@
                     "enum": [
                       "sent"
                     ],
-                    "description": "A message was successfully sent. If you enabled the *Include body content and headers in all Sent events* option, the payload includes the `content` of your message and, for emails with custom headers, a `data.headers` object alongside `content`."
+                    "description": "A message was successfully sent. If you enabled the **Body content** option (`with_content` in the App API), the payload includes the `content` of your message and, for emails with custom headers, a `data.headers` object alongside `content`."
                   },
                   "data": {
                     "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -58679,11 +58965,11 @@
                       },
                       "content": {
                         "type": "string",
-                        "description": "The body content of your email. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook."
+                        "description": "The body content of your email. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                       },
                       "headers": {
                         "type": "object",
-                        "description": "The headers sent with your email, as a map of header name to an array of values. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the message included custom headers. This is a sibling of `content`—it is not nested inside it.",
+                        "description": "The headers sent with your email, as a map of header name to an array of values. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the message included custom headers.",
                         "additionalProperties": {
                           "type": "array",
                           "items": {
@@ -58700,7 +58986,7 @@
                         "x-scalar-ignore": true,
                         "type": "object",
                         "additionalProperties": true,
-                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                       }
                     },
                     "required": [
@@ -65524,7 +65810,7 @@
                     "enum": [
                       "sent"
                     ],
-                    "description": "A push notification was sent to a recipient. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                    "description": "A push notification was sent to a recipient. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
                   },
                   "data": {
                     "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -66012,7 +66298,7 @@
                       },
                       "content": {
                         "type": "string",
-                        "description": "The stringified payload for your push notification. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                        "description": "The stringified payload for your push notification. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                       },
                       "related_delivery_ids": {
                         "type": "array",
@@ -66025,7 +66311,7 @@
                         "x-scalar-ignore": true,
                         "type": "object",
                         "additionalProperties": true,
-                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                       }
                     },
                     "required": [
@@ -70629,7 +70915,7 @@
                     "enum": [
                       "sent"
                     ],
-                    "description": "An in-app message was sent from Customer.io. Because in-app messages are only delivered when a person's app is open, there may be a significant delay between when a message is sent and when it's \"opened\". If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                    "description": "An in-app message was sent from Customer.io. Because in-app messages are only delivered when a person's app is open, there may be a significant delay between when a message is sent and when it's \"opened\". If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
                   },
                   "data": {
                     "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -71014,13 +71300,13 @@
                       },
                       "content": {
                         "type": "string",
-                        "description": "The body of your message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                        "description": "The body of your message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                       },
                       "variables": {
                         "x-scalar-ignore": true,
                         "type": "object",
                         "additionalProperties": true,
-                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                       }
                     },
                     "required": [
@@ -74045,7 +74331,7 @@
                     "enum": [
                       "sent"
                     ],
-                    "description": "An SMS notification was sent. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                    "description": "An SMS notification was sent. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
                   },
                   "data": {
                     "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -74430,13 +74716,13 @@
                       },
                       "content": {
                         "type": "string",
-                        "description": "The body of your message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                        "description": "The body of your message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                       },
                       "variables": {
                         "x-scalar-ignore": true,
                         "type": "object",
                         "additionalProperties": true,
-                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                       }
                     },
                     "required": [
@@ -78756,7 +79042,7 @@
                     "enum": [
                       "sent"
                     ],
-                    "description": "A slack message was sent. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                    "description": "A slack message was sent. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
                   },
                   "data": {
                     "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -79141,13 +79427,13 @@
                       },
                       "content": {
                         "type": "string",
-                        "description": "The of your slack message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                        "description": "The body of your Slack message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                       },
                       "variables": {
                         "x-scalar-ignore": true,
                         "type": "object",
                         "additionalProperties": true,
-                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                       }
                     },
                     "required": [
@@ -81332,7 +81618,7 @@
                     "enum": [
                       "sent"
                     ],
-                    "description": "A webhook was sent from Customer.io. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your webhook."
+                    "description": "A webhook was sent from Customer.io. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your webhook."
                   },
                   "data": {
                     "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -81717,13 +82003,13 @@
                       },
                       "content": {
                         "type": "string",
-                        "description": "The stringified payload sent to your webhook address. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                        "description": "The stringified payload sent to your webhook address. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                       },
                       "variables": {
                         "x-scalar-ignore": true,
                         "type": "object",
                         "additionalProperties": true,
-                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                       }
                     },
                     "required": [
@@ -83908,7 +84194,7 @@
                     "enum": [
                       "sent"
                     ],
-                    "description": "A WhatsApp message was sent. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                    "description": "A WhatsApp message was sent. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
                   },
                   "data": {
                     "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -84293,13 +84579,13 @@
                       },
                       "content": {
                         "type": "string",
-                        "description": "The body of your message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                        "description": "The body of your message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                       },
                       "variables": {
                         "x-scalar-ignore": true,
                         "type": "object",
                         "additionalProperties": true,
-                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                       }
                     },
                     "required": [
@@ -88714,7 +89000,7 @@
                   },
                   "content": {
                     "type": "string",
-                    "description": "If you enable the *Include body content and headers in all Sent events* when you set up your reporting webhook, you'll see this field. It contains the subscription preferences that a person changed in a stringified object format. The `topic_1` key refers to a topic with an ID of `1`; you can get more information about each topic from our [App API](/integrations/api/app/tag/subscription-center/getTopics/).",
+                    "description": "Included if you enabled the **Body content** option (`with_content` in the App API) when you set up your reporting webhook. This contains the person's topic preferences in a stringified object format. The `topic_1` key refers to a topic with an ID of `1`; you can get more information about each topic from our [App API](/integrations/api/app/tag/subscription-center/getTopics/). An empty string means the person unsubscribed from everything, not from one topic.",
                     "example": "{\"topics\":{\"topic_1\":true}}"
                   }
                 },
@@ -89578,7 +89864,7 @@
               },
               "content": {
                 "type": "string",
-                "description": "If you enable the *Include body content and headers in all Sent events* when you set up your reporting webhook, you'll see this field. It contains the subscription preferences that a person changed in a stringified object format. The `topic_1` key refers to a topic with an ID of `1`; you can get more information about each topic from our [App API](/integrations/api/app/tag/subscription-center/getTopics/).",
+                "description": "Included if you enabled the **Body content** option (`with_content` in the App API) when you set up your reporting webhook. This contains the person's topic preferences in a stringified object format. The `topic_1` key refers to a topic with an ID of `1`; you can get more information about each topic from our [App API](/integrations/api/app/tag/subscription-center/getTopics/). An empty string means the person unsubscribed from everything, not from one topic.",
                 "example": "{\"topics\":{\"topic_1\":true}}"
               }
             },
@@ -90679,7 +90965,7 @@
                 "enum": [
                   "sent"
                 ],
-                "description": "A message was successfully sent. If you enabled the *Include body content and headers in all Sent events* option, the payload includes the `content` of your message and, for emails with custom headers, a `data.headers` object alongside `content`."
+                "description": "A message was successfully sent. If you enabled the **Body content** option (`with_content` in the App API), the payload includes the `content` of your message and, for emails with custom headers, a `data.headers` object alongside `content`."
               },
               "data": {
                 "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -91144,11 +91430,11 @@
                   },
                   "content": {
                     "type": "string",
-                    "description": "The body content of your email. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook."
+                    "description": "The body content of your email. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                   },
                   "headers": {
                     "type": "object",
-                    "description": "The headers sent with your email, as a map of header name to an array of values. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the message included custom headers. This is a sibling of `content`—it is not nested inside it.",
+                    "description": "The headers sent with your email, as a map of header name to an array of values. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the message included custom headers.",
                     "additionalProperties": {
                       "type": "array",
                       "items": {
@@ -91165,7 +91451,7 @@
                     "x-scalar-ignore": true,
                     "type": "object",
                     "additionalProperties": true,
-                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                   }
                 },
                 "required": [
@@ -97970,11 +98256,11 @@
               },
               "content": {
                 "type": "string",
-                "description": "The body content of your email. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook."
+                "description": "The body content of your email. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
               },
               "headers": {
                 "type": "object",
-                "description": "The headers sent with your email, as a map of header name to an array of values. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the message included custom headers. This is a sibling of `content`—it is not nested inside it.",
+                "description": "The headers sent with your email, as a map of header name to an array of values. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the message included custom headers.",
                 "additionalProperties": {
                   "type": "array",
                   "items": {
@@ -97991,7 +98277,7 @@
                 "x-scalar-ignore": true,
                 "type": "object",
                 "additionalProperties": true,
-                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
               }
             },
             "required": [
@@ -98010,7 +98296,7 @@
             "enum": [
               "sent"
             ],
-            "description": "A message was successfully sent. If you enabled the *Include body content and headers in all Sent events* option, the payload includes the `content` of your message and, for emails with custom headers, a `data.headers` object alongside `content`."
+            "description": "A message was successfully sent. If you enabled the **Body content** option (`with_content` in the App API), the payload includes the `content` of your message and, for emails with custom headers, a `data.headers` object alongside `content`."
           },
           "object_type": {
             "type": "string",
@@ -104817,7 +105103,7 @@
                 "enum": [
                   "sent"
                 ],
-                "description": "A push notification was sent to a recipient. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                "description": "A push notification was sent to a recipient. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
               },
               "data": {
                 "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -105305,7 +105591,7 @@
                   },
                   "content": {
                     "type": "string",
-                    "description": "The stringified payload for your push notification. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                    "description": "The stringified payload for your push notification. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                   },
                   "related_delivery_ids": {
                     "type": "array",
@@ -105318,7 +105604,7 @@
                     "x-scalar-ignore": true,
                     "type": "object",
                     "additionalProperties": true,
-                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                   }
                 },
                 "required": [
@@ -110608,7 +110894,7 @@
               },
               "content": {
                 "type": "string",
-                "description": "The stringified payload for your push notification. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                "description": "The stringified payload for your push notification. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
               },
               "related_delivery_ids": {
                 "type": "array",
@@ -110621,7 +110907,7 @@
                 "x-scalar-ignore": true,
                 "type": "object",
                 "additionalProperties": true,
-                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
               }
             },
             "required": [
@@ -110639,7 +110925,7 @@
             "enum": [
               "sent"
             ],
-            "description": "A push notification was sent to a recipient. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+            "description": "A push notification was sent to a recipient. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
           },
           "object_type": {
             "type": "string",
@@ -115758,7 +116044,7 @@
                 "enum": [
                   "sent"
                 ],
-                "description": "An SMS notification was sent. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                "description": "An SMS notification was sent. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
               },
               "data": {
                 "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -116143,13 +116429,13 @@
                   },
                   "content": {
                     "type": "string",
-                    "description": "The body of your message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                    "description": "The body of your message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                   },
                   "variables": {
                     "x-scalar-ignore": true,
                     "type": "object",
                     "additionalProperties": true,
-                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                   }
                 },
                 "required": [
@@ -120873,13 +121159,13 @@
               },
               "content": {
                 "type": "string",
-                "description": "The body of your message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                "description": "The body of your message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
               },
               "variables": {
                 "x-scalar-ignore": true,
                 "type": "object",
                 "additionalProperties": true,
-                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
               }
             },
             "required": [
@@ -120897,7 +121183,7 @@
             "enum": [
               "sent"
             ],
-            "description": "An SMS notification was sent. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+            "description": "An SMS notification was sent. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
           },
           "object_type": {
             "type": "string",
@@ -125201,7 +125487,7 @@
                 "enum": [
                   "sent"
                 ],
-                "description": "A WhatsApp message was sent. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                "description": "A WhatsApp message was sent. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
               },
               "data": {
                 "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -125586,13 +125872,13 @@
                   },
                   "content": {
                     "type": "string",
-                    "description": "The body of your message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                    "description": "The body of your message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                   },
                   "variables": {
                     "x-scalar-ignore": true,
                     "type": "object",
                     "additionalProperties": true,
-                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                   }
                 },
                 "required": [
@@ -130746,13 +131032,13 @@
               },
               "content": {
                 "type": "string",
-                "description": "The body of your message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                "description": "The body of your message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
               },
               "variables": {
                 "x-scalar-ignore": true,
                 "type": "object",
                 "additionalProperties": true,
-                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
               }
             },
             "required": [
@@ -130770,7 +131056,7 @@
             "enum": [
               "sent"
             ],
-            "description": "A WhatsApp message was sent. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+            "description": "A WhatsApp message was sent. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
           },
           "object_type": {
             "type": "string",
@@ -135504,7 +135790,7 @@
                 "enum": [
                   "sent"
                 ],
-                "description": "A slack message was sent. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                "description": "A slack message was sent. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
               },
               "data": {
                 "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -135889,13 +136175,13 @@
                   },
                   "content": {
                     "type": "string",
-                    "description": "The of your slack message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                    "description": "The body of your Slack message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                   },
                   "variables": {
                     "x-scalar-ignore": true,
                     "type": "object",
                     "additionalProperties": true,
-                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                   }
                 },
                 "required": [
@@ -138484,13 +138770,13 @@
               },
               "content": {
                 "type": "string",
-                "description": "The of your slack message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                "description": "The body of your Slack message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
               },
               "variables": {
                 "x-scalar-ignore": true,
                 "type": "object",
                 "additionalProperties": true,
-                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
               }
             },
             "required": [
@@ -138508,7 +138794,7 @@
             "enum": [
               "sent"
             ],
-            "description": "A slack message was sent. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+            "description": "A slack message was sent. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
           },
           "object_type": {
             "type": "string",
@@ -140677,7 +140963,7 @@
                 "enum": [
                   "sent"
                 ],
-                "description": "A webhook was sent from Customer.io. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your webhook."
+                "description": "A webhook was sent from Customer.io. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your webhook."
               },
               "data": {
                 "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -141062,13 +141348,13 @@
                   },
                   "content": {
                     "type": "string",
-                    "description": "The stringified payload sent to your webhook address. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                    "description": "The stringified payload sent to your webhook address. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                   },
                   "variables": {
                     "x-scalar-ignore": true,
                     "type": "object",
                     "additionalProperties": true,
-                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                   }
                 },
                 "required": [
@@ -143657,13 +143943,13 @@
               },
               "content": {
                 "type": "string",
-                "description": "The stringified payload sent to your webhook address. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                "description": "The stringified payload sent to your webhook address. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
               },
               "variables": {
                 "x-scalar-ignore": true,
                 "type": "object",
                 "additionalProperties": true,
-                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
               }
             },
             "required": [
@@ -143681,7 +143967,7 @@
             "enum": [
               "sent"
             ],
-            "description": "A webhook was sent from Customer.io. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your webhook."
+            "description": "A webhook was sent from Customer.io. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your webhook."
           },
           "object_type": {
             "type": "string",
@@ -145850,7 +146136,7 @@
                 "enum": [
                   "sent"
                 ],
-                "description": "An in-app message was sent from Customer.io. Because in-app messages are only delivered when a person's app is open, there may be a significant delay between when a message is sent and when it's \"opened\". If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                "description": "An in-app message was sent from Customer.io. Because in-app messages are only delivered when a person's app is open, there may be a significant delay between when a message is sent and when it's \"opened\". If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
               },
               "data": {
                 "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -146235,13 +146521,13 @@
                   },
                   "content": {
                     "type": "string",
-                    "description": "The body of your message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                    "description": "The body of your message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                   },
                   "variables": {
                     "x-scalar-ignore": true,
                     "type": "object",
                     "additionalProperties": true,
-                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                    "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                   }
                 },
                 "required": [
@@ -149670,13 +149956,13 @@
               },
               "content": {
                 "type": "string",
-                "description": "The body of your message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                "description": "The body of your message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
               },
               "variables": {
                 "x-scalar-ignore": true,
                 "type": "object",
                 "additionalProperties": true,
-                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
               }
             },
             "required": [
@@ -149694,7 +149980,7 @@
             "enum": [
               "sent"
             ],
-            "description": "An in-app message was sent from Customer.io. Because in-app messages are only delivered when a person's app is open, there may be a significant delay between when a message is sent and when it's \"opened\". If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+            "description": "An in-app message was sent from Customer.io. Because in-app messages are only delivered when a person's app is open, there may be a significant delay between when a message is sent and when it's \"opened\". If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
           },
           "object_type": {
             "type": "string",
@@ -152698,7 +152984,7 @@
         "x-scalar-ignore": true,
         "type": "object",
         "additionalProperties": true,
-        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+        "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
       },
       "action_id_webhook": {
         "x-scalar-ignore": true,
@@ -153596,7 +153882,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Trigger a broadcast and optionally provide data to populate liquid placeholders in the message. To trigger one-time send broadcasts, use the [one-time send endpoint](/integrations/api/app/tag/send-messages/sendNewsletter/).\n\nBroadcasts are optimized to send messages to a large audience and not for one-to-one interactions. Use our [transactional API](/integrations/api/app/tag/send-messages/sendEmail/) or [event-triggered automations](/journeys/send/campaigns/triggers/#event-trigger) to respond to your audience on an individual, one-to-one basis.\n\n**Define your audience**\n\n**The shape of the request depends on how you define your audience**: default (the recipients set in the UI), custom conditions, a list of emails, a list of customer IDs, a map of users, or a data file.\n\nYou can narrow any of these audiences, except the default audience, with the `filter` object. This is useful when a file or a list of people is broader than the audience you want for your broadcast.\n\n**You can only trigger broadcasts to send to people you've already added to your workspace.** A broadcast cannot add or identify new people. If you reference people who don't exist in your broadcast audience, the broadcast will fail by default. You can override this behavior by setting the `email_ignore_missing` and/or `id_ignore_missing` flags to `true`. The broadcast will skip over any people who don't exist in your workspace and send to the remaining recipients.\n\nYou can reference properties in the `data` object in your broadcast using liquid—`{{trigger.<property_in_data_obj>}}`.\n\n**Send or schedule your broadcast**\n\nBy default, we send your broadcast as soon as you trigger it. Set `scheduled_at` to send it at a future time instead. You can [cancel the trigger](/integrations/api/app/tag/send-messages/cancelBroadcastTrigger/) to stop a scheduled send before it starts sending. You can't change a trigger's `scheduled_at` value later; if you need to reschedule your broadcast, you must cancel the trigger and re-trigger the broadcast with the new timestamp.\n\nIf your broadcast produces a `422` error, you can [get more information about the errors](/integrations/api/app/tag/broadcasts/broadcastErrors/) to see what went wrong.\n\n**This endpoint is rate-limited to one request every 10 seconds.** After exceeding this, you'll receive a status of `429`. Learn more about [API-triggered broadcast limits](/integrations/api/app/tag/send-messages/) above.\n",
+        "description": "Trigger a broadcast and optionally provide data to populate liquid placeholders in the message. To trigger one-time send broadcasts, use the [one-time send endpoint](/integrations/api/app/tag/send-messages/sendNewsletter/).\n\nBroadcasts are optimized to send messages to a large audience and not for one-to-one interactions. Use our [transactional API](/integrations/api/app/tag/send-messages/sendEmail/) or [event-triggered automations](/journeys/send/campaigns/triggers/#event-trigger) to respond to your audience on an individual, one-to-one basis.\n\n**Define your audience**\n\n**The shape of the request depends on how you define your audience**: default (the recipients set in the UI), custom conditions, a list of emails, a list of customer IDs, a map of users, or a data file.\n\nYou can narrow any of these audiences, except the default audience, with the `filter` object. This is useful when a file or a list of people is broader than the audience you want for your broadcast.\n\n**You can only trigger broadcasts to send to people you've already added to your workspace.** A broadcast cannot add or identify new people. If you reference people who don't exist in your broadcast audience, the broadcast will fail by default. You can override this behavior by setting the `email_ignore_missing` and/or `id_ignore_missing` flags to `true`. The broadcast will skip over any people who don't exist in your workspace and send to the remaining recipients.\n\nYou can reference properties in the `data` object in your broadcast using liquid—`{{trigger.<property_in_data_obj>}}`.\n\n**Send or schedule your broadcast**\n\nBy default, we send your broadcast as soon as you trigger it. Set `scheduled_at` to send it at a future time instead. You can [cancel the trigger](/integrations/api/app/tag/send-messages/cancelBroadcastTrigger/) to stop a scheduled send before it starts sending. You can't change a trigger's `scheduled_at` value later; if you need to reschedule your broadcast, you must cancel the trigger and re-trigger the broadcast with the new timestamp.\n\nIf your broadcast produces a `422` error, you can [get more information about the errors](/integrations/api/app/tag/broadcasts/broadcastErrors/) to see what went wrong.\n\n**This endpoint is rate-limited to one request every 10 seconds.** After exceeding this, you'll receive a status of `429`. Learn more about [API-triggered broadcast limits](/integrations/api/app/tag/send-messages/) above. If you need to trigger broadcasts more often, contact us to talk through your use case.\n",
         "requestBody": {
           "content": {
             "application/json": {
@@ -153635,13 +153921,50 @@
                         "type": "integer",
                         "minimum": 0,
                         "maximum": 2592000,
-                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                         "example": 3600
                       },
                       "id_ignore_missing": {
                         "type": "boolean",
                         "default": false,
                         "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+                      },
+                      "rate_limit": {
+                        "type": "object",
+                        "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                        "required": [
+                          "rate",
+                          "period"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "period": {
+                            "type": "string",
+                            "enum": [
+                              "minute",
+                              "hour",
+                              "day"
+                            ],
+                            "description": "The length of each period.",
+                            "example": "hour"
+                          },
+                          "rate": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000000,
+                            "description": "The maximum number of people that enter the broadcast in each `period`.",
+                            "example": 1000
+                          },
+                          "spread": {
+                            "type": "boolean",
+                            "default": true,
+                            "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                          }
+                        },
+                        "example": {
+                          "period": "hour",
+                          "rate": 1000
+                        }
                       },
                       "scheduled_at": {
                         "type": "integer",
@@ -155640,7 +155963,7 @@
                         "type": "integer",
                         "minimum": 0,
                         "maximum": 2592000,
-                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                         "example": 3600
                       },
                       "filter": {
@@ -158691,6 +159014,43 @@
                         "type": "boolean",
                         "default": false,
                         "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+                      },
+                      "rate_limit": {
+                        "type": "object",
+                        "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                        "required": [
+                          "rate",
+                          "period"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "period": {
+                            "type": "string",
+                            "enum": [
+                              "minute",
+                              "hour",
+                              "day"
+                            ],
+                            "description": "The length of each period.",
+                            "example": "hour"
+                          },
+                          "rate": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000000,
+                            "description": "The maximum number of people that enter the broadcast in each `period`.",
+                            "example": 1000
+                          },
+                          "spread": {
+                            "type": "boolean",
+                            "default": true,
+                            "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                          }
+                        },
+                        "example": {
+                          "period": "hour",
+                          "rate": 1000
+                        }
                       },
                       "scheduled_at": {
                         "type": "integer",
@@ -158747,7 +159107,7 @@
                         "type": "integer",
                         "minimum": 0,
                         "maximum": 2592000,
-                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                         "example": 3600
                       },
                       "filter": {
@@ -161798,6 +162158,43 @@
                         "type": "boolean",
                         "default": false,
                         "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+                      },
+                      "rate_limit": {
+                        "type": "object",
+                        "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                        "required": [
+                          "rate",
+                          "period"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "period": {
+                            "type": "string",
+                            "enum": [
+                              "minute",
+                              "hour",
+                              "day"
+                            ],
+                            "description": "The length of each period.",
+                            "example": "hour"
+                          },
+                          "rate": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000000,
+                            "description": "The maximum number of people that enter the broadcast in each `period`.",
+                            "example": 1000
+                          },
+                          "spread": {
+                            "type": "boolean",
+                            "default": true,
+                            "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                          }
+                        },
+                        "example": {
+                          "period": "hour",
+                          "rate": 1000
+                        }
                       },
                       "scheduled_at": {
                         "type": "integer",
@@ -161854,7 +162251,7 @@
                         "type": "integer",
                         "minimum": 0,
                         "maximum": 2592000,
-                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                         "example": 3600
                       },
                       "filter": {
@@ -164905,6 +165302,43 @@
                         "type": "boolean",
                         "default": false,
                         "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+                      },
+                      "rate_limit": {
+                        "type": "object",
+                        "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                        "required": [
+                          "rate",
+                          "period"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "period": {
+                            "type": "string",
+                            "enum": [
+                              "minute",
+                              "hour",
+                              "day"
+                            ],
+                            "description": "The length of each period.",
+                            "example": "hour"
+                          },
+                          "rate": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000000,
+                            "description": "The maximum number of people that enter the broadcast in each `period`.",
+                            "example": 1000
+                          },
+                          "spread": {
+                            "type": "boolean",
+                            "default": true,
+                            "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                          }
+                        },
+                        "example": {
+                          "period": "hour",
+                          "rate": 1000
+                        }
                       },
                       "scheduled_at": {
                         "type": "integer",
@@ -165026,7 +165460,7 @@
                         "type": "integer",
                         "minimum": 0,
                         "maximum": 2592000,
-                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                         "example": 3600
                       },
                       "filter": {
@@ -168077,6 +168511,43 @@
                         "type": "boolean",
                         "default": false,
                         "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+                      },
+                      "rate_limit": {
+                        "type": "object",
+                        "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                        "required": [
+                          "rate",
+                          "period"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "period": {
+                            "type": "string",
+                            "enum": [
+                              "minute",
+                              "hour",
+                              "day"
+                            ],
+                            "description": "The length of each period.",
+                            "example": "hour"
+                          },
+                          "rate": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000000,
+                            "description": "The maximum number of people that enter the broadcast in each `period`.",
+                            "example": 1000
+                          },
+                          "spread": {
+                            "type": "boolean",
+                            "default": true,
+                            "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                          }
+                        },
+                        "example": {
+                          "period": "hour",
+                          "rate": 1000
+                        }
                       },
                       "scheduled_at": {
                         "type": "integer",
@@ -168127,7 +168598,7 @@
                         "type": "integer",
                         "minimum": 0,
                         "maximum": 2592000,
-                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
+                        "description": "Number of seconds after the send starts that the broadcast should stop sending. Omit or set to `0` if you don't want the broadcast to expire. A rate-limited send always expires: if you set `rate_limit` and omit this field or set it to `0`, we set it to 30 days. If the broadcast expires before it finishes sending, Customer.io discards the messages that haven't gone out yet instead of delivering them late. The window runs from `scheduled_at` when you schedule the send, and from the time we receive this request when you don't.\n",
                         "example": 3600
                       },
                       "filter": {
@@ -171178,6 +171649,43 @@
                         "type": "boolean",
                         "default": false,
                         "description": "If false, a missing customer ID causes the broadcast to error and fail. If true, the broadcast will skip over any people in your audience who don't have IDs, and continue sending to the rest of your audience."
+                      },
+                      "rate_limit": {
+                        "type": "object",
+                        "description": "Lets people enter the broadcast at a fixed rate instead of all at the same time. For a broadcast with one message, this is the send rate. Later messages in a longer workflow follow your workflow and can go out faster. We determine your audience once, on the first run, and the trigger counts toward your queue limit until everyone enters, the send expires, or you cancel it. See [Limit the send rate](/messaging/send/broadcasts/api-triggered-broadcasts/#rate-limit).\n",
+                        "required": [
+                          "rate",
+                          "period"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "period": {
+                            "type": "string",
+                            "enum": [
+                              "minute",
+                              "hour",
+                              "day"
+                            ],
+                            "description": "The length of each period.",
+                            "example": "hour"
+                          },
+                          "rate": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000000,
+                            "description": "The maximum number of people that enter the broadcast in each `period`.",
+                            "example": 1000
+                          },
+                          "spread": {
+                            "type": "boolean",
+                            "default": true,
+                            "description": "When `true`, we let people in at an even pace across the period, once a minute or less often. When `false`, we let the full `rate` in at the start of each period."
+                          }
+                        },
+                        "example": {
+                          "period": "hour",
+                          "rate": 1000
+                        }
                       },
                       "scheduled_at": {
                         "type": "integer",
@@ -171269,7 +171777,7 @@
           {
             "lang": "json",
             "label": "JSON",
-            "source": "{\n  \"data\": {\n    \"headline\": \"Roadrunner spotted in Albuquerque!\",\n    \"date\": 1511315635,\n    \"text\": \"We received reports of a roadrunner in your immediate area! Head to your dashboard to view more information!\"\n  },\n  \"email_add_duplicates\": false,\n  \"email_ignore_missing\": false,\n  \"expires_after\": 3600,\n  \"id_ignore_missing\": false,\n  \"scheduled_at\": 1796128200\n}"
+            "source": "{\n  \"data\": {\n    \"headline\": \"Roadrunner spotted in Albuquerque!\",\n    \"date\": 1511315635,\n    \"text\": \"We received reports of a roadrunner in your immediate area! Head to your dashboard to view more information!\"\n  },\n  \"email_add_duplicates\": false,\n  \"email_ignore_missing\": false,\n  \"expires_after\": 3600,\n  \"id_ignore_missing\": false,\n  \"rate_limit\": {\n    \"period\": \"hour\",\n    \"rate\": 1000\n  },\n  \"scheduled_at\": 1796128200\n}"
           },
           {
             "label": "Node.js (SDK)",
@@ -171319,7 +171827,7 @@
           "Send Messages"
         ],
         "summary": "Cancel a scheduled broadcast",
-        "description": "Cancel a trigger you [scheduled](/integrations/api/app/tag/send-messages/triggerBroadcast/) with `scheduled_at`, before it fires.\n\nThe request fails if the broadcast has started calculating its audience, is already sending, or has already sent.\n",
+        "description": "Cancel a trigger you [scheduled](/integrations/api/app/tag/send-messages/triggerBroadcast/) with `scheduled_at`, before it fires.\n\nThe request fails if the broadcast has started calculating its audience, is already sending, or has already sent. A trigger with a `rate_limit` is the exception: you can cancel it while it sends. Canceling stops more people from entering the broadcast, and people who already entered continue through your workflow.\n",
         "responses": {
           "200": {
             "description": "The trigger was canceled. Returns the trigger's current state.",
@@ -171331,6 +171839,11 @@
                     "trigger": {
                       "type": "object",
                       "properties": {
+                        "audience_count": {
+                          "type": "integer",
+                          "description": "The number of people in the trigger's audience. For a send without a `rate_limit`, we set it when the send finishes. For a rate-limited send, we set it when the first people enter. It is `0` until then.",
+                          "example": 0
+                        },
                         "broadcast_id": {
                           "type": "integer",
                           "description": "The ID of the broadcast you cancelled the trigger for. Canceling a trigger doesn't cancel the broadcast itself, so you can trigger it again.",
@@ -171361,6 +171874,28 @@
                           "description": "Unix timestamp when Customer.io processed the trigger, or `0` if it hasn't. A canceled trigger usually shows `0`. In rare cases the send job starts before it sees the cancel request, exits without sending anything, and stamps this value anyway.",
                           "example": 0
                         },
+                        "rate_limit": {
+                          "type": "object",
+                          "description": "The rate limit you set when you triggered the broadcast. We omit this field if you didn't set one.",
+                          "properties": {
+                            "period": {
+                              "type": "string",
+                              "enum": [
+                                "minute",
+                                "hour",
+                                "day"
+                              ],
+                              "example": "hour"
+                            },
+                            "rate": {
+                              "type": "integer",
+                              "example": 1000
+                            },
+                            "spread": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
                         "scheduled_at": {
                           "type": "integer",
                           "description": "Unix timestamp when the trigger was scheduled to send.",
@@ -171383,7 +171918,7 @@
             "description": "The broadcast, action, and/or trigger do not exist."
           },
           "409": {
-            "description": "When the broadcast is resolving its audience, already sending, or already sent."
+            "description": "When the broadcast is resolving its audience, already sending without a `rate_limit`, or already sent."
           }
         }
       }
@@ -188370,46 +188905,78 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "x-scalar-ignore": true,
                   "type": "object",
-                  "description": "You can get triggers to know when you triggered a broadcast and whether or not it's been processed.",
                   "properties": {
-                    "broadcast_id": {
+                    "trigger": {
                       "x-scalar-ignore": true,
-                      "type": "integer",
-                      "description": "The identifier for a broadcast.",
-                      "example": 2
-                    },
-                    "cancelled_at": {
-                      "type": "integer",
-                      "format": "unix timestamp",
-                      "description": "The date-time you canceled this trigger, or `0` if you haven't canceled it."
-                    },
-                    "created_at": {
-                      "x-scalar-ignore": true,
-                      "type": "integer",
-                      "format": "unix timestamp",
-                      "description": "The date time when the referenced ID was created.",
-                      "example": 1552341937,
-                      "readOnly": true
-                    },
-                    "expires_after": {
-                      "type": "integer",
-                      "description": "The send window in seconds that you set when you triggered the broadcast, or `0` if the send has no expiry."
-                    },
-                    "id": {
-                      "type": "integer",
-                      "description": "The identifier for a broadcast trigger."
-                    },
-                    "processed_at": {
-                      "type": "integer",
-                      "format": "unix timestamp",
-                      "description": "The date-time when Customer.io processed the trigger."
-                    },
-                    "scheduled_at": {
-                      "type": "integer",
-                      "format": "unix timestamp",
-                      "description": "The date-time this trigger is scheduled to send at, or `0` if you didn't schedule it."
+                      "type": "object",
+                      "description": "You can get triggers to know when you triggered a broadcast and whether or not it's been processed.",
+                      "properties": {
+                        "audience_count": {
+                          "type": "integer",
+                          "description": "The number of people in the trigger's audience. For a send without a `rate_limit`, we set it when the send finishes. For a rate-limited send, we set it when the first people enter. It is `0` until then."
+                        },
+                        "broadcast_id": {
+                          "x-scalar-ignore": true,
+                          "type": "integer",
+                          "description": "The identifier for a broadcast.",
+                          "example": 2
+                        },
+                        "cancelled_at": {
+                          "type": "integer",
+                          "format": "unix timestamp",
+                          "description": "The date-time you canceled this trigger, or `0` if you haven't canceled it."
+                        },
+                        "created_at": {
+                          "x-scalar-ignore": true,
+                          "type": "integer",
+                          "format": "unix timestamp",
+                          "description": "The date time when the referenced ID was created.",
+                          "example": 1552341937,
+                          "readOnly": true
+                        },
+                        "expires_after": {
+                          "type": "integer",
+                          "description": "The send window in seconds that you set when you triggered the broadcast, or `0` if the send has no expiry."
+                        },
+                        "id": {
+                          "type": "integer",
+                          "description": "The identifier for a broadcast trigger."
+                        },
+                        "processed_at": {
+                          "type": "integer",
+                          "format": "unix timestamp",
+                          "description": "The date-time when Customer.io processed the trigger."
+                        },
+                        "rate_limit": {
+                          "type": "object",
+                          "description": "The rate limit you set when you triggered the broadcast. We omit this field if you didn't set one.",
+                          "properties": {
+                            "period": {
+                              "type": "string",
+                              "enum": [
+                                "minute",
+                                "hour",
+                                "day"
+                              ],
+                              "description": "The length of each period."
+                            },
+                            "rate": {
+                              "type": "integer",
+                              "description": "The maximum number of people that enter the broadcast in each `period`."
+                            },
+                            "spread": {
+                              "type": "boolean",
+                              "description": "Whether we let people in at an even pace across the period."
+                            }
+                          }
+                        },
+                        "scheduled_at": {
+                          "type": "integer",
+                          "format": "unix timestamp",
+                          "description": "The date-time this trigger is scheduled to send at, or `0` if you didn't schedule it."
+                        }
+                      }
                     }
                   }
                 }
@@ -194726,6 +195293,10 @@
                         "type": "object",
                         "description": "You can get triggers to know when you triggered a broadcast and whether or not it's been processed.",
                         "properties": {
+                          "audience_count": {
+                            "type": "integer",
+                            "description": "The number of people in the trigger's audience. For a send without a `rate_limit`, we set it when the send finishes. For a rate-limited send, we set it when the first people enter. It is `0` until then."
+                          },
                           "broadcast_id": {
                             "x-scalar-ignore": true,
                             "type": "integer",
@@ -194757,6 +195328,29 @@
                             "type": "integer",
                             "format": "unix timestamp",
                             "description": "The date-time when Customer.io processed the trigger."
+                          },
+                          "rate_limit": {
+                            "type": "object",
+                            "description": "The rate limit you set when you triggered the broadcast. We omit this field if you didn't set one.",
+                            "properties": {
+                              "period": {
+                                "type": "string",
+                                "enum": [
+                                  "minute",
+                                  "hour",
+                                  "day"
+                                ],
+                                "description": "The length of each period."
+                              },
+                              "rate": {
+                                "type": "integer",
+                                "description": "The maximum number of people that enter the broadcast in each `period`."
+                              },
+                              "spread": {
+                                "type": "boolean",
+                                "description": "Whether we let people in at an even pace across the period."
+                              }
+                            }
                           },
                           "scheduled_at": {
                             "type": "integer",
@@ -211204,7 +211798,7 @@
                   },
                   "with_content": {
                     "type": "boolean",
-                    "description": "Set to `true` to include the message `body` in `_sent` events.",
+                    "description": "Set to `true` to include message content in `sent` events and topic preferences in `cio_subscription_preferences_changed` events. This is the **Body content** option in the UI.",
                     "example": false
                   }
                 }
@@ -211352,7 +211946,7 @@
                     },
                     "with_content": {
                       "type": "boolean",
-                      "description": "Set to `true` to include the message `body` in `_sent` events.",
+                      "description": "Set to `true` to include message content in `sent` events and topic preferences in `cio_subscription_preferences_changed` events. This is the **Body content** option in the UI.",
                       "example": false
                     }
                   }
@@ -211608,7 +212202,7 @@
                           },
                           "with_content": {
                             "type": "boolean",
-                            "description": "Set to `true` to include the message `body` in `_sent` events.",
+                            "description": "Set to `true` to include message content in `sent` events and topic preferences in `cio_subscription_preferences_changed` events. This is the **Body content** option in the UI.",
                             "example": false
                           }
                         }
@@ -211871,7 +212465,7 @@
                     },
                     "with_content": {
                       "type": "boolean",
-                      "description": "Set to `true` to include the message `body` in `_sent` events.",
+                      "description": "Set to `true` to include message content in `sent` events and topic preferences in `cio_subscription_preferences_changed` events. This is the **Body content** option in the UI.",
                       "example": false
                     }
                   }
@@ -212113,7 +212707,7 @@
                   },
                   "with_content": {
                     "type": "boolean",
-                    "description": "Set to `true` to include the message `body` in `_sent` events.",
+                    "description": "Set to `true` to include message content in `sent` events and topic preferences in `cio_subscription_preferences_changed` events. This is the **Body content** option in the UI.",
                     "example": false
                   }
                 }
@@ -212261,7 +212855,7 @@
                     },
                     "with_content": {
                       "type": "boolean",
-                      "description": "Set to `true` to include the message `body` in `_sent` events.",
+                      "description": "Set to `true` to include message content in `sent` events and topic preferences in `cio_subscription_preferences_changed` events. This is the **Body content** option in the UI.",
                       "example": false
                     }
                   }
@@ -225736,7 +226330,7 @@
                               },
                               "content": {
                                 "type": "string",
-                                "description": "If you enable the *Include body content and headers in all Sent events* when you set up your reporting webhook, you'll see this field. It contains the subscription preferences that a person changed in a stringified object format. The `topic_1` key refers to a topic with an ID of `1`; you can get more information about each topic from our [App API](/integrations/api/app/tag/subscription-center/getTopics/).",
+                                "description": "Included if you enabled the **Body content** option (`with_content` in the App API) when you set up your reporting webhook. This contains the person's topic preferences in a stringified object format. The `topic_1` key refers to a topic with an ID of `1`; you can get more information about each topic from our [App API](/integrations/api/app/tag/subscription-center/getTopics/). An empty string means the person unsubscribed from everything, not from one topic.",
                                 "example": "{\"topics\":{\"topic_1\":true}}"
                               }
                             },
@@ -226839,7 +227433,7 @@
                             "enum": [
                               "sent"
                             ],
-                            "description": "A message was successfully sent. If you enabled the *Include body content and headers in all Sent events* option, the payload includes the `content` of your message and, for emails with custom headers, a `data.headers` object alongside `content`."
+                            "description": "A message was successfully sent. If you enabled the **Body content** option (`with_content` in the App API), the payload includes the `content` of your message and, for emails with custom headers, a `data.headers` object alongside `content`."
                           },
                           "data": {
                             "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -227304,11 +227898,11 @@
                               },
                               "content": {
                                 "type": "string",
-                                "description": "The body content of your email. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook."
+                                "description": "The body content of your email. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                               },
                               "headers": {
                                 "type": "object",
-                                "description": "The headers sent with your email, as a map of header name to an array of values. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the message included custom headers. This is a sibling of `content`—it is not nested inside it.",
+                                "description": "The headers sent with your email, as a map of header name to an array of values. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the message included custom headers.",
                                 "additionalProperties": {
                                   "type": "array",
                                   "items": {
@@ -227325,7 +227919,7 @@
                                 "x-scalar-ignore": true,
                                 "type": "object",
                                 "additionalProperties": true,
-                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                               }
                             },
                             "required": [
@@ -234149,7 +234743,7 @@
                             "enum": [
                               "sent"
                             ],
-                            "description": "A push notification was sent to a recipient. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                            "description": "A push notification was sent to a recipient. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
                           },
                           "data": {
                             "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -234637,7 +235231,7 @@
                               },
                               "content": {
                                 "type": "string",
-                                "description": "The stringified payload for your push notification. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                                "description": "The stringified payload for your push notification. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                               },
                               "related_delivery_ids": {
                                 "type": "array",
@@ -234650,7 +235244,7 @@
                                 "x-scalar-ignore": true,
                                 "type": "object",
                                 "additionalProperties": true,
-                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                               }
                             },
                             "required": [
@@ -239254,7 +239848,7 @@
                             "enum": [
                               "sent"
                             ],
-                            "description": "An in-app message was sent from Customer.io. Because in-app messages are only delivered when a person's app is open, there may be a significant delay between when a message is sent and when it's \"opened\". If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                            "description": "An in-app message was sent from Customer.io. Because in-app messages are only delivered when a person's app is open, there may be a significant delay between when a message is sent and when it's \"opened\". If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
                           },
                           "data": {
                             "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -239639,13 +240233,13 @@
                               },
                               "content": {
                                 "type": "string",
-                                "description": "The body of your message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                                "description": "The body of your message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                               },
                               "variables": {
                                 "x-scalar-ignore": true,
                                 "type": "object",
                                 "additionalProperties": true,
-                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                               }
                             },
                             "required": [
@@ -242670,7 +243264,7 @@
                             "enum": [
                               "sent"
                             ],
-                            "description": "An SMS notification was sent. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                            "description": "An SMS notification was sent. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
                           },
                           "data": {
                             "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -243055,13 +243649,13 @@
                               },
                               "content": {
                                 "type": "string",
-                                "description": "The body of your message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                                "description": "The body of your message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                               },
                               "variables": {
                                 "x-scalar-ignore": true,
                                 "type": "object",
                                 "additionalProperties": true,
-                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                               }
                             },
                             "required": [
@@ -247381,7 +247975,7 @@
                             "enum": [
                               "sent"
                             ],
-                            "description": "A slack message was sent. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                            "description": "A slack message was sent. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
                           },
                           "data": {
                             "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -247766,13 +248360,13 @@
                               },
                               "content": {
                                 "type": "string",
-                                "description": "The of your slack message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                                "description": "The body of your Slack message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                               },
                               "variables": {
                                 "x-scalar-ignore": true,
                                 "type": "object",
                                 "additionalProperties": true,
-                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                               }
                             },
                             "required": [
@@ -249957,7 +250551,7 @@
                             "enum": [
                               "sent"
                             ],
-                            "description": "A webhook was sent from Customer.io. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your webhook."
+                            "description": "A webhook was sent from Customer.io. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your webhook."
                           },
                           "data": {
                             "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -250342,13 +250936,13 @@
                               },
                               "content": {
                                 "type": "string",
-                                "description": "The stringified payload sent to your webhook address. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                                "description": "The stringified payload sent to your webhook address. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                               },
                               "variables": {
                                 "x-scalar-ignore": true,
                                 "type": "object",
                                 "additionalProperties": true,
-                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                               }
                             },
                             "required": [
@@ -252533,7 +253127,7 @@
                             "enum": [
                               "sent"
                             ],
-                            "description": "A WhatsApp message was sent. If you enabled the *Body Content* option with your webhook, the payload includes the `content` of your message."
+                            "description": "A WhatsApp message was sent. If you enabled the **Body content** option (`with_content` in the App API) with your webhook, the payload includes the `content` of your message."
                           },
                           "data": {
                             "description": "Contains information about the event, specific to the `object_type` and `metric`.",
@@ -252918,13 +253512,13 @@
                               },
                               "content": {
                                 "type": "string",
-                                "description": "The body of your message. This key only appears if you enabled the *Body Content* option when setting up your webhook."
+                                "description": "The body of your message. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook."
                               },
                               "variables": {
                                 "x-scalar-ignore": true,
                                 "type": "object",
                                 "additionalProperties": true,
-                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the *Include body content and headers in all Sent events* (*Body Content*) option when setting up your webhook and the delivery has variables."
+                                "description": "User-defined variables associated with the message, as key-value pairs. This key only appears if you enabled the **Body content** option (`with_content` in the App API) when setting up your webhook and the delivery has variables."
                               }
                             },
                             "required": [
@@ -256899,12 +257493,12 @@
   "info": {
     "version": "1.0.0",
     "title": "Customer.io App API",
-    "description": "Our App API provides ways to trigger messages and retrieve information about people, automations, broadcasts, and more.\n\n# Overview\n\nThe App API provides methods to send newsletters, transactional messages, and API-triggered broadcasts. You can create newsletters from scratch and update transactional messages and API-triggered broadcasts.\n\nFor transactional messages and API-triggered broadcasts, your payload acts as a message \"trigger\" and can contain `data` that you reference in your messages using liquid—`{{trigger.<data>}}`.\n\nThe other endpoints help you retrieve information about people, segments, automations, broadcasts, etc; it also lets you update automation actions, messages, newsletter variants, etc. Aside from the [API-triggered broadcast](/integrations/api/app/tag/send-messages/triggerBroadcast/) endpoint (1 per 10 seconds), requests are limited to 10 per second. [Transactional](/integrations/api/app/tag/send-messages/sendEmail/) messages go through the same high-throughput ingress as our Track and Pipelines APIs and share their soft rate limit of 3000 requests per 3 seconds, which isn't strictly enforced.\n\n# We may add to these APIs\n\nAs we release new features, we add endpoints and we may even add fields to existing endpoints. We don't announce these additions in advance. Fields we add will be backward compatible: existing fields keep their names and types.\n\nBuild your integration to ignore fields it doesn't recognize. If you validate responses against a schema, make sure the schema accepts unknown keys. In JSON Schema, for example, don't set `additionalProperties: false`.\n\n# Use our Postman collection\n\nWe've generated a Postman collection to help you get started with our APIs.\n\nIf you fork this collection, you might want to disable the *Watch original collection* option. We automatically update our Postman collection whenever we release changes to our documentation, even if we don't change our APIs—which happens daily! Rather than being flooded with Postman notifications, you can check out our [Release Notes](/release-notes/) for updates to our APIs.\n\n**NOTE**: Postman endpoints default to our US APIs. If you're in our European (EU) region, you'll need to add `-eu` to the server variables (`track_api_url` and `app_api_url`).\n\n[<img src=\"https://run.pstmn.io/button.svg\" alt=\"Run In Postman\" style=\"width: 128px; height: 32px;\">](https://god.gw.postman.com/run-collection/23697545-2931c004-e63d-4cdc-bf4b-e685ba6da42d?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D23697545-2931c004-e63d-4cdc-bf4b-e685ba6da42d%26entityType%3Dcollection%26workspaceId%3Db886877f-fc09-475f-84fe-6221a98f4d18#?env%5BCustomer.io%20API%20Environment%5D=W3sia2V5IjoidHJhY2tfYXBpX3VybCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiJ0cmFjay5jdXN0b21lci5pbyIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBwX2FwaV91cmwiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiYXBpLmN1c3RvbWVyLmlvIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzaXRlX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBpX2tleSIsInR5cGUiOiJzZWNyZXQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYmVhcmVyIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYnJvYWRjYXN0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaW1wb3J0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiZW1haWxfYWRkcmVzcyIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InN1cHByZXNzaW9uX3R5cGUiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjb2xsZWN0aW9uX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoic25pcHBldF9uYW1lIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoid2ViaG9va19pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InNlbmRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImV4cG9ydF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6Im1lc3NhZ2VfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzZWdtZW50X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoibmV3c2xldHRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImNvbnRlbnRfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjYW1wYWlnbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImFjdGlvbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImN1c3RvbWVyX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoidHJhbnNhY3Rpb25hbF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRyaWdnZXJfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJmb3JtX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaWRlbnRpZmllciIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRldmljZV9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRlbGl2ZXJ5X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9XQ==)\n\n# Server addresses: US and EU\n\nCustomer.io hosts services in the United States (US) and European Union. Select the appropriate server address for your region.\n\n| Region | Server Address |\n| :-- | :-- |\n| US | https://api.customer.io |\n| EU | https://api-eu.customer.io |\n\n# Authentication\n\nAll requests to the Customer.io App API use an [App API Key](#authentication).\n\nTo authenticate, provide your key as a Bearer token in a HTTP Authorization header. You can create and manage your API keys—including keys with different scopes—in [your account settings page](https://fly.customer.io/settings/api_credentials?keyType=app). Each operation on this page references the authorization header it requires.\n\n# Rate Limits\n\nMost endpoints on this page are limited to 10 requests per second. The exceptions are:\n* [Transactional messages](/integrations/api/app/tag/send-messages/sendEmail/) use the same soft rate limit of our Track and Pipelines APIs (3000 requests per 3 seconds, not strictly enforced).\n* The [API-triggered broadcast endpoint](/integrations/api/app/tag/send-messages/triggerBroadcast/) is limited to 1 request every 10 seconds.\n\n**Rate limits are subject to change. We may adjust these thresholds to ensure stable performance for all customers.**\n"
+    "description": "Our App API provides ways to trigger messages and retrieve information about people, automations, broadcasts, and more.\n\n# Overview\n\nThe App API provides methods to send newsletters, transactional messages, and API-triggered broadcasts. You can create newsletters from scratch and update transactional messages and API-triggered broadcasts.\n\nFor transactional messages and API-triggered broadcasts, your payload acts as a message \"trigger\" and can contain `data` that you reference in your messages using liquid—`{{trigger.<data>}}`.\n\nThe other endpoints help you retrieve information about people, segments, automations, broadcasts, etc; it also lets you update automation actions, messages, newsletter variants, etc. Aside from the [API-triggered broadcast](/integrations/api/app/tag/send-messages/triggerBroadcast/) endpoint (1 per 10 seconds), requests are limited to 10 per second. [Transactional](/integrations/api/app/tag/send-messages/sendEmail/) messages aren't rate limited.\n\n# We may add to these APIs\n\nAs we release new features, we add endpoints and we may even add fields to existing endpoints. We don't announce these additions in advance. Fields we add will be backward compatible: existing fields keep their names and types.\n\nBuild your integration to ignore fields it doesn't recognize. If you validate responses against a schema, make sure the schema accepts unknown keys. In JSON Schema, for example, don't set `additionalProperties: false`.\n\n# Use our Postman collection\n\nWe've generated a Postman collection to help you get started with our APIs.\n\nIf you fork this collection, you might want to disable the *Watch original collection* option. We automatically update our Postman collection whenever we release changes to our documentation, even if we don't change our APIs—which happens daily! Rather than being flooded with Postman notifications, you can check out our [Release Notes](/release-notes/) for updates to our APIs.\n\n**NOTE**: Postman endpoints default to our US APIs. If you're in our European (EU) region, you'll need to add `-eu` to the server variables (`track_api_url` and `app_api_url`).\n\n[<img src=\"https://run.pstmn.io/button.svg\" alt=\"Run In Postman\" style=\"width: 128px; height: 32px;\">](https://god.gw.postman.com/run-collection/23697545-2931c004-e63d-4cdc-bf4b-e685ba6da42d?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D23697545-2931c004-e63d-4cdc-bf4b-e685ba6da42d%26entityType%3Dcollection%26workspaceId%3Db886877f-fc09-475f-84fe-6221a98f4d18#?env%5BCustomer.io%20API%20Environment%5D=W3sia2V5IjoidHJhY2tfYXBpX3VybCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiJ0cmFjay5jdXN0b21lci5pbyIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBwX2FwaV91cmwiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiYXBpLmN1c3RvbWVyLmlvIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzaXRlX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBpX2tleSIsInR5cGUiOiJzZWNyZXQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYmVhcmVyIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYnJvYWRjYXN0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaW1wb3J0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiZW1haWxfYWRkcmVzcyIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InN1cHByZXNzaW9uX3R5cGUiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjb2xsZWN0aW9uX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoic25pcHBldF9uYW1lIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoid2ViaG9va19pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InNlbmRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImV4cG9ydF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6Im1lc3NhZ2VfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzZWdtZW50X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoibmV3c2xldHRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImNvbnRlbnRfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjYW1wYWlnbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImFjdGlvbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImN1c3RvbWVyX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoidHJhbnNhY3Rpb25hbF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRyaWdnZXJfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJmb3JtX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaWRlbnRpZmllciIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRldmljZV9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRlbGl2ZXJ5X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9XQ==)\n\n# Server addresses: US and EU\n\nCustomer.io hosts services in the United States (US) and European Union. Select the appropriate server address for your region.\n\n| Region | Server Address |\n| :-- | :-- |\n| US | https://api.customer.io |\n| EU | https://api-eu.customer.io |\n\n# Authentication\n\nAll requests to the Customer.io App API use an [App API Key](#authentication).\n\nTo authenticate, provide your key as a Bearer token in a HTTP Authorization header. You can create and manage your API keys—including keys with different scopes—in [your account settings page](https://fly.customer.io/settings/api_credentials?keyType=app). Each operation on this page references the authorization header it requires.\n\n# Rate Limits\n\nMost endpoints on this page are limited to 10 requests per second. The exceptions are:\n* [Transactional messages](/integrations/api/app/tag/send-messages/sendEmail/) aren't rate limited.\n* The [API-triggered broadcast endpoint](/integrations/api/app/tag/send-messages/triggerBroadcast/) is limited to 1 request every 10 seconds. If you need to trigger broadcasts more often, contact us to talk through your use case.\n\n**Rate limits are subject to change. We may adjust these thresholds to ensure stable performance for all customers.**\n"
   },
   "tags": [
     {
       "name": "Send Messages",
-      "description": "Use these endpoints to send broadcasts or transactional messages to your audience. They use the same authentication method, but review the limits for both types of workflows to make sure you'll successfully trigger your messages.\n\nYou can't trigger automations through our APIs.\n\n## API triggered broadcast limits\n\nWhile [API triggered broadcasts](/integrations/api/app/tag/send-messages/triggerBroadcast/) are limited to 1 request every 10 seconds, they're also limited by the number of triggers you can have queued at a time, as shown in the table below.\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Trigger Payload | 25MB | Max length of the entire Trigger call, larger calls are typically to support `per_user_data` |\n| Trigger Data | 50000 bytes | Max length of the data section in the Trigger call |\n| Recipient List<sup>1</sup> | 10000 recipients | Max number of ids or emails included in the Trigger call |\n| Custom Per User Data<sup>1</sup> | 10000 entries | Max number of entries in `per_user_data` |\n| Custom Per User Data<sup>1</sup> | 2MB | Max length per user in the file referenced by `data_file_url`. |\n| Custom Per User Data<sup>1</sup> | 10GB | Max length of the entire size of the file referenced by `data_file_url` |\n| Trigger Queue | 5 triggers | Max number of triggers waiting to be processed consecutively |\n\n<sup>1</sup>For larger data sets, use `data_file_url` to supply a link to a file that contains your merge data. Attempting to send too much data in a single API call will fail.\n\n## Transactional Message Limits\n\nThe `/send-*` endpoints use the same high-throughput ingress as our Track and Pipelines APIs, so they share the same soft rate limit of 3000 requests per 3 seconds. This rate isn't strictly enforced—it mainly helps us spot unusually high volume so we can help you scale.\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Payload | 1MB | Max length of the payload, excepting attachments |\n| Attachments (email) | 2MB | Maximum size of attachments |\n| Recipients | 15 | Total number of recipients across the `to`, `cc`, and `bcc` fields. |\n"
+      "description": "Use these endpoints to send broadcasts or transactional messages to your audience. They use the same authentication method, but review the limits for both types of workflows to make sure you'll successfully trigger your messages.\n\nYou can't trigger automations through our APIs.\n\n## API triggered broadcast limits\n\nWhile [API triggered broadcasts](/integrations/api/app/tag/send-messages/triggerBroadcast/) are limited to 1 request every 10 seconds, they're also limited by the number of triggers you can have queued at a time, as shown in the table below.\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Trigger Payload | 25MB | Max length of the entire Trigger call, larger calls are typically to support `per_user_data` |\n| Trigger Data | 50000 bytes | Max length of the data section in the Trigger call |\n| Recipient List<sup>1</sup> | 10000 recipients | Max number of ids or emails included in the Trigger call |\n| Custom Per User Data<sup>1</sup> | 10000 entries | Max number of entries in `per_user_data` |\n| Custom Per User Data<sup>1</sup> | 2MB | Max length per user in the file referenced by `data_file_url`. |\n| Custom Per User Data<sup>1</sup> | 10GB | Max length of the entire size of the file referenced by `data_file_url` |\n| Trigger Queue | 5 triggers | Max number of triggers waiting to be processed consecutively |\n\n<sup>1</sup>For larger data sets, use `data_file_url` to supply a link to a file that contains your merge data. Attempting to send too much data in a single API call will fail.\n\n## Transactional Message Limits\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Payload | 1MB | Max length of the payload, excepting attachments |\n| Attachments (email) | 2MB | Maximum size of attachments |\n| Recipients | 15 | Total number of recipients across the `to`, `cc`, and `bcc` fields. |\n"
     },
     {
       "name": "Broadcasts",
