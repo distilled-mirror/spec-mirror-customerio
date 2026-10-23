@@ -7189,6 +7189,54 @@
                 "description": "A helpful description that can help you find and recognize your import operation."
               }
             }
+          },
+          {
+            "title": "geoset",
+            "type": "object",
+            "description": "Contains your import parameters for adding or updating geofences in a geofence set.",
+            "required": [
+              "data_file_url",
+              "name",
+              "type",
+              "geoset_id"
+            ],
+            "properties": {
+              "data_file_url": {
+                "type": "string",
+                "description": "The URL of the CSV, GeoJSON, or GeoJSONL file of geofences you want to import. Customer.io reads the file as GeoJSON when its name ends in `.geojson`, `.geojsonl`, or `.json`, or when its content starts with `{`, and as CSV otherwise."
+              },
+              "geoset_id": {
+                "type": "string",
+                "description": "The ID of the geofence set you want to import geofences into. The set must already exist in your workspace. Customer.io doesn't check the set when it accepts your request, so a request with an ID that doesn't match a set still succeeds, and the import fails afterward with an error that the geoset doesn't exist. [Look up the import](/integrations/api/app/tag/imports/getImport/) to confirm that it succeeded.",
+                "example": "12"
+              },
+              "name": {
+                "x-scalar-ignore": true,
+                "type": "string",
+                "description": "A friendly name for your import. This helps you identify your import."
+              },
+              "type": {
+                "type": "string",
+                "description": "The type of import.",
+                "enum": [
+                  "geoset"
+                ]
+              },
+              "description": {
+                "x-scalar-ignore": true,
+                "type": "string",
+                "description": "A helpful description that can help you find and recognize your import operation."
+              },
+              "geoset_mode": {
+                "type": "string",
+                "description": "How the import treats geofences that are already in the set. `merge` adds new geofences and updates existing ones. `replace` replaces all the geofences already in the set with the ones you import. In both modes, a geofence with an `external_id` that matches an existing geofence updates that geofence in every set it belongs to.",
+                "enum": [
+                  "merge",
+                  "replace"
+                ],
+                "default": "merge"
+              }
+            }
           }
         ]
       },
@@ -7205,7 +7253,8 @@
           "people",
           "event",
           "object",
-          "relationship"
+          "relationship",
+          "geoset"
         ]
       },
       "import_description": {
@@ -7216,8 +7265,9 @@
       "import_state": {
         "x-scalar-ignore": true,
         "type": "string",
-        "description": "The state of the import—whether your import is being processed, fully completed (`imported`), or if it failed.",
+        "description": "The state of the import—whether your import is waiting to start (`start`), being processed, fully completed (`imported`), or if it failed.",
         "enum": [
+          "start",
           "preprocessing",
           "preprocessed",
           "validating",
@@ -7289,9 +7339,30 @@
             "description": "If your import fails, this helps you understand why.",
             "type": "string"
           },
+          "geoset_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The ID of the geofence set that the import added geofences to. Only applies to geofence set imports.",
+            "example": "12"
+          },
+          "geoset_mode": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Whether the geofence set import merged the file into the set or replaced the set's geofences. Only applies to geofence set imports.",
+            "enum": [
+              "merge",
+              "replace",
+              null
+            ]
+          },
           "id": {
-            "type": "integer",
-            "description": "This is the `import_id` you'll use if you want to [lookup your import operation](/integrations/api/app/tag/imports/getImport/)."
+            "type": "string",
+            "description": "This is the `import_id` you'll use if you want to [lookup your import operation](/integrations/api/app/tag/imports/getImport/).",
+            "example": "9"
           },
           "identifier": {
             "type": "string",
@@ -7333,8 +7404,9 @@
           "state": {
             "x-scalar-ignore": true,
             "type": "string",
-            "description": "The state of the import—whether your import is being processed, fully completed (`imported`), or if it failed.",
+            "description": "The state of the import—whether your import is waiting to start (`start`), being processed, fully completed (`imported`), or if it failed.",
             "enum": [
+              "start",
               "preprocessing",
               "preprocessed",
               "validating",
@@ -7353,7 +7425,8 @@
               "people",
               "event",
               "object",
-              "relationship"
+              "relationship",
+              "geoset"
             ]
           },
           "updated_at": {
@@ -7370,9 +7443,9 @@
           "data_to_process": "all",
           "description": "importing accounts",
           "error": "possible error - The specified Object Type does not exist.",
-          "id": 30,
+          "id": "30",
           "name": "account-object-import",
-          "object_type_id": 1,
+          "object_type_id": "1",
           "people_to_process": "all",
           "rows_imported": 3,
           "rows_to_import": 3,
@@ -40514,7 +40587,7 @@
         "properties": {
           "conditions": {
             "type": "object",
-            "description": "The conditions that determine who belongs to the segment, as a tree of nested `and` and `or` groups. Customer.io includes this object for data-driven segments and omits it for manual segments, which don't have conditions. A profile attribute condition appears as an `attribute_change` event with a `to` filter and an inverted `from` filter, and filter values are always strings, even for numeric or boolean attributes.",
+            "description": "The conditions that determine who belongs to the segment, as a tree of nested `and` and `or` groups. Customer.io includes this object for data-driven and snapshot segments and omits it for manual segments, which don't have conditions. A profile attribute condition appears as an `attribute_change` event with a `to` filter and an inverted `from` filter, and filter values are always strings, even for numeric or boolean attributes.",
             "additionalProperties": true,
             "example": {
               "and": [
@@ -40616,10 +40689,11 @@
           },
           "type": {
             "type": "string",
-            "description": "The type of segment.",
+            "description": "The type of segment. [Learn more in our segmentation docs.](/messaging/segmentation/segments/#types-of-segments)",
             "enum": [
               "dynamic",
-              "manual"
+              "manual",
+              "snapshot"
             ],
             "example": "manual"
           },
@@ -199943,7 +200017,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "This endpoint lets you upload a CSV file containing people, events, objects, or relationships. It provides a handy way of adding and updating them in bulk. Uploading people, objects, or relationships is like performing an [`identify` call](/integrations/api/track/tag/track_v2/entity/) for each row in your CSV; uploading events is like performing a [`track` call](/integrations/api/track/tag/track-events/track/).\n\nYou'll need to provide us the public URL of your CSV as a part of this operation. We recommend that you host your CSVs from short-lived URLs. Ideally, your URLs will expire 2 hours after you initiate an import so that your customers' information doesn't remain publicly available after you've uploaded it to us.\n\nCheck out the CSV requirements based on what you're importing: [people](/journeys/people/uploading-people/#csv-requirements), [events](/journeys/people/uploading-people/#event-csv-requirements), and [objects or relationships](/journeys/objects-data/objects/import-objects/#csv-requirements).\n\nThis endpoint performs some basic validation on the request and then queues the import for processing. The import happens in multiple stages after your request, and may even fail. You'll need to [lookup the status of the import](/integrations/api/app/tag/imports/getImport/) to check on its progress.\n\nRecords in your CSV might result in errors or warnings during the import. We make the errors and warnings available in CSV files that you can download via our export endpoints. [Lookup your import](/integrations/api/app/tag/imports/getImport/) to get download URLs for error and warning reports.\n",
+        "description": "This endpoint lets you upload a file containing people, events, objects, relationships, or geofences. It provides a handy way of adding and updating them in bulk. Uploading people, objects, or relationships is like performing an [`identify` call](/integrations/api/track/tag/track_v2/entity/) for each row in your CSV; uploading events is like performing a [`track` call](/integrations/api/track/tag/track-events/track/). Uploading geofences adds or updates them in a geofence set, the same way an import in the UI does. Geofence imports are available on Premium and Enterprise plans.\n\nYou'll need to provide us the public URL of your file as a part of this operation. We recommend that you host your files from short-lived URLs. Ideally, your URLs will expire 2 hours after you initiate an import so that your customers' information doesn't remain publicly available after you've uploaded it to us.\n\nCheck out the file requirements based on what you're importing: [people](/journeys/people/uploading-people/#csv-requirements), [events](/journeys/people/uploading-people/#event-csv-requirements), [objects or relationships](/journeys/objects-data/objects/import-objects/#csv-requirements), and [geofences](/messaging/people/geofences/#import-multiple-geofences).\n\nThis endpoint performs some basic validation on the request and then queues the import for processing. The import happens in multiple stages after your request, and may even fail. You'll need to [lookup the status of the import](/integrations/api/app/tag/imports/getImport/) to check on its progress.\n\nRecords in your file might result in errors or warnings during the import. We make the errors and warnings available in CSV files that you can download via our export endpoints. [Lookup your import](/integrations/api/app/tag/imports/getImport/) to get download URLs for error and warning reports.\n",
         "tags": [
           "Imports"
         ],
@@ -200167,8 +200241,81 @@
                             "description": "A helpful description that can help you find and recognize your import operation."
                           }
                         }
+                      },
+                      {
+                        "title": "geoset",
+                        "type": "object",
+                        "description": "Contains your import parameters for adding or updating geofences in a geofence set.",
+                        "required": [
+                          "data_file_url",
+                          "name",
+                          "type",
+                          "geoset_id"
+                        ],
+                        "properties": {
+                          "data_file_url": {
+                            "type": "string",
+                            "description": "The URL of the CSV, GeoJSON, or GeoJSONL file of geofences you want to import. Customer.io reads the file as GeoJSON when its name ends in `.geojson`, `.geojsonl`, or `.json`, or when its content starts with `{`, and as CSV otherwise."
+                          },
+                          "geoset_id": {
+                            "type": "string",
+                            "description": "The ID of the geofence set you want to import geofences into. The set must already exist in your workspace. Customer.io doesn't check the set when it accepts your request, so a request with an ID that doesn't match a set still succeeds, and the import fails afterward with an error that the geoset doesn't exist. [Look up the import](/integrations/api/app/tag/imports/getImport/) to confirm that it succeeded.",
+                            "example": "12"
+                          },
+                          "name": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "description": "A friendly name for your import. This helps you identify your import."
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "The type of import.",
+                            "enum": [
+                              "geoset"
+                            ]
+                          },
+                          "description": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "description": "A helpful description that can help you find and recognize your import operation."
+                          },
+                          "geoset_mode": {
+                            "type": "string",
+                            "description": "How the import treats geofences that are already in the set. `merge` adds new geofences and updates existing ones. `replace` replaces all the geofences already in the set with the ones you import. In both modes, a geofence with an `external_id` that matches an existing geofence updates that geofence in every set it belongs to.",
+                            "enum": [
+                              "merge",
+                              "replace"
+                            ],
+                            "default": "merge"
+                          }
+                        }
                       }
                     ]
+                  }
+                }
+              },
+              "examples": {
+                "people": {
+                  "summary": "Import people",
+                  "value": {
+                    "import": {
+                      "data_file_url": "https://example.com/exports/spring-signups.csv",
+                      "identifier": "email",
+                      "name": "Spring sign-ups",
+                      "type": "people"
+                    }
+                  }
+                },
+                "geoset": {
+                  "summary": "Import geofences into a geofence set",
+                  "value": {
+                    "import": {
+                      "data_file_url": "https://example.com/exports/stores.geojson",
+                      "geoset_id": "12",
+                      "name": "Store locations",
+                      "type": "geoset",
+                      "geoset_mode": "merge"
+                    }
                   }
                 }
               }
@@ -200218,9 +200365,30 @@
                           "description": "If your import fails, this helps you understand why.",
                           "type": "string"
                         },
+                        "geoset_id": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "The ID of the geofence set that the import added geofences to. Only applies to geofence set imports.",
+                          "example": "12"
+                        },
+                        "geoset_mode": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Whether the geofence set import merged the file into the set or replaced the set's geofences. Only applies to geofence set imports.",
+                          "enum": [
+                            "merge",
+                            "replace",
+                            null
+                          ]
+                        },
                         "id": {
-                          "type": "integer",
-                          "description": "This is the `import_id` you'll use if you want to [lookup your import operation](/integrations/api/app/tag/imports/getImport/)."
+                          "type": "string",
+                          "description": "This is the `import_id` you'll use if you want to [lookup your import operation](/integrations/api/app/tag/imports/getImport/).",
+                          "example": "9"
                         },
                         "identifier": {
                           "type": "string",
@@ -200262,8 +200430,9 @@
                         "state": {
                           "x-scalar-ignore": true,
                           "type": "string",
-                          "description": "The state of the import—whether your import is being processed, fully completed (`imported`), or if it failed.",
+                          "description": "The state of the import—whether your import is waiting to start (`start`), being processed, fully completed (`imported`), or if it failed.",
                           "enum": [
+                            "start",
                             "preprocessing",
                             "preprocessed",
                             "validating",
@@ -200282,7 +200451,8 @@
                             "people",
                             "event",
                             "object",
-                            "relationship"
+                            "relationship",
+                            "geoset"
                           ]
                         },
                         "updated_at": {
@@ -200299,9 +200469,9 @@
                         "data_to_process": "all",
                         "description": "importing accounts",
                         "error": "possible error - The specified Object Type does not exist.",
-                        "id": 30,
+                        "id": "30",
                         "name": "account-object-import",
-                        "object_type_id": 1,
+                        "object_type_id": "1",
                         "people_to_process": "all",
                         "rows_imported": 3,
                         "rows_to_import": 3,
@@ -200399,7 +200569,7 @@
           {
             "lang": "json",
             "label": "JSON",
-            "source": "{\n  \"import\": {\n    \"data_file_url\": \"\",\n    \"identifier\": \"id\",\n    \"name\": \"\",\n    \"type\": \"people\",\n    \"data_to_process\": \"all\",\n    \"description\": \"\"\n  }\n}"
+            "source": "{\n  \"import\": {\n    \"data_file_url\": \"https://example.com/exports/spring-signups.csv\",\n    \"identifier\": \"email\",\n    \"name\": \"Spring sign-ups\",\n    \"type\": \"people\"\n  }\n}"
           }
         ]
       }
@@ -200430,7 +200600,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "This endpoint returns information about an \"import\"—a CSV file containing a group of people or events you uploaded to using `v1/imports` endpoint. You can use this endpoint to check to status of imports, or find out how many rows you successfully imported from a CSV file.",
+        "description": "This endpoint returns information about an \"import\"—a file of people, events, objects, relationships, or geofences that you uploaded using the `v1/imports` endpoint. You can use this endpoint to check the status of imports, or find out how many rows you successfully imported from a file.",
         "tags": [
           "Imports"
         ],
@@ -200456,9 +200626,9 @@
                             "data_to_process": "all",
                             "description": "importing accounts",
                             "error": "possible error - The specified Object Type does not exist.",
-                            "id": 30,
+                            "id": "30",
                             "name": "account-object-import",
-                            "object_type_id": 1,
+                            "object_type_id": "1",
                             "people_to_process": "all",
                             "rows_imported": 3,
                             "rows_to_import": 3,
@@ -200506,9 +200676,30 @@
                           "example": 2,
                           "description": "ID of the export containing errors for the import, which can retrieved via [the *Get an export* endpoint](/integrations/api/app/tag/exports/getExport/). Only present when there are errors."
                         },
+                        "geoset_id": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "The ID of the geofence set that the import added geofences to. Only applies to geofence set imports.",
+                          "example": "12"
+                        },
+                        "geoset_mode": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Whether the geofence set import merged the file into the set or replaced the set's geofences. Only applies to geofence set imports.",
+                          "enum": [
+                            "merge",
+                            "replace",
+                            null
+                          ]
+                        },
                         "id": {
-                          "type": "integer",
-                          "description": "This is the `import_id` you'll use if you want to [lookup your import operation](/integrations/api/app/tag/imports/getImport/)."
+                          "type": "string",
+                          "description": "This is the `import_id` you'll use if you want to [lookup your import operation](/integrations/api/app/tag/imports/getImport/).",
+                          "example": "9"
                         },
                         "identifier": {
                           "type": "string",
@@ -200550,8 +200741,9 @@
                         "state": {
                           "x-scalar-ignore": true,
                           "type": "string",
-                          "description": "The state of the import—whether your import is being processed, fully completed (`imported`), or if it failed.",
+                          "description": "The state of the import—whether your import is waiting to start (`start`), being processed, fully completed (`imported`), or if it failed.",
                           "enum": [
+                            "start",
                             "preprocessing",
                             "preprocessed",
                             "validating",
@@ -200570,7 +200762,8 @@
                             "people",
                             "event",
                             "object",
-                            "relationship"
+                            "relationship",
+                            "geoset"
                           ]
                         },
                         "updated_at": {
@@ -213073,7 +213266,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Create a manual segment with a name and a description. This request creates an empty segment.",
+        "description": "Create a manual segment with a name and a description. This request creates an empty segment. You can't create a data-driven or snapshot segment with this endpoint.",
         "tags": [
           "Segments"
         ],
@@ -213125,7 +213318,7 @@
                       "properties": {
                         "conditions": {
                           "type": "object",
-                          "description": "The conditions that determine who belongs to the segment, as a tree of nested `and` and `or` groups. Customer.io includes this object for data-driven segments and omits it for manual segments, which don't have conditions. A profile attribute condition appears as an `attribute_change` event with a `to` filter and an inverted `from` filter, and filter values are always strings, even for numeric or boolean attributes.",
+                          "description": "The conditions that determine who belongs to the segment, as a tree of nested `and` and `or` groups. Customer.io includes this object for data-driven and snapshot segments and omits it for manual segments, which don't have conditions. A profile attribute condition appears as an `attribute_change` event with a `to` filter and an inverted `from` filter, and filter values are always strings, even for numeric or boolean attributes.",
                           "additionalProperties": true,
                           "example": {
                             "and": [
@@ -213227,10 +213420,11 @@
                         },
                         "type": {
                           "type": "string",
-                          "description": "The type of segment.",
+                          "description": "The type of segment. [Learn more in our segmentation docs.](/messaging/segmentation/segments/#types-of-segments)",
                           "enum": [
                             "dynamic",
-                            "manual"
+                            "manual",
+                            "snapshot"
                           ],
                           "example": "manual"
                         },
@@ -213368,7 +213562,7 @@
                         "properties": {
                           "conditions": {
                             "type": "object",
-                            "description": "The conditions that determine who belongs to the segment, as a tree of nested `and` and `or` groups. Customer.io includes this object for data-driven segments and omits it for manual segments, which don't have conditions. A profile attribute condition appears as an `attribute_change` event with a `to` filter and an inverted `from` filter, and filter values are always strings, even for numeric or boolean attributes.",
+                            "description": "The conditions that determine who belongs to the segment, as a tree of nested `and` and `or` groups. Customer.io includes this object for data-driven and snapshot segments and omits it for manual segments, which don't have conditions. A profile attribute condition appears as an `attribute_change` event with a `to` filter and an inverted `from` filter, and filter values are always strings, even for numeric or boolean attributes.",
                             "additionalProperties": true,
                             "example": {
                               "and": [
@@ -213470,10 +213664,11 @@
                           },
                           "type": {
                             "type": "string",
-                            "description": "The type of segment.",
+                            "description": "The type of segment. [Learn more in our segmentation docs.](/messaging/segmentation/segments/#types-of-segments)",
                             "enum": [
                               "dynamic",
-                              "manual"
+                              "manual",
+                              "snapshot"
                             ],
                             "example": "manual"
                           },
@@ -213620,7 +213815,7 @@
                       "properties": {
                         "conditions": {
                           "type": "object",
-                          "description": "The conditions that determine who belongs to the segment, as a tree of nested `and` and `or` groups. Customer.io includes this object for data-driven segments and omits it for manual segments, which don't have conditions. A profile attribute condition appears as an `attribute_change` event with a `to` filter and an inverted `from` filter, and filter values are always strings, even for numeric or boolean attributes.",
+                          "description": "The conditions that determine who belongs to the segment, as a tree of nested `and` and `or` groups. Customer.io includes this object for data-driven and snapshot segments and omits it for manual segments, which don't have conditions. A profile attribute condition appears as an `attribute_change` event with a `to` filter and an inverted `from` filter, and filter values are always strings, even for numeric or boolean attributes.",
                           "additionalProperties": true,
                           "example": {
                             "and": [
@@ -213722,10 +213917,11 @@
                         },
                         "type": {
                           "type": "string",
-                          "description": "The type of segment.",
+                          "description": "The type of segment. [Learn more in our segmentation docs.](/messaging/segmentation/segments/#types-of-segments)",
                           "enum": [
                             "dynamic",
-                            "manual"
+                            "manual",
+                            "snapshot"
                           ],
                           "example": "manual"
                         },
@@ -213831,7 +214027,7 @@
       "delete": {
         "summary": "Delete a segment",
         "operationId": "deleteManSegment",
-        "description": "Delete a manual segment. You can't delete a data-driven segment, or a manual segment that another segment, an automation, an unsent one-time send, or a SQL import uses.",
+        "description": "Delete a manual segment. You can't delete a data-driven or snapshot segment with this request. You also can't delete a manual segment used in another segment, an automation, an unsent one-time send, or a SQL import.",
         "security": [
           {
             "Bearer-Auth": []
@@ -213848,7 +214044,7 @@
             "description": "The `segment_id` does not exist."
           },
           "422": {
-            "description": "Customer.io can't delete the segment. This may be because it's data-driven.\n"
+            "description": "Customer.io can't delete the segment. This may be because it's a data-driven or snapshot segment, or because something else in your workspace uses it.\n"
           },
           "429": {
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
