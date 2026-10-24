@@ -6764,7 +6764,7 @@
         "description": "Device properties collected by [Customer.io SDKs](/integrations/sdk/) unless `autoTrackDeviceAttributes` is disabled. You can use these properties in segments and Liquid.",
         "properties": {
           "id": {
-            "description": "The device token.",
+            "description": "The unique device identifier. This is an APNs token, an FCM registration token, or a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids).",
             "type": "string"
           },
           "platform": {
@@ -6845,7 +6845,7 @@
         "description": "Device properties for Journeys profiles sent from a [Data Pipelines-enabled SDK](/integrations/sdk/). SDKs collect these automatically unless `autoTrackDeviceAttributes` is disabled.",
         "properties": {
           "id": {
-            "description": "The device token.",
+            "description": "The unique device identifier. This is an APNs token, an FCM registration token, or a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids).",
             "type": "string"
           },
           "platform": {
@@ -7476,11 +7476,9 @@
                 "type": "array",
                 "description": "Lists the devices associated with the customer profile.",
                 "items": {
-                  "x-scalar-ignore": true,
-                  "description": "Device properties collected by [Customer.io SDKs](/integrations/sdk/) unless `autoTrackDeviceAttributes` is disabled. You can use these properties in segments and Liquid.",
                   "properties": {
                     "id": {
-                      "description": "The device token.",
+                      "description": "The unique device identifier. This is an APNs token, an FCM registration token, or a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids).",
                       "type": "string"
                     },
                     "platform": {
@@ -7549,12 +7547,21 @@
                       "type": "integer",
                       "format": "unix timestamp",
                       "description": "The `timestamp` when you last identified this device. If you don't pass a timestamp when you add or update a device, we use the time of the request itself. Our SDKs identify a device when a person launches their app."
+                    },
+                    "token_type": {
+                      "type": "string",
+                      "enum": [
+                        "fid",
+                        "token"
+                      ],
+                      "description": "The kind of ID in the device's `id`, either `fid` for a [Firebase Installation ID](/messaging/channels/push/developer-guide/#device-ids), or `token` for an FCM registration token. Customer.io uses the type to choose how it sends to the device through FCM. If you send push notifications through your own FCM integration, send to `fid` devices with FCM's `message.fid` field, and to `token` devices with `message.token`. Devices registered without a type, like APNs devices and devices from older SDKs, leave out this field. Customer.io sends an FCM device without a type through `message.fid` when its ID is 22 characters or fewer, but doesn't store that as its type."
                     }
                   },
                   "required": [
                     "id",
                     "platform"
-                  ]
+                  ],
+                  "description": "Device properties collected by [Customer.io SDKs](/integrations/sdk/) unless `autoTrackDeviceAttributes` is disabled. You can use these properties in segments and Liquid."
                 }
               },
               "id": {
@@ -7666,7 +7673,8 @@
               {
                 "id": "my_android_device_id",
                 "platform": "android",
-                "last_used": 1514764800
+                "last_used": 1514764800,
+                "token_type": "fid"
               },
               {
                 "id": "my_ios_device_id",
@@ -57743,7 +57751,7 @@
                     "description": "Device properties collected by [Customer.io SDKs](/integrations/sdk/) unless `autoTrackDeviceAttributes` is disabled. You can use these properties in segments and Liquid.",
                     "properties": {
                       "id": {
-                        "description": "The device token.",
+                        "description": "The unique device identifier. This is an APNs token, an FCM registration token, or a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids).",
                         "type": "string"
                       },
                       "platform": {
