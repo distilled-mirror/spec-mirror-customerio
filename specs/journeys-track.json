@@ -7554,7 +7554,7 @@
                         "fid",
                         "token"
                       ],
-                      "description": "The kind of ID in the device's `id`, either `fid` for a [Firebase Installation ID](/messaging/channels/push/developer-guide/#device-ids), or `token` for an FCM registration token. Customer.io uses the type to choose how it sends to the device through FCM. If you send push notifications through your own FCM integration, send to `fid` devices with FCM's `message.fid` field, and to `token` devices with `message.token`. Devices registered without a type, like APNs devices and devices from older SDKs, leave out this field. Customer.io sends an FCM device without a type through `message.fid` when its ID is 22 characters or fewer, but doesn't store that as its type."
+                      "description": "Used with FCM. This represents the kind of ID in the device's `id` field, either `fid` for a [Firebase Installation ID](/messaging/channels/push/developer-guide/#device-ids) or `token` for an FCM registration token. This field is not used with APNs. See [Token types](/messaging/channels/push/developer-guide/#token-types) to learn how Customer.io supports each kind of ID."
                     }
                   },
                   "required": [
