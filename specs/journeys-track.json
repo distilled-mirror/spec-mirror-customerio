@@ -6842,7 +6842,7 @@
       },
       "device_object_cdp": {
         "x-scalar-ignore": true,
-        "description": "Device properties for Journeys profiles sent from a [Data Pipelines-enabled SDK](/integrations/sdk/). SDKs collect these automatically unless `autoTrackDeviceAttributes` is disabled.",
+        "description": "Device properties for Journeys profiles sent from a [Pipelines-enabled SDK](/integrations/sdk/). SDKs collect these automatically unless `autoTrackDeviceAttributes` is disabled.",
         "properties": {
           "id": {
             "description": "The unique device identifier. This is an APNs token, an FCM registration token, or a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids).",
@@ -8462,6 +8462,17 @@
           "message": {
             "type": "string",
             "description": "The message body for your notification. This overrides the notification body of the transactional template (referenced by `transactional_message_id`)."
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "all",
+              "ios",
+              "android",
+              "web",
+              "all_and_web"
+            ],
+            "description": "The devices this send goes to, overriding the platform saved on the transactional message for this request only. `all` is iOS and Android, `web` is browsers only, and `all_and_web` is iOS, Android, and browsers. If you leave it out, the send uses the message's platform; with `auto_create`, a new message keeps the platform of its first request. Values other than `all` require [web push](/messaging/channels/web-push/transactional/) for your account; without it, the request fails with `400`."
           },
           "sound": {
             "type": "string",
@@ -41617,6 +41628,17 @@
               "password_reset_token": "abcde-12345-fghij-d888",
               "account_id": "123dj"
             }
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "all",
+              "ios",
+              "android",
+              "web",
+              "all_and_web"
+            ],
+            "description": "The devices this send goes to, overriding the platform saved on the transactional message for this request only. `all` is iOS and Android, `web` is browsers only, and `all_and_web` is iOS, Android, and browsers. If you leave it out, the send uses the message's platform; with `auto_create`, a new message keeps the platform of its first request. Values other than `all` require [web push](/messaging/channels/web-push/transactional/) for your account; without it, the request fails with `400`."
           },
           "queue_draft": {
             "x-scalar-ignore": true,
