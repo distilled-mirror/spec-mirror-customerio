@@ -219561,7 +219561,7 @@
       ],
       "post": {
         "summary": "Create a collection",
-        "description": "Create a new collection and provide the `data` that you'll access from the collection or the `url` that you'll download CSV or JSON data from.\n\n**Note**: A collection cannot be more than 10 MB in size. No individual row in the collection can be more than 10 KB.\n",
+        "description": "Create a new collection and provide the `data` that you'll access from the collection or the `url` that you'll download CSV or JSON data from.\n\n**Note**: A collection can't be larger than 10 MB, and each top-level field in a row can hold up to 10,000 characters. The total size of all collections in your account can't exceed 5 GB. Customer.io rejects a request that would take your account over that limit.\n",
         "tags": [
           "Collections"
         ],
@@ -220252,7 +220252,7 @@
       },
       "put": {
         "summary": "Update a collection",
-        "description": "Update the `name` or replace the contents of a collection. Updating the `data` or `url` for your collection fully replaces the contents of the collection.\n\n**Note**: \n* If you reference your collection by name in active automation messages, changing the name of the collection will cause references to the previous name to return an empty data set.\n* A collection cannot be more than 10 MB in size. No individual row in the collection can be more than 10 KB.\n",
+        "description": "Update the `name` or replace the contents of a collection. Updating the `data` or `url` for your collection fully replaces the contents of the collection.\n\n**Note**: \n* If you reference your collection by name in active automation messages, changing the name of the collection will cause references to the previous name to return an empty data set.\n* A collection can't be larger than 10 MB, and each top-level field in a row can hold up to 10,000 characters. The total size of all collections in your account can't exceed 5 GB. Customer.io rejects a request that would take your account over that limit.\n",
         "tags": [
           "Collections"
         ],
@@ -220628,7 +220628,7 @@
       },
       "put": {
         "summary": "Update the contents of a collection",
-        "description": "Replace the contents of a collection (the `data` from when you created or updated a collection). The request is a free-form object containing the keys you want to reference from the collection and the corresponding values. This request replaces the current contents of the collection entirely.\n\nIf you don't want to update the contents directly—you want to change the `name` or data `url` for your collection, use the [update a collection](/integrations/api/app/tag/collections/updateCollection/) endpoint.\n\n**Note**: A collection cannot be more than 10 MB in size. No individual row in the collection can be more than 10 KB.\n",
+        "description": "Replace the contents of a collection (the `data` from when you created or updated a collection). The request is a free-form object containing the keys you want to reference from the collection and the corresponding values. This request replaces the current contents of the collection entirely.\n\nIf you don't want to update the contents directly—you want to change the `name` or data `url` for your collection, use the [update a collection](/integrations/api/app/tag/collections/updateCollection/) endpoint.\n\n**Note**: A collection can't be larger than 10 MB, and each top-level field in a row can hold up to 10,000 characters. The total size of all collections in your account can't exceed 5 GB. Customer.io rejects a request that would take your account over that limit.\n",
         "tags": [
           "Collections"
         ],
