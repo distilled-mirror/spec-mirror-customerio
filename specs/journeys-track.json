@@ -57116,6 +57116,9 @@
           }
         }
       },
+      "403-public-key": {
+        "description": "A public key (`pk_`) can't call this endpoint. Use a private key (`sk_`) or your legacy Site ID and Track API key."
+      },
       "404-broadcasts": {
         "description": "The broadcast, action, and/or trigger do not exist."
       },
@@ -57241,7 +57244,12 @@
       "Tracking-API-Key": {
         "type": "http",
         "scheme": "basic",
-        "description": "The Track API uses a basic authentication scheme. Your credentials are your **Site ID** and your **API key**, **Base-64 encoded** in the format `site_id:api_key`.\n\nYou can find your Site ID and API key on the [Track API Keys page](https://fly.customer.io/settings/api_credentials).\n"
+        "description": "Legacy Track credentials: your **Site ID** and **Track API key**, **Base-64 encoded** in the format `site_id:api_key`. For new integrations, use a private or public key as a bearer token instead.\n\nYou can find your Site ID and Track API key on the [API Credentials page](https://fly.customer.io/settings/api_credentials).\n"
+      },
+      "Track-Bearer-Auth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "A private key (`sk_`) or public key (`pk_`), used as `Authorization: Bearer <key>`. To route Track API data to destinations outside Customer.io, associate your public or private key with an integration source. Customer.io uses the integration source to determine where to send traffic from the key. If your workspace is configured to route Track API data to destinations outside Customer.io, the Track API rejects requests made with a key that has no integration source (`403 Forbidden`). Create keys on the [API Credentials page](https://fly.customer.io/settings/api_credentials).\n\nUse a private key on your server. Use a public key in a browser or mobile app.\n"
       }
     }
   },
@@ -57249,7 +57257,7 @@
   "info": {
     "version": "1.0.0",
     "title": "Customer.io Track API",
-    "description": "# Overview\n\nOur Track API provides ways to send real-time customer data to your Customer.io workspace including customer identification and event tracking.\n\n# Use our Postman collection\n\nWe've generated a Postman collection to help you get started with our APIs.\n\nIf you fork this collection, you might want to disable the *Watch original collection* option. We automatically update our Postman collection whenever we release changes to our documentation, even if we don't change our APIs—which happens daily! Rather than being flooded with Postman notifications, you can check out our [Release Notes](/release-notes/) for updates to our APIs.\n\n**NOTE**: Postman endpoints default to our US APIs. If you're in our European (EU) region, you'll need to add `-eu` to the server variables (`track_api_url` and `app_api_url`).\n\n[<img src=\"https://run.pstmn.io/button.svg\" alt=\"Run In Postman\" style=\"width: 128px; height: 32px;\">](https://god.gw.postman.com/run-collection/23697545-0f7ae1e8-8177-46fc-808a-2fd363dd52b9?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D23697545-0f7ae1e8-8177-46fc-808a-2fd363dd52b9%26entityType%3Dcollection%26workspaceId%3Db886877f-fc09-475f-84fe-6221a98f4d18#?env%5BCustomer.io%20API%20Environment%5D=W3sia2V5IjoidHJhY2tfYXBpX3VybCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiJ0cmFjay5jdXN0b21lci5pbyIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBwX2FwaV91cmwiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiYXBpLmN1c3RvbWVyLmlvIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzaXRlX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBpX2tleSIsInR5cGUiOiJzZWNyZXQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYmVhcmVyIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYnJvYWRjYXN0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaW1wb3J0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiZW1haWxfYWRkcmVzcyIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InN1cHByZXNzaW9uX3R5cGUiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjb2xsZWN0aW9uX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoic25pcHBldF9uYW1lIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoid2ViaG9va19pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InNlbmRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImV4cG9ydF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6Im1lc3NhZ2VfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzZWdtZW50X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoibmV3c2xldHRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImNvbnRlbnRfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjYW1wYWlnbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImFjdGlvbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImN1c3RvbWVyX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoidHJhbnNhY3Rpb25hbF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRyaWdnZXJfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJmb3JtX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaWRlbnRpZmllciIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRldmljZV9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRlbGl2ZXJ5X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9XQ==)\n\n# Server addresses: US and EU\nCustomer.io hosts services in the United States (US) and European Union. Select the appropriate server address for your region.\n\n| Region | Server Address |\n| :-- | :-- |\n| US | https://track.customer.io |\n| EU | https://track-eu.customer.io |\n\nNote that if your account is in the EU region and you send traffic to our US endpoints, we'll redirect it accordingly but this traffic still passes through US servers and data could be logged in the US.\n\n# Authentication \n\nYou can find all of your API authentication information in your [Account Settings](https://fly.customer.io/settings/api_credentials). Our Tracking API uses HTTP basic authorization. The App API uses bearer authorization, and you can generate tokens supporting different scopes. Each operation in this document references the authorization header it requires.\n\n# v1 vs v2 APIs\n\nMost of the time, when we talk about *The Track API*, we're talking about the v1 API because the v2 API isn't used in any of our libraries and rarely used in libraries built by third parties; it's much more common that you'd encounter the v1 API.\n\nIf you're integrating with Customer.io using one of our libraries, or a third party customer data platform (CDP) like Segment or Rudderstack, you'll be using the v1 API.\n\nThe v2 API is newer and supports two important features that the v1 API doesn't natively support: objects and batching. But, if you're integrating directly with our API, we suggest you use the [Pipelines API](/integrations/api/cdp/). The Pipelines API supports both objects, batching, *and* all of our newest integrations and libraries are based on it.\n\n# Rate Limits\n\nThe Track API has no fixed rate limit. Customer.io accepts your requests as fast as you send them and doesn't reject or drop them because of volume. Our general guideline is about 3000 requests per 3 seconds, an average of 1000 requests per second. The 3-second window leaves room for short bursts.\n\nTraffic above this level usually comes from high-volume integrations, which our Premium and Enterprise plans support. If your traffic regularly goes above this, we may contact you to learn more about your integration and talk about optimizing it, or about a plan that better suits your volume.\n\n**This guideline is subject to change.**\n\nBelow are the payload size limits for the Track API. If any of these limits are too restrictive for your needs, contact support to let us know your situation as we may be able to accommodate special circumstances. \n\n## Customer limits\n\nThese limits apply to people and their attributes, often referred to as \"customers\" in our APIs.\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| ID | 150 bytes | Max length of a person's ID value |\n| Attribute Name | 150 bytes | Max length of each attribute name |\n| Attribute Value | 1000 bytes | Max length of attribute values |\n| Unique attributes | 300 | Max number of attributes allowed per person or Identify call |\n\n## Object and relationship limits\n\nObjects (groups) and relationships between people and objects can have their own attributes. Their limits are similar to people (customers).\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Object ID | 150 bytes | Max length of a object's ID |\n| Attribute Names | 150 bytes | Max length of each attribute name |\n| Attribute Values | 1000 bytes | Max length of attribute values |\n| Unique attributes | 300 | Max number of attributes allowed per object or relationship |\n| Total attribute size | 100 Kilobytes | Max size of all attributes associated with an object or relationship |\n\n## Track API Event limits\n\nThese limits apply to events that you'll send with the `/v1/track` call.\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Event Name | 100 bytes | Max length of each event name |\n| Event Data | 100000 bytes | Max length of each event data |\n\n\n## v2 API Limits\n\nThe v2 API has two endpoints, both of which have limits on the total size of requests. \n* `/entity` is limited to requests 32kb or smaller.\n* `/batch` is limited to requests 500kb or smaller.\n  \n  Each of the requests within a batch must also be 32kb or smaller.\n"
+    "description": "# Overview\n\nOur Track API provides ways to send real-time customer data to your Customer.io workspace including customer identification and event tracking.\n\n# Use our Postman collection\n\nWe've generated a Postman collection to help you get started with our APIs.\n\nIf you fork this collection, you might want to disable the *Watch original collection* option. We automatically update our Postman collection whenever we release changes to our documentation, even if we don't change our APIs—which happens daily! Rather than being flooded with Postman notifications, you can check out our [Release Notes](/release-notes/) for updates to our APIs.\n\n**NOTE**: Postman endpoints default to our US APIs. If you're in our European (EU) region, you'll need to add `-eu` to the server variables (`track_api_url` and `app_api_url`).\n\n[<img src=\"https://run.pstmn.io/button.svg\" alt=\"Run In Postman\" style=\"width: 128px; height: 32px;\">](https://god.gw.postman.com/run-collection/23697545-0f7ae1e8-8177-46fc-808a-2fd363dd52b9?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D23697545-0f7ae1e8-8177-46fc-808a-2fd363dd52b9%26entityType%3Dcollection%26workspaceId%3Db886877f-fc09-475f-84fe-6221a98f4d18#?env%5BCustomer.io%20API%20Environment%5D=W3sia2V5IjoidHJhY2tfYXBpX3VybCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiJ0cmFjay5jdXN0b21lci5pbyIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBwX2FwaV91cmwiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiYXBpLmN1c3RvbWVyLmlvIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzaXRlX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBpX2tleSIsInR5cGUiOiJzZWNyZXQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYmVhcmVyIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYnJvYWRjYXN0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaW1wb3J0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiZW1haWxfYWRkcmVzcyIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InN1cHByZXNzaW9uX3R5cGUiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjb2xsZWN0aW9uX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoic25pcHBldF9uYW1lIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoid2ViaG9va19pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InNlbmRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImV4cG9ydF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6Im1lc3NhZ2VfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzZWdtZW50X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoibmV3c2xldHRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImNvbnRlbnRfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjYW1wYWlnbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImFjdGlvbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImN1c3RvbWVyX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoidHJhbnNhY3Rpb25hbF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRyaWdnZXJfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJmb3JtX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaWRlbnRpZmllciIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRldmljZV9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRlbGl2ZXJ5X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9XQ==)\n\n# Server addresses: US and EU\nCustomer.io hosts services in the United States (US) and European Union. Select the appropriate server address for your region.\n\n| Region | Server Address |\n| :-- | :-- |\n| US | https://track.customer.io |\n| EU | https://track-eu.customer.io |\n\nNote that if your account is in the EU region and you send traffic to our US endpoints, we'll redirect it accordingly but this traffic still passes through US servers and data could be logged in the US.\n\n# Authentication \n\nUse a **private key** (`sk_`) or **public key** (`pk_`) as a bearer token: `Authorization: Bearer sk_us_...`. To route Track API data to destinations outside Customer.io, associate your public or private key with an integration source. Customer.io uses the integration source to determine where to send traffic from the key. If your workspace is configured to route Track API data to destinations outside Customer.io, the Track API rejects requests made with a key that has no integration source (`403 Forbidden`). When you create a key on the [API Credentials page](https://fly.customer.io/settings/api_credentials), choose where you'll use the key under **Used in**. Use a private key on your server and a public key in a browser or mobile app. [Learn more about public and private keys](/accounts/settings/managing-credentials/#public-and-private-keys).\n\n**Legacy credentials:** If your integration uses a Site ID and Track API key, you can keep using them with Basic authentication. Each operation on this page lists both kinds of credentials. You can find your Site ID on the [API Credentials page](https://fly.customer.io/settings/api_credentials). You might also need it to set up in-app messaging in an older version of a mobile SDK.\n\n# v1 vs v2 APIs\n\nMost of the time, when we talk about *The Track API*, we're talking about the v1 API because the v2 API isn't used in any of our libraries and rarely used in libraries built by third parties; it's much more common that you'd encounter the v1 API.\n\nIf you're integrating with Customer.io using one of our libraries, or a third party customer data platform (CDP) like Segment or Rudderstack, you'll be using the v1 API.\n\nThe v2 API is newer and supports two important features that the v1 API doesn't natively support: objects and batching. But, if you're integrating directly with our API, we suggest you use the [Pipelines API](/integrations/api/cdp/). The Pipelines API supports both objects, batching, *and* all of our newest integrations and libraries are based on it.\n\n# Rate Limits\n\nThe Track API has no fixed rate limit. Customer.io accepts your requests as fast as you send them and doesn't reject or drop them because of volume. Our general guideline is about 3000 requests per 3 seconds, an average of 1000 requests per second. The 3-second window leaves room for short bursts.\n\nTraffic above this level usually comes from high-volume integrations, which our Premium and Enterprise plans support. If your traffic regularly goes above this, we may contact you to learn more about your integration and talk about optimizing it, or about a plan that better suits your volume.\n\n**This guideline is subject to change.**\n\nBelow are the payload size limits for the Track API. If any of these limits are too restrictive for your needs, contact support to let us know your situation as we may be able to accommodate special circumstances. \n\n## Customer limits\n\nThese limits apply to people and their attributes, often referred to as \"customers\" in our APIs.\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| ID | 150 bytes | Max length of a person's ID value |\n| Attribute Name | 150 bytes | Max length of each attribute name |\n| Attribute Value | 1000 bytes | Max length of attribute values |\n| Unique attributes | 300 | Max number of attributes allowed per person or Identify call |\n\n## Object and relationship limits\n\nObjects (groups) and relationships between people and objects can have their own attributes. Their limits are similar to people (customers).\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Object ID | 150 bytes | Max length of a object's ID |\n| Attribute Names | 150 bytes | Max length of each attribute name |\n| Attribute Values | 1000 bytes | Max length of attribute values |\n| Unique attributes | 300 | Max number of attributes allowed per object or relationship |\n| Total attribute size | 100 Kilobytes | Max size of all attributes associated with an object or relationship |\n\n## Track API Event limits\n\nThese limits apply to events that you'll send with the `/v1/track` call.\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Event Name | 100 bytes | Max length of each event name |\n| Event Data | 100000 bytes | Max length of each event data |\n\n\n## v2 API Limits\n\nThe v2 API has two endpoints, both of which have limits on the total size of requests. \n* `/entity` is limited to requests 32kb or smaller.\n* `/batch` is limited to requests 500kb or smaller.\n  \n  Each of the requests within a batch must also be 32kb or smaller.\n"
   },
   "tags": [
     {
@@ -57289,11 +57297,11 @@
   "servers": [
     {
       "url": "https://track.customer.io",
-      "description": "The base URL for the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+      "description": "The base URL for the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
     },
     {
       "url": "https://track-eu.customer.io",
-      "description": "The base URL for the Track API (EU region). Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+      "description": "The base URL for the Track API (EU region). Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
     }
   ],
   "paths": {
@@ -57306,6 +57314,9 @@
           "trackRegion"
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -57354,6 +57365,9 @@
           },
           "401": {
             "description": "Unauthorized request. Make sure that you provided the right credentials."
+          },
+          "403": {
+            "description": "A public key (`pk_`) can't call this endpoint. Use a private key (`sk_`) or your legacy Site ID and Track API key."
           }
         }
       }
@@ -57400,10 +57414,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -57668,10 +57685,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -57682,6 +57702,9 @@
           },
           "401": {
             "description": "Unauthorized request. Make sure that you provided the right credentials."
+          },
+          "403": {
+            "description": "A public key (`pk_`) can't call this endpoint. Use a private key (`sk_`) or your legacy Site ID and Track API key."
           }
         },
         "x-codeSamples": [
@@ -57750,10 +57773,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -57967,10 +57993,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -58074,10 +58103,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -58088,6 +58120,9 @@
           },
           "401": {
             "description": "Unauthorized request. Make sure that you provided the right credentials."
+          },
+          "403": {
+            "description": "A public key (`pk_`) can't call this endpoint. Use a private key (`sk_`) or your legacy Site ID and Track API key."
           }
         },
         "x-codeSamples": [
@@ -58151,10 +58186,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -58165,6 +58203,9 @@
           },
           "401": {
             "description": "Unauthorized request. Make sure that you provided the right credentials."
+          },
+          "403": {
+            "description": "A public key (`pk_`) can't call this endpoint. Use a private key (`sk_`) or your legacy Site ID and Track API key."
           }
         },
         "x-codeSamples": [
@@ -58282,10 +58323,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -58541,10 +58585,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -58815,10 +58862,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -58931,6 +58981,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "A public key (`pk_`) can't call this endpoint. Use a private key (`sk_`) or your legacy Site ID and Track API key."
           }
         },
         "x-codeSamples": [
@@ -58953,10 +59006,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -59101,6 +59157,9 @@
           },
           "401": {
             "description": "Unauthorized request. Make sure that you provided the right credentials."
+          },
+          "403": {
+            "description": "A public key (`pk_`) can't call this endpoint. Use a private key (`sk_`) or your legacy Site ID and Track API key."
           }
         },
         "x-codeSamples": [
@@ -59495,10 +59554,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -59565,6 +59627,9 @@
           },
           "401": {
             "description": "Unauthorized request. Make sure that you provided the right credentials."
+          },
+          "403": {
+            "description": "A public key (`pk_`) can't call this endpoint. Use a private key (`sk_`) or your legacy Site ID and Track API key."
           }
         },
         "x-codeSamples": [
@@ -59614,10 +59679,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -59684,6 +59752,9 @@
           },
           "401": {
             "description": "Unauthorized request. Make sure that you provided the right credentials."
+          },
+          "403": {
+            "description": "A public key (`pk_`) can't call this endpoint. Use a private key (`sk_`) or your legacy Site ID and Track API key."
           }
         },
         "x-codeSamples": [
@@ -59706,10 +59777,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -62126,7 +62200,7 @@
             "description": "A successful request returns an empty object response."
           },
           "400": {
-            "description": "The request was malformed or invalid.",
+            "description": "The request was malformed or invalid. Customer.io also returns a `400` with the reason `forbidden` when a public key (`pk_`) deletes, suppresses, unsuppresses, or merges a person, or deletes an object.",
             "content": {
               "application/json": {
                 "schema": {
@@ -62183,10 +62257,13 @@
         "servers": [
           {
             "url": "https://track.customer.io",
-            "description": "This endpoint is a part of the Track API. Track endpoints use basic authentication with your Site ID as the user name and your secret key as the password."
+            "description": "This endpoint is a part of the Track API. Use a private or public key as a bearer token. Legacy Site ID and Track API key pairs also work with Basic authentication."
           }
         ],
         "security": [
+          {
+            "Track-Bearer-Auth": []
+          },
           {
             "Tracking-API-Key": []
           }
@@ -64636,7 +64713,7 @@
             "description": "A successful request returns an empty object response."
           },
           "207": {
-            "description": "At least one object in the batch was invalid; all other requests are accepted. This response contains a list of errors for the invalid objects in the batch.",
+            "description": "At least one object in the batch was invalid; all other requests are accepted. This response contains a list of errors for the invalid objects in the batch. A public key (`pk_`) that deletes, suppresses, unsuppresses, or merges a person, or deletes an object, gets an error with the reason `forbidden` for that object.",
             "content": {
               "application/json": {
                 "schema": {
