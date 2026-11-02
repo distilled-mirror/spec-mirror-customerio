@@ -834,6 +834,11 @@
             "description": "The identifier for the collection. This is how you'll reference the collection from the API.",
             "example": 1
           },
+          "key_field": {
+            "type": "string",
+            "description": "The attribute that holds each row's unique key. Absent when the collection has no key field.",
+            "example": "sku"
+          },
           "name": {
             "type": "string",
             "description": "The name of the collection. This is how you'll reference the collection in liquid, e.g. `{{collection_name.data_property}}`.",
@@ -863,6 +868,91 @@
             "description": "The date time when the referenced ID was last updated.",
             "example": 1552341937,
             "readOnly": true
+          }
+        }
+      },
+      "collectionKeyField": {
+        "x-scalar-ignore": true,
+        "type": "string",
+        "description": "The attribute that holds each row's unique key, like `sku`, similar to a primary key in a database table. Set a key field to add, change, delete, or read individual rows without replacing the whole collection. Each row needs a unique, non-empty string or number in this attribute, up to 1,024 bytes.",
+        "example": "sku"
+      },
+      "collectionWrite": {
+        "x-scalar-ignore": true,
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Why the write failed. Present only when `state` is `failed`.",
+            "enum": [
+              "storage-limit-reached",
+              "too-large",
+              "too-large-to-key",
+              "invalid-data",
+              "no-key-field",
+              "items",
+              "source-unauthorized",
+              "superseded",
+              "expired",
+              "canceled",
+              "collection-not-found"
+            ],
+            "example": "items"
+          },
+          "id": {
+            "type": "string",
+            "description": "The identifier for the write. Use it to look up the write's status.",
+            "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+          },
+          "items": {
+            "type": "array",
+            "description": "For a keyed write that failed with `items`, the rows that couldn't be applied. Customer.io didn't apply any of the write's rows.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "Why the row failed.",
+                  "enum": [
+                    "key-already-exists",
+                    "item-not-found",
+                    "missing-key",
+                    "duplicate-key",
+                    "key-too-long",
+                    "key-field-repeated",
+                    "field-too-long",
+                    "not-an-object"
+                  ],
+                  "example": "key-already-exists"
+                },
+                "index": {
+                  "type": "integer",
+                  "description": "The row's position in the write's `data` array, starting at 0.",
+                  "example": 0
+                },
+                "key": {
+                  "type": "string",
+                  "description": "The row's key, when it has one.",
+                  "example": "A-100"
+                }
+              }
+            }
+          },
+          "message": {
+            "type": "string",
+            "description": "A readable explanation of the failure.",
+            "example": "item 0 (\"A-100\"): key-already-exists"
+          },
+          "state": {
+            "type": "string",
+            "description": "Where the write stands. `replaced` means a newer `replace` write made this one unnecessary, so Customer.io skipped it.",
+            "enum": [
+              "queued",
+              "applied",
+              "replaced",
+              "failed"
+            ],
+            "example": "failed"
           }
         }
       },

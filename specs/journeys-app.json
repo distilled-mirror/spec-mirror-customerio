@@ -867,6 +867,11 @@
             "description": "The identifier for the collection. This is how you'll reference the collection from the API.",
             "example": 1
           },
+          "key_field": {
+            "type": "string",
+            "description": "The attribute that holds each row's unique key. Absent when the collection has no key field.",
+            "example": "sku"
+          },
           "name": {
             "type": "string",
             "description": "The name of the collection. This is how you'll reference the collection in liquid, e.g. `{{collection_name.data_property}}`.",
@@ -896,6 +901,91 @@
             "description": "The date time when the referenced ID was last updated.",
             "example": 1552341937,
             "readOnly": true
+          }
+        }
+      },
+      "collectionKeyField": {
+        "x-scalar-ignore": true,
+        "type": "string",
+        "description": "The attribute that holds each row's unique key, like `sku`, similar to a primary key in a database table. Set a key field to add, change, delete, or read individual rows without replacing the whole collection. Each row needs a unique, non-empty string or number in this attribute, up to 1,024 bytes.",
+        "example": "sku"
+      },
+      "collectionWrite": {
+        "x-scalar-ignore": true,
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Why the write failed. Present only when `state` is `failed`.",
+            "enum": [
+              "storage-limit-reached",
+              "too-large",
+              "too-large-to-key",
+              "invalid-data",
+              "no-key-field",
+              "items",
+              "source-unauthorized",
+              "superseded",
+              "expired",
+              "canceled",
+              "collection-not-found"
+            ],
+            "example": "items"
+          },
+          "id": {
+            "type": "string",
+            "description": "The identifier for the write. Use it to look up the write's status.",
+            "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+          },
+          "items": {
+            "type": "array",
+            "description": "For a keyed write that failed with `items`, the rows that couldn't be applied. Customer.io didn't apply any of the write's rows.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "Why the row failed.",
+                  "enum": [
+                    "key-already-exists",
+                    "item-not-found",
+                    "missing-key",
+                    "duplicate-key",
+                    "key-too-long",
+                    "key-field-repeated",
+                    "field-too-long",
+                    "not-an-object"
+                  ],
+                  "example": "key-already-exists"
+                },
+                "index": {
+                  "type": "integer",
+                  "description": "The row's position in the write's `data` array, starting at 0.",
+                  "example": 0
+                },
+                "key": {
+                  "type": "string",
+                  "description": "The row's key, when it has one.",
+                  "example": "A-100"
+                }
+              }
+            }
+          },
+          "message": {
+            "type": "string",
+            "description": "A readable explanation of the failure.",
+            "example": "item 0 (\"A-100\"): key-already-exists"
+          },
+          "state": {
+            "type": "string",
+            "description": "Where the write stands. `replaced` means a newer `replace` write made this one unnecessary, so Customer.io skipped it.",
+            "enum": [
+              "queued",
+              "applied",
+              "replaced",
+              "failed"
+            ],
+            "example": "failed"
           }
         }
       },
@@ -219600,6 +219690,12 @@
                       "name": {
                         "type": "string",
                         "description": "The name of the collection. This is how you'll reference your collection in messages—`{{collection_name.data-property}}`."
+                      },
+                      "key_field": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The attribute that holds each row's unique key, like `sku`, similar to a primary key in a database table. Set a key field to add, change, delete, or read individual rows without replacing the whole collection. Each row needs a unique, non-empty string or number in this attribute, up to 1,024 bytes.",
+                        "example": "sku"
                       }
                     }
                   },
@@ -219619,6 +219715,12 @@
                         "type": "string",
                         "format": "url",
                         "description": "The URL for your CSV or JSON data. If your URL does not return a `Content-Type`, we use the file extension; otherwise, Customer.io assumes your data is JSON.\n"
+                      },
+                      "key_field": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The attribute that holds each row's unique key, like `sku`, similar to a primary key in a database table. Set a key field to add, change, delete, or read individual rows without replacing the whole collection. Each row needs a unique, non-empty string or number in this attribute, up to 1,024 bytes.",
+                        "example": "sku"
                       }
                     }
                   }
@@ -219679,6 +219781,11 @@
                           "type": "integer",
                           "description": "The identifier for the collection. This is how you'll reference the collection from the API.",
                           "example": 1
+                        },
+                        "key_field": {
+                          "type": "string",
+                          "description": "The attribute that holds each row's unique key. Absent when the collection has no key field.",
+                          "example": "sku"
                         },
                         "name": {
                           "type": "string",
@@ -219851,6 +219958,11 @@
                             "type": "integer",
                             "description": "The identifier for the collection. This is how you'll reference the collection from the API.",
                             "example": 1
+                          },
+                          "key_field": {
+                            "type": "string",
+                            "description": "The attribute that holds each row's unique key. Absent when the collection has no key field.",
+                            "example": "sku"
                           },
                           "name": {
                             "type": "string",
@@ -220031,6 +220143,11 @@
                           "type": "integer",
                           "description": "The identifier for the collection. This is how you'll reference the collection from the API.",
                           "example": 1
+                        },
+                        "key_field": {
+                          "type": "string",
+                          "description": "The attribute that holds each row's unique key. Absent when the collection has no key field.",
+                          "example": "sku"
                         },
                         "name": {
                           "type": "string",
@@ -220255,7 +220372,7 @@
       },
       "put": {
         "summary": "Update a collection",
-        "description": "Update the `name` or replace the contents of a collection. Updating the `data` or `url` for your collection fully replaces the contents of the collection.\n\n**Note**: \n* If you reference your collection by name in active automation messages, changing the name of the collection will cause references to the previous name to return an empty data set.\n* A collection can't be larger than 10 MB, and each top-level field in a row can hold up to 10,000 characters. The total size of all collections in your account can't exceed 5 GB. Customer.io rejects a request that would take your account over that limit.\n",
+        "description": "Update the `name` or replace the contents of a collection. Updating the `data` or `url` for your collection fully replaces the contents of the collection.\n\nSend `key_field` on its own to add or change the collection's key field without replacing its rows, or send an empty string to remove it.\n\n**Note**: \n* If you reference your collection by name in active automation messages, changing the name of the collection will cause references to the previous name to return an empty data set.\n* A collection can't be larger than 10 MB, and each top-level field in a row can hold up to 10,000 characters. The total size of all collections in your account can't exceed 5 GB. Customer.io rejects a request that would take your account over that limit.\n",
         "tags": [
           "Collections"
         ],
@@ -220284,6 +220401,12 @@
                           }
                         }
                       },
+                      "key_field": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The attribute that holds each row's unique key, like `sku`, similar to a primary key in a database table. Set a key field to add, change, delete, or read individual rows without replacing the whole collection. Each row needs a unique, non-empty string or number in this attribute, up to 1,024 bytes.",
+                        "example": "sku"
+                      },
                       "name": {
                         "type": "string",
                         "description": "The name of the collection. This is how you'll reference your collection in messages—`{{collection_name.data-property}}`."
@@ -220294,6 +220417,12 @@
                     "title": "Data by URL",
                     "type": "object",
                     "properties": {
+                      "key_field": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The attribute that holds each row's unique key, like `sku`, similar to a primary key in a database table. Set a key field to add, change, delete, or read individual rows without replacing the whole collection. Each row needs a unique, non-empty string or number in this attribute, up to 1,024 bytes.",
+                        "example": "sku"
+                      },
                       "name": {
                         "type": "string",
                         "description": "The name of the collection. This is how you'll reference your collection in messages—`{{collection_name.data-property}}`."
@@ -220362,6 +220491,11 @@
                           "type": "integer",
                           "description": "The identifier for the collection. This is how you'll reference the collection from the API.",
                           "example": 1
+                        },
+                        "key_field": {
+                          "type": "string",
+                          "description": "The attribute that holds each row's unique key. Absent when the collection has no key field.",
+                          "example": "sku"
                         },
                         "name": {
                           "type": "string",
@@ -220512,7 +220646,7 @@
       ],
       "get": {
         "summary": "Lookup collection contents",
-        "description": "Retrieve the contents of a collection (the `data` from when you created or updated a collection). Each `row` in the collection is represented as a JSON blob in the response.",
+        "description": "Retrieve the rows of a collection.\n\nWithout query parameters, this request returns the whole collection as JSON Lines: each line of the response is one row, as a JSON object. Use `keys` to read specific rows from a collection with a key field, or `limit` and `cursor` to page through the collection. Both return a JSON object with a `rows` array instead.\n",
         "tags": [
           "Collections"
         ],
@@ -220522,24 +220656,99 @@
             "Bearer-Auth": []
           }
         ],
+        "parameters": [
+          {
+            "name": "keys",
+            "in": "query",
+            "description": "The keys of the rows you want, separated by commas. The collection needs a key field. Customer.io returns rows in the order of your keys, and leaves out keys that don't match a row.",
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "maxItems": 1000,
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": [
+              "A-100",
+              "A-101"
+            ]
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of rows to return in a page.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 1000
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "The `next_cursor` from the previous page. Leave it out to get the first page. Rows you change while you page show up in later pages. If a write rebuilds the collection while you page, like a large `replace`, the cursor expires and you need to start over.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Returns your collection's contents—the `data` (or `url` contents) from your POST or PUT call.",
+            "description": "Returns your collection's rows.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "x-additionalPropertiesName": "collection data"
-                  }
+                  "oneOf": [
+                    {
+                      "title": "Whole collection",
+                      "type": "string",
+                      "description": "Every row in the collection, one JSON object per line."
+                    },
+                    {
+                      "title": "Rows by key or page",
+                      "type": "object",
+                      "properties": {
+                        "next_cursor": {
+                          "type": "string",
+                          "description": "Pass this as `cursor` to get the next page. Absent on the last page and on reads by key."
+                        },
+                        "rows": {
+                          "type": "array",
+                          "description": "The rows you asked for.",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "x-additionalPropertiesName": "row data"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 },
-                "example": {
-                  "eventName": "christmas",
-                  "eventDate": {},
-                  "presents": {
-                    "something_you_want": "toys",
-                    "something_you_need": "socks",
-                    "total": 2
+                "examples": {
+                  "whole": {
+                    "summary": "Whole collection",
+                    "value": "{\"sku\":\"A-100\",\"price\":19}\n{\"sku\":\"A-101\",\"price\":24}\n{\"sku\":\"A-102\",\"price\":12}\n"
+                  },
+                  "rows": {
+                    "summary": "Rows by key or page",
+                    "value": {
+                      "next_cursor": "MS40NTg3NzM3ODMwNTQwNzA1Nzky",
+                      "rows": [
+                        {
+                          "sku": "A-100",
+                          "price": 19
+                        },
+                        {
+                          "sku": "A-101",
+                          "price": 24
+                        }
+                      ]
+                    }
                   }
                 }
               }
@@ -220547,6 +220756,9 @@
           },
           "404": {
             "description": "The collection `id` does not exist."
+          },
+          "409": {
+            "description": "A write rebuilt the collection since you read the `cursor`. Start again without one."
           },
           "429": {
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
@@ -220693,6 +220905,11 @@
                           "description": "The identifier for the collection. This is how you'll reference the collection from the API.",
                           "example": 1
                         },
+                        "key_field": {
+                          "type": "string",
+                          "description": "The attribute that holds each row's unique key. Absent when the collection has no key field.",
+                          "example": "sku"
+                        },
                         "name": {
                           "type": "string",
                           "description": "The name of the collection. This is how you'll reference the collection in liquid, e.g. `{{collection_name.data_property}}`.",
@@ -220820,6 +221037,602 @@
             "source": "{\n  \"eventName\": \"christmas\",\n  \"eventDate\": {},\n  \"presents\": {\n    \"something_you_want\": \"toys\",\n    \"something_you_need\": \"socks\",\n    \"total\": 2\n  }\n}"
           }
         ]
+      }
+    },
+    "/v1/collections/{collection_id}/writes": {
+      "parameters": [
+        {
+          "name": "collection_id",
+          "description": "The identifier for a collection.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "servers": [
+        {
+          "url": "https://api.customer.io",
+          "description": "This API uses bearer authorization, requiring a [token that you generate in the UI](https://fly.customer.io/settings/api_credentials?keyType=app)."
+        }
+      ],
+      "post": {
+        "summary": "Write to a collection",
+        "description": "Queue a change to a collection's rows and get a write `id` back right away, so large writes don't time out. Customer.io applies writes to a collection one at a time, in the order it receives them. Use [look up a collection write](/integrations/api/app/tag/collections/getCollectionWrite/) to check the result.\n\nUse `mode` to choose how to change the collection:\n\n- `replace` removes every row in the collection and adds the rows you send in `data` or at a `url`. You can set the collection's `key_field` in the same request.\n- `add`, `upsert`, `update`, and `delete` change only the rows whose keys you send, so the collection needs a key field. Customer.io applies a keyed write all or nothing: if any row in the request is invalid, Customer.io doesn't change any rows.\n",
+        "tags": [
+          "Collections"
+        ],
+        "operationId": "submitCollectionWrite",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "title": "Replace with data",
+                    "type": "object",
+                    "required": [
+                      "mode",
+                      "data"
+                    ],
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "description": "Every row of the collection. This replaces the collection's current rows.",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "x-additionalPropertiesName": "row data"
+                          }
+                        }
+                      },
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "replace"
+                        ]
+                      },
+                      "key_field": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The attribute that holds each row's unique key, like `sku`, similar to a primary key in a database table. Set a key field to add, change, delete, or read individual rows without replacing the whole collection. Each row needs a unique, non-empty string or number in this attribute, up to 1,024 bytes.",
+                        "example": "sku"
+                      }
+                    }
+                  },
+                  {
+                    "title": "Replace from URL",
+                    "type": "object",
+                    "required": [
+                      "mode",
+                      "url"
+                    ],
+                    "properties": {
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "replace"
+                        ]
+                      },
+                      "url": {
+                        "type": "string",
+                        "format": "url",
+                        "description": "The URL for your CSV or JSON data. If your URL doesn't return a `Content-Type`, Customer.io uses the file extension, and otherwise assumes your data is JSON."
+                      },
+                      "key_field": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "The attribute that holds each row's unique key, like `sku`, similar to a primary key in a database table. Set a key field to add, change, delete, or read individual rows without replacing the whole collection. Each row needs a unique, non-empty string or number in this attribute, up to 1,024 bytes.",
+                        "example": "sku"
+                      }
+                    }
+                  },
+                  {
+                    "title": "Change rows by key",
+                    "type": "object",
+                    "required": [
+                      "mode",
+                      "data"
+                    ],
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "description": "The rows to change. Each row is an object that holds the collection's key field.",
+                        "maxItems": 500,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "x-additionalPropertiesName": "row data"
+                          }
+                        }
+                      },
+                      "mode": {
+                        "type": "string",
+                        "description": "How to change the rows. `add` adds new rows, so each key must be new. `upsert` adds a row, or replaces the row that has the same key. `update` merges the fields you send into the row that has the same key, so each key must already exist. `delete` removes the rows with the keys you send, so each row needs only its key.\n",
+                        "enum": [
+                          "add",
+                          "upsert",
+                          "update",
+                          "delete"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              "examples": {
+                "upsert": {
+                  "summary": "Upsert rows by key",
+                  "value": {
+                    "data": [
+                      {
+                        "sku": "A-100",
+                        "price": 19
+                      },
+                      {
+                        "sku": "A-101",
+                        "price": 24
+                      }
+                    ],
+                    "mode": "upsert"
+                  }
+                },
+                "delete": {
+                  "summary": "Delete rows by key",
+                  "value": {
+                    "data": [
+                      {
+                        "sku": "A-100"
+                      }
+                    ],
+                    "mode": "delete"
+                  }
+                },
+                "replace": {
+                  "summary": "Replace every row and set a key field",
+                  "value": {
+                    "data": [
+                      {
+                        "sku": "A-100",
+                        "price": 19
+                      }
+                    ],
+                    "mode": "replace",
+                    "key_field": "sku"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Customer.io queued the write.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "write": {
+                      "x-scalar-ignore": true,
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "description": "Why the write failed. Present only when `state` is `failed`.",
+                          "enum": [
+                            "storage-limit-reached",
+                            "too-large",
+                            "too-large-to-key",
+                            "invalid-data",
+                            "no-key-field",
+                            "items",
+                            "source-unauthorized",
+                            "superseded",
+                            "expired",
+                            "canceled",
+                            "collection-not-found"
+                          ],
+                          "example": "items"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "The identifier for the write. Use it to look up the write's status.",
+                          "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+                        },
+                        "items": {
+                          "type": "array",
+                          "description": "For a keyed write that failed with `items`, the rows that couldn't be applied. Customer.io didn't apply any of the write's rows.",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string",
+                                "description": "Why the row failed.",
+                                "enum": [
+                                  "key-already-exists",
+                                  "item-not-found",
+                                  "missing-key",
+                                  "duplicate-key",
+                                  "key-too-long",
+                                  "key-field-repeated",
+                                  "field-too-long",
+                                  "not-an-object"
+                                ],
+                                "example": "key-already-exists"
+                              },
+                              "index": {
+                                "type": "integer",
+                                "description": "The row's position in the write's `data` array, starting at 0.",
+                                "example": 0
+                              },
+                              "key": {
+                                "type": "string",
+                                "description": "The row's key, when it has one.",
+                                "example": "A-100"
+                              }
+                            }
+                          }
+                        },
+                        "message": {
+                          "type": "string",
+                          "description": "A readable explanation of the failure.",
+                          "example": "item 0 (\"A-100\"): key-already-exists"
+                        },
+                        "state": {
+                          "type": "string",
+                          "description": "Where the write stands. `replaced` means a newer `replace` write made this one unnecessary, so Customer.io skipped it.",
+                          "enum": [
+                            "queued",
+                            "applied",
+                            "replaced",
+                            "failed"
+                          ],
+                          "example": "failed"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "write": {
+                    "id": "01JD8X4Q6R2W7N3K5M9P1T0VZC",
+                    "state": "queued"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The collection `id` does not exist."
+          },
+          "422": {
+            "description": "Customer.io couldn't accept the write. The response explains what to fix. For a keyed write, each error's `source.pointer` names the failed row, like `/data/attributes/data/1`."
+          },
+          "429": {
+            "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per 1s (reference a1b2c3)",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "json",
+            "label": "JSON",
+            "source": "{\n  \"data\": [\n    {\n      \"sku\": \"A-100\",\n      \"price\": 19\n    },\n    {\n      \"sku\": \"A-101\",\n      \"price\": 24\n    }\n  ],\n  \"mode\": \"upsert\"\n}"
+          }
+        ]
+      }
+    },
+    "/v1/collections/{collection_id}/writes/{write_id}": {
+      "parameters": [
+        {
+          "name": "collection_id",
+          "description": "The identifier for a collection.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        },
+        {
+          "name": "write_id",
+          "in": "path",
+          "required": true,
+          "description": "The `id` that Customer.io returned when you submitted the write.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "servers": [
+        {
+          "url": "https://api.customer.io",
+          "description": "This API uses bearer authorization, requiring a [token that you generate in the UI](https://fly.customer.io/settings/api_credentials?keyType=app)."
+        }
+      ],
+      "get": {
+        "summary": "Look up a collection write",
+        "description": "Returns the status of a change you submitted to a collection and, if the change failed, the reason. Customer.io keeps each result for 24 hours.",
+        "tags": [
+          "Collections"
+        ],
+        "operationId": "getCollectionWrite",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the status of the write operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "write": {
+                      "x-scalar-ignore": true,
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "description": "Why the write failed. Present only when `state` is `failed`.",
+                          "enum": [
+                            "storage-limit-reached",
+                            "too-large",
+                            "too-large-to-key",
+                            "invalid-data",
+                            "no-key-field",
+                            "items",
+                            "source-unauthorized",
+                            "superseded",
+                            "expired",
+                            "canceled",
+                            "collection-not-found"
+                          ],
+                          "example": "items"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "The identifier for the write. Use it to look up the write's status.",
+                          "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+                        },
+                        "items": {
+                          "type": "array",
+                          "description": "For a keyed write that failed with `items`, the rows that couldn't be applied. Customer.io didn't apply any of the write's rows.",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string",
+                                "description": "Why the row failed.",
+                                "enum": [
+                                  "key-already-exists",
+                                  "item-not-found",
+                                  "missing-key",
+                                  "duplicate-key",
+                                  "key-too-long",
+                                  "key-field-repeated",
+                                  "field-too-long",
+                                  "not-an-object"
+                                ],
+                                "example": "key-already-exists"
+                              },
+                              "index": {
+                                "type": "integer",
+                                "description": "The row's position in the write's `data` array, starting at 0.",
+                                "example": 0
+                              },
+                              "key": {
+                                "type": "string",
+                                "description": "The row's key, when it has one.",
+                                "example": "A-100"
+                              }
+                            }
+                          }
+                        },
+                        "message": {
+                          "type": "string",
+                          "description": "A readable explanation of the failure.",
+                          "example": "item 0 (\"A-100\"): key-already-exists"
+                        },
+                        "state": {
+                          "type": "string",
+                          "description": "Where the write stands. `replaced` means a newer `replace` write made this one unnecessary, so Customer.io skipped it.",
+                          "enum": [
+                            "queued",
+                            "applied",
+                            "replaced",
+                            "failed"
+                          ],
+                          "example": "failed"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "write": {
+                    "code": "items",
+                    "id": "01JD8X4Q6R2W7N3K5M9P1T0VZC",
+                    "items": [
+                      {
+                        "code": "key-already-exists",
+                        "index": 0,
+                        "key": "A-100"
+                      }
+                    ],
+                    "message": "item 0 (\"A-100\"): key-already-exists",
+                    "state": "failed"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Customer.io doesn't have a write with this `id` for the collection, either because it never existed or because its result expired."
+          },
+          "429": {
+            "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per 1s (reference a1b2c3)",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/v1/customers": {
