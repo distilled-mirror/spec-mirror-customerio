@@ -48942,8 +48942,11 @@
             "example": "bounces"
           },
           "suppressions": {
-            "type": "array",
-            "description": "The addresses suppressed in this category.",
+            "type": [
+              "array",
+              "null"
+            ],
+            "description": "The addresses suppressed in this category, or `null` if no addresses match.",
             "items": {
               "type": "object",
               "properties": {

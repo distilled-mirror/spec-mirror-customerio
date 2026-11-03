@@ -48967,8 +48967,11 @@
             "example": "bounces"
           },
           "suppressions": {
-            "type": "array",
-            "description": "The addresses suppressed in this category.",
+            "type": [
+              "array",
+              "null"
+            ],
+            "description": "The addresses suppressed in this category, or `null` if no addresses match.",
             "items": {
               "type": "object",
               "properties": {
@@ -196072,13 +196075,13 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Look up an email address to learn if, and why, it was suppressed by the email service provider (ESP).",
+        "description": "Look up an email address to learn if, and why, it was suppressed by the email service provider (ESP).\n\nCustomer.io checks the address against the bounces and spam reports on all of your sending domains. If it finds a match, the response includes the `category` and the suppression details. If the address isn't suppressed, `suppressions` is `null` and the response has no `category`.\n",
         "tags": [
           "ESP Suppression"
         ],
         "responses": {
           "200": {
-            "description": "Returns an array of suppressed email addresses.",
+            "description": "Returns the suppressed email addresses.",
             "content": {
               "application/json": {
                 "schema": {
@@ -196095,8 +196098,11 @@
                       "example": "bounces"
                     },
                     "suppressions": {
-                      "type": "array",
-                      "description": "The addresses suppressed in this category.",
+                      "type": [
+                        "array",
+                        "null"
+                      ],
+                      "description": "The addresses suppressed in this category, or `null` if no addresses match.",
                       "items": {
                         "type": "object",
                         "properties": {
@@ -196274,13 +196280,13 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Find addresses suppressed by the Email Service Provider (ESP) for a particular reason—bounces, blocks, spam reports, or invalid email addresses.\n\nYou can get up to 1000 addresses per request. Use the `offset` parameter to get addresses beyond the first 1000.\n\nIf you have multiple sending domains, we recommend querying for each domain separately, as an email address may be suppressed on multiple domains.\n\n**Note**: If you have a large number of suppressions, consider using the [Get ESP-suppressed emails by domain](/integrations/api/app/tag/esp-suppression/getDomainSuppressionsByType/) endpoint. It's more performant for large datasets.\n",
+        "description": "Find addresses that the email service provider (ESP) suppressed because of bounces or spam reports.\n\nYou can get up to 1000 addresses per request. Use the `offset` parameter to get addresses beyond the first 1000.\n\nOnly `bounces` and `spam_reports` return addresses. `suppressions` is `null` for `blocks`, `invalid_emails`, or when no addresses match. When `suppressions` is `null`, the response has no `category`.\n\nIf you have multiple sending domains, we recommend querying for each domain separately, as an email address may be suppressed on multiple domains.\n\n**Note**: If you have a large number of suppressions, consider using the [Get ESP-suppressed emails by domain](/integrations/api/app/tag/esp-suppression/getDomainSuppressionsByType/) endpoint. It's more performant for large datasets.\n",
         "tags": [
           "ESP Suppression"
         ],
         "responses": {
           "200": {
-            "description": "Returns an array of suppressed email addresses.",
+            "description": "Returns the suppressed email addresses.",
             "content": {
               "application/json": {
                 "schema": {
@@ -196297,8 +196303,11 @@
                       "example": "bounces"
                     },
                     "suppressions": {
-                      "type": "array",
-                      "description": "The addresses suppressed in this category.",
+                      "type": [
+                        "array",
+                        "null"
+                      ],
+                      "description": "The addresses suppressed in this category, or `null` if no addresses match.",
                       "items": {
                         "type": "object",
                         "properties": {
