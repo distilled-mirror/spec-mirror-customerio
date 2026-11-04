@@ -766,7 +766,8 @@
           "enum": [
             "id",
             "email",
-            "cio_id"
+            "cio_id",
+            "phone"
           ],
           "default": "id"
         }
@@ -11602,12 +11603,12 @@
             ],
             "format": "unix timestamp",
             "readOnly": true,
-            "description": "When the one-time send is scheduled to go out, or `null` if it has no active schedule. Always included.\n\n- A paused one-time send keeps its schedule, so this still has a value while `send_state` is `paused`.\n- After sending starts, this stores the next scheduled send if there is one, like the next timezone batch or the remainder of an A/B test.\n- When `tz_match_enabled` is `true`, the `scheduled_at` property is the time you asked for in the [schedule request](/integrations/api/app/tag/send-messages/scheduleNewsletter/) until sending starts.\n- If you send immediately instead of scheduling, there's a short delay before Customer.io starts sending. During that delay, `scheduled_at` isn't `null` and isn't a future time: it's the time you made the request, an earlier time, or `0`.\n"
+            "description": "When the one-time send is scheduled to go out, or `null` if it has no active schedule. Always included.\n\n- A paused one-time send keeps its schedule, so this still has a value while `send_state` is `paused`.\n- After sending starts, this stores the next scheduled send if there is one, like the next timezone batch or the remainder of an A/B test.\n- When `tz_match_enabled` is `true`, the `scheduled_at` property is the time you asked for in the [schedule request](/integrations/api/app/tag/send-messages/scheduleNewsletter/) until sending starts.\n- If you send immediately instead of scheduling, there's a short delay before Customer.io starts sending. During that delay, `scheduled_at` isn't `null` and isn't a future time: it's the time you made the request, an earlier time, or `0`.\n- While Customer.io [holds the send](/messaging/send/broadcasts/one-time-sends/#queued-sends) until its segments finish building, this is the next time Customer.io checks the segments.\n"
           },
           "send_state": {
             "type": "string",
             "readOnly": true,
-            "description": "Where the one-time send is in its lifecycle. Always included. This matches the status shown in Customer.io, with one exception noted under `awaiting_winner`.\n\n- `drafted`: The one-time send isn't scheduled and hasn't been sent.\n- `scheduled`: A send time is set and sending hasn't started.\n- `sending`: Sending has started and is still in progress. More batches are due (timezone-match batches or the remainder of an A/B test), or messages are still being delivered.\n- `sent`: The one-time send is no longer sending. This doesn't mean that every individual message has reached a final state.\n- `paused`: The one-time send is paused.\n- `stopped`: The one-time send was stopped.\n- `failed`: The one-time send failed.\n- `awaiting_winner`: An A/B test has started and is waiting for you to pick a winner before the rest of the audience gets it. Test messages might still be going out. Customer.io's UI stops showing \"awaiting winner\" 30 days after the first send, but the API keeps reporting `awaiting_winner` because you can still pick a winner.\n\nWhen more than one state applies, Customer.io reports the first match in this order: `stopped`, `failed`, `paused`, `awaiting_winner`, `sending`, `sent`, `scheduled`, `drafted`.\n",
+            "description": "Where the one-time send is in its lifecycle. Always included. This matches the status shown in Customer.io, with one exception noted under `awaiting_winner`.\n\n- `drafted`: The one-time send isn't scheduled and hasn't been sent.\n- `scheduled`: A send time is set and sending hasn't started. A scheduled send that Customer.io is holding until its segments finish building also reports `scheduled`.\n- `sending`: Sending has started and is still in progress. More batches are due (timezone-match batches or the remainder of an A/B test), or messages are still being delivered. A send-now send that Customer.io is holding until its segments finish building also reports `sending`.\n- `sent`: The one-time send is no longer sending. This doesn't mean that every individual message has reached a final state.\n- `paused`: The one-time send is paused.\n- `stopped`: The one-time send was stopped.\n- `failed`: The one-time send failed.\n- `awaiting_winner`: An A/B test has started and is waiting for you to pick a winner before the rest of the audience gets it. Test messages might still be going out. Customer.io's UI stops showing \"awaiting winner\" 30 days after the first send, but the API keeps reporting `awaiting_winner` because you can still pick a winner.\n\nWhen more than one state applies, Customer.io reports the first match in this order: `stopped`, `failed`, `paused`, `awaiting_winner`, `sending`, `sent`, `scheduled`, `drafted`.\n",
             "enum": [
               "drafted",
               "scheduled",
@@ -11973,6 +11974,14 @@
                 "in_app_converted",
                 "in_app_failed",
                 "in_app_undeliverable",
+                "inbox_drafted",
+                "inbox_attempted",
+                "inbox_sent",
+                "inbox_opened",
+                "inbox_clicked",
+                "inbox_converted",
+                "inbox_failed",
+                "inbox_undeliverable",
                 "push_drafted",
                 "push_attempted",
                 "push_sent",
@@ -59631,7 +59640,8 @@
             "enum": [
               "id",
               "email",
-              "cio_id"
+              "cio_id",
+              "phone"
             ],
             "default": "id"
           }
@@ -59643,7 +59653,7 @@
         ],
         "operationId": "add_to_segment",
         "summary": "Add people to a manual segment",
-        "description": "Add people to a manual segment by ID. You are limited to 1000 customer IDs per request.\n\nThis endpoint lets you add people to manual segments, but a segment must exist before you can add people to it. You can create and find manual segments using the [App API](/integrations/api/app/tag/segments/createManSegment/).\n\nWhen you call this API, you can pass an `id_type` query parameter determining the type of identifier you want to use, `id`, `email`, or `cio_id`; If you don't pass this parameter, it defaults to `id`. The request body always uses `ids`, even though it'll accept either IDs, emails, or `cio_id`s depending on the query parameter. Everybody in the payload must use the same kind of identifier; we'll ignore values in the `ids` array that don't match the `id_type` parameter.\n\n**NOTE**: You cannot add people to data-driven segments using the API. See [our documentation on segments](/journeys/segmentation/segments) for more information about segments.\n",
+        "description": "Add people to a manual segment by ID. You are limited to 1000 customer IDs per request.\n\nThis endpoint lets you add people to manual segments, but a segment must exist before you can add people to it. You can create and find manual segments using the [App API](/integrations/api/app/tag/segments/createManSegment/).\n\nWhen you call this API, you can pass an `id_type` query parameter determining the type of identifier you want to use: `id`, `email`, `cio_id`, or `phone`. If you don't pass this parameter, it defaults to `id`. The request body always uses `ids`, even though it'll accept IDs, emails, `cio_id`s, or phone numbers depending on the query parameter. Everybody in the payload must use the same kind of identifier; we'll ignore values in the `ids` array that don't match the `id_type` parameter.\n\nYour workspace must support [`email` or `phone` as identifiers](/accounts/workspaces/overview/#migrate-workspace) to support these values. These are on by default in new workspaces.\n\n**NOTE**: You cannot add people to data-driven segments using the API. See [our documentation on segments](/journeys/segmentation/segments) for more information about segments.\n",
         "servers": [
           {
             "url": "https://track.customer.io",
@@ -59670,7 +59680,7 @@
                 "properties": {
                   "ids": {
                     "type": "array",
-                    "description": "The customer IDs you want to add to the segment. The type of value you pass in the array corresponds to the `id_type` query parameter—`id`, `email`, or `cio_id`. Entries in the array that don't match the `id_type` are ignored.",
+                    "description": "The customer IDs you want to add to the segment. The type of value you pass in the array corresponds to the `id_type` query parameter—`id`, `email`, `cio_id`, or `phone`. Pass phone numbers in E.164 format, like `+14165552368`. Entries in the array that don't match the `id_type` are ignored.",
                     "maxItems": 1000,
                     "minItems": 1,
                     "items": {
@@ -59756,7 +59766,8 @@
             "enum": [
               "id",
               "email",
-              "cio_id"
+              "cio_id",
+              "phone"
             ],
             "default": "id"
           }
