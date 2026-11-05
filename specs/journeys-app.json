@@ -65,6 +65,15 @@
           "type": "integer"
         }
       },
+      "collection_source_id": {
+        "name": "source_id",
+        "description": "The identifier for a collection source (like a bucket in Amazon S3, Google Cloud Storage, or Azure Blob Storage).",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
       "delivery_id": {
         "name": "delivery_id",
         "description": "The delivery resulting in a request to unsubscribe.",
@@ -862,6 +871,11 @@
             "example": 1552341937,
             "readOnly": true
           },
+          "delete_field": {
+            "type": "string",
+            "description": "The attribute that marks a row for deletion in a write request or a synced file. Absent when the collection has no delete field.",
+            "example": "deleted"
+          },
           "id": {
             "type": "integer",
             "description": "The identifier for the collection. This is how you'll reference the collection from the API.",
@@ -910,36 +924,45 @@
         "description": "The attribute that holds each row's unique key, like `sku`, similar to a primary key in a database table. Set a key field to add, change, delete, or read individual rows without replacing the whole collection. Each row needs a unique, non-empty string or number in this attribute, up to 1,024 bytes.",
         "example": "sku"
       },
+      "collectionDeleteField": {
+        "x-scalar-ignore": true,
+        "type": "string",
+        "description": "An attribute that marks a row for deletion, like `deleted`. When a row in a write request or a synced file sets this attribute to `true`, or to the text `true`, `1`, or `yes` in any case, Customer.io deletes the row with the same key instead of saving it. Deleting a key that doesn't exist does nothing. Customer.io never keeps a row that this attribute marks. When you create or replace a collection, Customer.io leaves marked rows out. When you set a delete field on an existing collection, Customer.io deletes the rows it already marks. A row that isn't marked keeps the attribute as you sent it. The delete field can't be the same as the key field. Send an empty string to remove it.",
+        "maxLength": 255,
+        "example": "deleted"
+      },
       "collectionWrite": {
         "x-scalar-ignore": true,
         "type": "object",
         "properties": {
           "code": {
             "type": "string",
-            "description": "Why the write failed. Present only when `state` is `failed`.",
+            "description": "If the write request's `state` is `failed`, the code explains why. A write of up to 500 rows saves nothing when it fails, and a larger write keeps the rows it saved before it failed. `source-refused` means Customer.io couldn't download the file, or the source is gone or unusable. `replace-unfinished` means an earlier replacement stopped partway, so you need to replace the collection's rows again.",
             "enum": [
               "storage-limit-reached",
               "too-large",
-              "too-large-to-key",
               "invalid-data",
               "no-key-field",
+              "delete-field-is-key",
               "items",
               "source-unauthorized",
               "superseded",
               "expired",
               "canceled",
-              "collection-not-found"
+              "collection-not-found",
+              "source-refused",
+              "replace-unfinished"
             ],
             "example": "items"
           },
           "id": {
             "type": "string",
-            "description": "The identifier for the write. Use it to look up the write's status.",
+            "description": "The identifier for the write request. Use it to look up the write's status.",
             "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
           },
           "items": {
             "type": "array",
-            "description": "For a keyed write that failed with `items`, the rows that couldn't be applied. Customer.io didn't apply any of the write's rows.",
+            "description": "For a write request that failed with `items`, up to 500 of the rows that Customer.io rejected. Customer.io didn't save any of the rows.",
             "items": {
               "type": "object",
               "properties": {
@@ -947,8 +970,6 @@
                   "type": "string",
                   "description": "Why the row failed.",
                   "enum": [
-                    "key-already-exists",
-                    "item-not-found",
                     "missing-key",
                     "duplicate-key",
                     "key-too-long",
@@ -956,16 +977,16 @@
                     "field-too-long",
                     "not-an-object"
                   ],
-                  "example": "key-already-exists"
+                  "example": "duplicate-key"
                 },
                 "index": {
                   "type": "integer",
-                  "description": "The row's position in the write's `data` array, starting at 0.",
+                  "description": "The row's position in the write request, starting at 0. For a write that sends `data`, this is the row's position in the `data` array. For a write from a file, this is the row's position among the file's rows.",
                   "example": 0
                 },
                 "key": {
                   "type": "string",
-                  "description": "The row's key, when it has one.",
+                  "description": "The row's key, if it has one.",
                   "example": "A-100"
                 }
               }
@@ -974,11 +995,11 @@
           "message": {
             "type": "string",
             "description": "A readable explanation of the failure.",
-            "example": "item 0 (\"A-100\"): key-already-exists"
+            "example": "item 1 (\"A-100\"): duplicate-key"
           },
           "state": {
             "type": "string",
-            "description": "Where the write stands. `replaced` means a newer `replace` write made this one unnecessary, so Customer.io skipped it.",
+            "description": "Where the write request stands. `replaced` means that a later replacement of the whole collection ran first, so the collection ends up as if this write ran before the replacement.",
             "enum": [
               "queued",
               "applied",
@@ -986,6 +1007,201 @@
               "failed"
             ],
             "example": "failed"
+          }
+        }
+      },
+      "collectionSync": {
+        "x-scalar-ignore": true,
+        "type": "object",
+        "properties": {
+          "collection_id": {
+            "type": "integer",
+            "example": 12
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-02T15:00:00Z"
+          },
+          "last_error": {
+            "type": "object",
+            "description": "The most recent error. Absent when the sync hasn't had an error.",
+            "properties": {
+              "at": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2026-11-02T15:31:31Z"
+              },
+              "message": {
+                "type": "string",
+                "example": "could not read daily/2026-11-02.csv: fetch failed: HTTP 403 status"
+              }
+            }
+          },
+          "last_file": {
+            "type": "object",
+            "description": "The last file that Customer.io loaded. Absent until the first file loads.",
+            "properties": {
+              "applied_at": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2026-11-02T15:31:31Z"
+              },
+              "path": {
+                "type": "string",
+                "example": "daily/2026-11-02.csv"
+              },
+              "version": {
+                "type": "string",
+                "description": "The storage provider's version ID for the file.",
+                "example": "1793630000123456"
+              }
+            }
+          },
+          "next_run_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When Customer.io next checks the folder. Absent when the next check isn't scheduled yet.",
+            "example": "2026-11-02T16:31:31Z"
+          },
+          "poll_hours": {
+            "type": "integer",
+            "description": "How often Customer.io checks the folder for new files, in hours.",
+            "example": 1
+          },
+          "prefix": {
+            "type": "string",
+            "description": "The folder that the sync watches, relative to the source's `prefix`.",
+            "example": "daily/"
+          },
+          "source_id": {
+            "type": "string",
+            "description": "The source bucket that the sync reads files from.",
+            "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+          },
+          "state": {
+            "type": "string",
+            "description": "`failed` means the last check stopped at a file that Customer.io couldn't load. Customer.io tries that file again at the next check.",
+            "enum": [
+              "active",
+              "failed"
+            ],
+            "example": "active"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-02T15:31:31Z"
+          }
+        }
+      },
+      "collectionSyncReject": {
+        "x-scalar-ignore": true,
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Why Customer.io rejected the row.",
+            "enum": [
+              "missing-key",
+              "duplicate-key",
+              "key-too-long",
+              "key-field-repeated",
+              "field-too-long",
+              "not-an-object",
+              "too-large"
+            ],
+            "example": "duplicate-key"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-02T15:31:31Z"
+          },
+          "file": {
+            "type": "string",
+            "description": "The path of the file that held the row.",
+            "example": "daily/2026-11-02.csv"
+          },
+          "file_version": {
+            "type": "string",
+            "description": "The storage provider's version ID for the file.",
+            "example": "1793630000123456"
+          },
+          "key": {
+            "type": "string",
+            "description": "The row's key, when it has one.",
+            "example": "A-100"
+          },
+          "row": {
+            "type": "integer",
+            "description": "The row's position in the file, starting at 1. In a CSV file, the header row doesn't count, so row 1 is the first row of data.",
+            "example": 17
+          }
+        }
+      },
+      "collectionSourceName": {
+        "x-scalar-ignore": true,
+        "type": "string",
+        "description": "A name that helps you recognize the source.",
+        "example": "exports"
+      },
+      "collectionSourcePrefix": {
+        "x-scalar-ignore": true,
+        "type": "string",
+        "description": "A folder in the bucket, like `imports`. When you set a prefix, Customer.io only reads files within it, and a write request's `path` is relative to it. Leave it out to read the whole bucket.",
+        "example": "imports"
+      },
+      "collectionSource": {
+        "x-scalar-ignore": true,
+        "type": "object",
+        "properties": {
+          "bucket": {
+            "type": "string",
+            "description": "The bucket, or for Azure, the container.",
+            "example": "acme-exports"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-02T15:31:31Z"
+          },
+          "id": {
+            "type": "string",
+            "description": "The identifier for the source. Send it as `source_id` when you write to a collection.",
+            "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+          },
+          "name": {
+            "x-scalar-ignore": true,
+            "type": "string",
+            "description": "A name that helps you recognize the source.",
+            "example": "exports"
+          },
+          "prefix": {
+            "x-scalar-ignore": true,
+            "type": "string",
+            "description": "A folder in the bucket, like `imports`. When you set a prefix, Customer.io only reads files within it, and a write request's `path` is relative to it. Leave it out to read the whole bucket.",
+            "example": "imports"
+          },
+          "provider": {
+            "type": "string",
+            "description": "The storage service that holds the bucket.",
+            "enum": [
+              "s3",
+              "gcs",
+              "azure"
+            ],
+            "example": "s3"
+          },
+          "region": {
+            "type": "string",
+            "description": "The AWS region of an S3 bucket.",
+            "example": "us-east-1"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-02T15:31:31Z"
           }
         }
       },
@@ -230169,7 +230385,7 @@
       ],
       "post": {
         "summary": "Create a collection",
-        "description": "Create a new collection and provide the `data` that you'll access from the collection or the `url` that you'll download CSV or JSON data from.\n\n**Note**: A collection can't be larger than 10 MB, and each top-level field in a row can hold up to 10,000 characters. The total size of all collections in your account can't exceed 5 GB. Customer.io rejects a request that would take your account over that limit.\n",
+        "description": "Create a new collection and provide the `data` that you'll access from the collection or the `url` that you'll download CSV or JSON data from.\n\n**Note**: A collection that you upload or send in an API request can be up to 10 MB. A collection that you load from files, with write requests or a sync, can be larger: each file can be up to 500 MB and 1,000,000 rows. Each top-level field in a row can hold up to 10,000 characters. The total size of all collections in your account can't exceed 5 GB. Customer.io rejects a request that would take your account over that limit.\n",
         "tags": [
           "Collections"
         ],
@@ -230206,6 +230422,13 @@
                         "type": "string",
                         "description": "The name of the collection. This is how you'll reference your collection in messages—`{{collection_name.data-property}}`."
                       },
+                      "delete_field": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "An attribute that marks a row for deletion, like `deleted`. When a row in a write request or a synced file sets this attribute to `true`, or to the text `true`, `1`, or `yes` in any case, Customer.io deletes the row with the same key instead of saving it. Deleting a key that doesn't exist does nothing. Customer.io never keeps a row that this attribute marks. When you create or replace a collection, Customer.io leaves marked rows out. When you set a delete field on an existing collection, Customer.io deletes the rows it already marks. A row that isn't marked keeps the attribute as you sent it. The delete field can't be the same as the key field. Send an empty string to remove it.",
+                        "maxLength": 255,
+                        "example": "deleted"
+                      },
                       "key_field": {
                         "x-scalar-ignore": true,
                         "type": "string",
@@ -230229,7 +230452,14 @@
                       "url": {
                         "type": "string",
                         "format": "url",
-                        "description": "The URL for your CSV or JSON data. If your URL does not return a `Content-Type`, we use the file extension; otherwise, Customer.io assumes your data is JSON.\n"
+                        "description": "The URL for your CSV or JSON data. Customer.io detects the format from the `Content-Type` that your URL returns, or from the file extension if the `Content-Type` doesn't say. JSON data can be an array of objects or one object per line. CSV data needs a header row, and Customer.io reads every CSV value as a string.\n"
+                      },
+                      "delete_field": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "An attribute that marks a row for deletion, like `deleted`. When a row in a write request or a synced file sets this attribute to `true`, or to the text `true`, `1`, or `yes` in any case, Customer.io deletes the row with the same key instead of saving it. Deleting a key that doesn't exist does nothing. Customer.io never keeps a row that this attribute marks. When you create or replace a collection, Customer.io leaves marked rows out. When you set a delete field on an existing collection, Customer.io deletes the rows it already marks. A row that isn't marked keeps the attribute as you sent it. The delete field can't be the same as the key field. Send an empty string to remove it.",
+                        "maxLength": 255,
+                        "example": "deleted"
                       },
                       "key_field": {
                         "x-scalar-ignore": true,
@@ -230291,6 +230521,11 @@
                           "description": "The date time when the referenced ID was created.",
                           "example": 1552341937,
                           "readOnly": true
+                        },
+                        "delete_field": {
+                          "type": "string",
+                          "description": "The attribute that marks a row for deletion in a write request or a synced file. Absent when the collection has no delete field.",
+                          "example": "deleted"
                         },
                         "id": {
                           "type": "integer",
@@ -230468,6 +230703,11 @@
                             "description": "The date time when the referenced ID was created.",
                             "example": 1552341937,
                             "readOnly": true
+                          },
+                          "delete_field": {
+                            "type": "string",
+                            "description": "The attribute that marks a row for deletion in a write request or a synced file. Absent when the collection has no delete field.",
+                            "example": "deleted"
                           },
                           "id": {
                             "type": "integer",
@@ -230654,6 +230894,11 @@
                           "example": 1552341937,
                           "readOnly": true
                         },
+                        "delete_field": {
+                          "type": "string",
+                          "description": "The attribute that marks a row for deletion in a write request or a synced file. Absent when the collection has no delete field.",
+                          "example": "deleted"
+                        },
                         "id": {
                           "type": "integer",
                           "description": "The identifier for the collection. This is how you'll reference the collection from the API.",
@@ -230787,7 +231032,7 @@
       },
       "delete": {
         "summary": "Delete a collection",
-        "description": "Remove a collection and associated contents. Before you delete a collection, make sure that you aren't referencing it in active automation messages or broadcasts; references to a deleted collection will appear empty and may prevent your messages from making sense to your audience.",
+        "description": "Remove a collection and its contents. You can't delete a collection that an automation or broadcast queries, including an archived one, because you could unarchive it later. Remove the collection from those messages first.",
         "tags": [
           "Collections"
         ],
@@ -230803,6 +231048,9 @@
           },
           "404": {
             "description": "The collection `id` does not exist."
+          },
+          "422": {
+            "description": "An automation or broadcast still queries the collection. The response lists the ID of each one."
           },
           "429": {
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
@@ -230887,7 +231135,7 @@
       },
       "put": {
         "summary": "Update a collection",
-        "description": "Update the `name` or replace the contents of a collection. Updating the `data` or `url` for your collection fully replaces the contents of the collection.\n\nSend `key_field` on its own to add or change the collection's key field without replacing its rows, or send an empty string to remove it.\n\n**Note**: \n* If you reference your collection by name in active automation messages, changing the name of the collection will cause references to the previous name to return an empty data set.\n* A collection can't be larger than 10 MB, and each top-level field in a row can hold up to 10,000 characters. The total size of all collections in your account can't exceed 5 GB. Customer.io rejects a request that would take your account over that limit.\n",
+        "description": "Update the `name` or replace the contents of a collection. Updating the `data` or `url` for your collection fully replaces the contents of the collection.\n\nTo set or change the collection's key field or delete field without replacing its rows, send `key_field` or `delete_field` without `data` or `url`. You can send both in one request. To remove either field, send an empty string. Changing either field can mean copying every row, so Customer.io queues the change as a write request and responds with a `202` and the write's `id`. Use [get a write's status](/integrations/api/app/tag/collections/getCollectionWrite/) to see when the change is done. If a row is missing a key or repeats another row's key, the write fails with the code `invalid-data`, and its `message` names the row. If you send a field that's already set, Customer.io doesn't queue anything and responds with a `200`.\n\nWhen you replace the rows of a large collection, Customer.io changes only the rows that differ, and saves them in batches. While the replacement operation runs, a read can return some new rows alongside old ones. If a large replacement stops partway and can't finish, the collection is left part old and part new. Until you replace the rows again, writes fail with the code `replace-unfinished`.\n\n**Note**:\n* If you reference your collection by name in active automation messages, changing the name of the collection will cause references to the previous name to return an empty data set.\n* A collection that you upload or send in an API request can be up to 10 MB. A collection that you load from files, with write requests or a sync, can be larger: each file can be up to 500 MB and 1,000,000 rows. Each top-level field in a row can hold up to 10,000 characters. The total size of all collections in your account can't exceed 5 GB. Customer.io rejects a request that would take your account over that limit.\n",
         "tags": [
           "Collections"
         ],
@@ -230916,6 +231164,13 @@
                           }
                         }
                       },
+                      "delete_field": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "An attribute that marks a row for deletion, like `deleted`. When a row in a write request or a synced file sets this attribute to `true`, or to the text `true`, `1`, or `yes` in any case, Customer.io deletes the row with the same key instead of saving it. Deleting a key that doesn't exist does nothing. Customer.io never keeps a row that this attribute marks. When you create or replace a collection, Customer.io leaves marked rows out. When you set a delete field on an existing collection, Customer.io deletes the rows it already marks. A row that isn't marked keeps the attribute as you sent it. The delete field can't be the same as the key field. Send an empty string to remove it.",
+                        "maxLength": 255,
+                        "example": "deleted"
+                      },
                       "key_field": {
                         "x-scalar-ignore": true,
                         "type": "string",
@@ -230932,6 +231187,13 @@
                     "title": "Data by URL",
                     "type": "object",
                     "properties": {
+                      "delete_field": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "An attribute that marks a row for deletion, like `deleted`. When a row in a write request or a synced file sets this attribute to `true`, or to the text `true`, `1`, or `yes` in any case, Customer.io deletes the row with the same key instead of saving it. Deleting a key that doesn't exist does nothing. Customer.io never keeps a row that this attribute marks. When you create or replace a collection, Customer.io leaves marked rows out. When you set a delete field on an existing collection, Customer.io deletes the rows it already marks. A row that isn't marked keeps the attribute as you sent it. The delete field can't be the same as the key field. Send an empty string to remove it.",
+                        "maxLength": 255,
+                        "example": "deleted"
+                      },
                       "key_field": {
                         "x-scalar-ignore": true,
                         "type": "string",
@@ -230945,7 +231207,7 @@
                       "url": {
                         "type": "string",
                         "format": "url",
-                        "description": "The URL for your CSV or JSON data. If your URL does not return a `Content-Type`, we use the file extension; otherwise, Customer.io assumes your data is JSON.\n"
+                        "description": "The URL for your CSV or JSON data. Customer.io detects the format from the `Content-Type` that your URL returns, or from the file extension if the `Content-Type` doesn't say. JSON data can be an array of objects or one object per line. CSV data needs a header row, and Customer.io reads every CSV value as a string.\n"
                       }
                     }
                   }
@@ -230979,7 +231241,7 @@
         },
         "responses": {
           "200": {
-            "description": "The collection was created successfully.",
+            "description": "Customer.io updated the collection. Customer.io also responds with a `200` when you send a key field or delete field that's already set.",
             "content": {
               "application/json": {
                 "schema": {
@@ -231001,6 +231263,11 @@
                           "description": "The date time when the referenced ID was created.",
                           "example": 1552341937,
                           "readOnly": true
+                        },
+                        "delete_field": {
+                          "type": "string",
+                          "description": "The attribute that marks a row for deletion in a write request or a synced file. Absent when the collection has no delete field.",
+                          "example": "deleted"
                         },
                         "id": {
                           "type": "integer",
@@ -231049,8 +231316,187 @@
               }
             }
           },
+          "202": {
+            "description": "Customer.io queued a change to the key field or delete field. The `collection` shows the collection before the change. Use the `write` to check when the change is done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "collection": {
+                      "x-scalar-ignore": true,
+                      "type": "object",
+                      "properties": {
+                        "bytes": {
+                          "type": "integer",
+                          "description": "The size of the collection in bytes.",
+                          "example": 296
+                        },
+                        "created_at": {
+                          "x-scalar-ignore": true,
+                          "type": "integer",
+                          "format": "unix timestamp",
+                          "description": "The date time when the referenced ID was created.",
+                          "example": 1552341937,
+                          "readOnly": true
+                        },
+                        "delete_field": {
+                          "type": "string",
+                          "description": "The attribute that marks a row for deletion in a write request or a synced file. Absent when the collection has no delete field.",
+                          "example": "deleted"
+                        },
+                        "id": {
+                          "type": "integer",
+                          "description": "The identifier for the collection. This is how you'll reference the collection from the API.",
+                          "example": 1
+                        },
+                        "key_field": {
+                          "type": "string",
+                          "description": "The attribute that holds each row's unique key. Absent when the collection has no key field.",
+                          "example": "sku"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "The name of the collection. This is how you'll reference the collection in liquid, e.g. `{{collection_name.data_property}}`.",
+                          "example": "upcoming events"
+                        },
+                        "rows": {
+                          "type": "integer",
+                          "description": "Represents the number of objects in the `data` array or CSV rows in your collection schema.",
+                          "example": 2
+                        },
+                        "schema": {
+                          "type": "array",
+                          "description": "Lists the top-level keys that you can reference within this collection. Customer.io does not enforce any of these keys as required from your `data`.",
+                          "items": {
+                            "type": "string"
+                          },
+                          "example": [
+                            "eventDate",
+                            "eventName",
+                            "presents"
+                          ]
+                        },
+                        "updated_at": {
+                          "x-scalar-ignore": true,
+                          "type": "integer",
+                          "format": "unix timestamp",
+                          "description": "The date time when the referenced ID was last updated.",
+                          "example": 1552341937,
+                          "readOnly": true
+                        }
+                      }
+                    },
+                    "write": {
+                      "x-scalar-ignore": true,
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string",
+                          "description": "If the write request's `state` is `failed`, the code explains why. A write of up to 500 rows saves nothing when it fails, and a larger write keeps the rows it saved before it failed. `source-refused` means Customer.io couldn't download the file, or the source is gone or unusable. `replace-unfinished` means an earlier replacement stopped partway, so you need to replace the collection's rows again.",
+                          "enum": [
+                            "storage-limit-reached",
+                            "too-large",
+                            "invalid-data",
+                            "no-key-field",
+                            "delete-field-is-key",
+                            "items",
+                            "source-unauthorized",
+                            "superseded",
+                            "expired",
+                            "canceled",
+                            "collection-not-found",
+                            "source-refused",
+                            "replace-unfinished"
+                          ],
+                          "example": "items"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "The identifier for the write request. Use it to look up the write's status.",
+                          "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+                        },
+                        "items": {
+                          "type": "array",
+                          "description": "For a write request that failed with `items`, up to 500 of the rows that Customer.io rejected. Customer.io didn't save any of the rows.",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string",
+                                "description": "Why the row failed.",
+                                "enum": [
+                                  "missing-key",
+                                  "duplicate-key",
+                                  "key-too-long",
+                                  "key-field-repeated",
+                                  "field-too-long",
+                                  "not-an-object"
+                                ],
+                                "example": "duplicate-key"
+                              },
+                              "index": {
+                                "type": "integer",
+                                "description": "The row's position in the write request, starting at 0. For a write that sends `data`, this is the row's position in the `data` array. For a write from a file, this is the row's position among the file's rows.",
+                                "example": 0
+                              },
+                              "key": {
+                                "type": "string",
+                                "description": "The row's key, if it has one.",
+                                "example": "A-100"
+                              }
+                            }
+                          }
+                        },
+                        "message": {
+                          "type": "string",
+                          "description": "A readable explanation of the failure.",
+                          "example": "item 1 (\"A-100\"): duplicate-key"
+                        },
+                        "state": {
+                          "type": "string",
+                          "description": "Where the write request stands. `replaced` means that a later replacement of the whole collection ran first, so the collection ends up as if this write ran before the replacement.",
+                          "enum": [
+                            "queued",
+                            "applied",
+                            "replaced",
+                            "failed"
+                          ],
+                          "example": "failed"
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "collection": {
+                    "bytes": 52,
+                    "created_at": 1793630000,
+                    "id": 12,
+                    "name": "products",
+                    "rows": 2,
+                    "schema": [
+                      "price",
+                      "sku"
+                    ],
+                    "updated_at": 1793630000
+                  },
+                  "write": {
+                    "id": "01JD8X4Q6R2W7N3K5M9P1T0VZC",
+                    "state": "queued"
+                  }
+                }
+              }
+            }
+          },
           "400": {
             "description": "Your request was malformed."
+          },
+          "409": {
+            "description": "An earlier replacement stopped partway, or another change got in first. Replace the collection's rows again."
+          },
+          "422": {
+            "description": "Customer.io couldn't accept the change. For example, `delete_field` can't be the same as `key_field`."
           },
           "429": {
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
@@ -231161,7 +231607,7 @@
       ],
       "get": {
         "summary": "Lookup collection contents",
-        "description": "Retrieve the rows of a collection.\n\nWithout query parameters, this request returns the whole collection as JSON Lines: each line of the response is one row, as a JSON object. Use `keys` to read specific rows from a collection with a key field, or `limit` and `cursor` to page through the collection. Both return a JSON object with a `rows` array instead.\n",
+        "description": "Retrieve the rows of a collection.\n\nWithout query parameters, this request returns the whole collection as JSON Lines: each line of the response is one row, as a JSON object. If a collection is too large to return whole, Customer.io responds with a `400`, and you need to page through it instead. Use `keys` to read specific rows from a collection with a key field, or `limit` and `cursor` to page through the collection. Both return a JSON object with a `rows` array instead.\n",
         "tags": [
           "Collections"
         ],
@@ -231175,7 +231621,7 @@
           {
             "name": "keys",
             "in": "query",
-            "description": "The keys of the rows you want, separated by commas. The collection needs a key field. Customer.io returns rows in the order of your keys, and leaves out keys that don't match a row.",
+            "description": "The keys of the rows you want, separated by commas. The collection needs a key field. Customer.io returns rows in the order of your keys, and leaves out keys that don't match a row. One read can return up to 16 MB of rows.",
             "style": "form",
             "explode": false,
             "schema": {
@@ -231193,7 +231639,7 @@
           {
             "name": "limit",
             "in": "query",
-            "description": "The number of rows to return in a page.",
+            "description": "The number of rows to return in a page. A page holds up to 4 MB of rows, so it can have fewer rows than your `limit`.",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -231204,7 +231650,7 @@
           {
             "name": "cursor",
             "in": "query",
-            "description": "The `next_cursor` from the previous page. Leave it out to get the first page. Rows you change while you page show up in later pages. If a write rebuilds the collection while you page, like a large `replace`, the cursor expires and you need to start over.",
+            "description": "The `next_cursor` from the previous page. Leave it out to get the first page. Rows you change while you page show up in later pages. If you replace the collection's rows while you page, the cursor can expire, and you need to start over.",
             "schema": {
               "type": "string"
             }
@@ -231269,11 +231715,14 @@
               }
             }
           },
+          "400": {
+            "description": "The collection is too large to return whole. Use `limit` and `cursor` to read it a page at a time."
+          },
           "404": {
             "description": "The collection `id` does not exist."
           },
           "409": {
-            "description": "A write rebuilt the collection since you read the `cursor`. Start again without one."
+            "description": "The collection's rows were replaced since you read the `cursor`. Start again without one."
           },
           "429": {
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
@@ -231358,7 +231807,7 @@
       },
       "put": {
         "summary": "Update the contents of a collection",
-        "description": "Replace the contents of a collection (the `data` from when you created or updated a collection). The request is a free-form object containing the keys you want to reference from the collection and the corresponding values. This request replaces the current contents of the collection entirely.\n\nIf you don't want to update the contents directly—you want to change the `name` or data `url` for your collection, use the [update a collection](/integrations/api/app/tag/collections/updateCollection/) endpoint.\n\n**Note**: A collection can't be larger than 10 MB, and each top-level field in a row can hold up to 10,000 characters. The total size of all collections in your account can't exceed 5 GB. Customer.io rejects a request that would take your account over that limit.\n",
+        "description": "Replace the contents of a collection (the `data` from when you created or updated a collection). Send the rows as a JSON array of objects, or as CSV with a `Content-Type` of `text/csv`. This request replaces the current contents of the collection entirely, and Customer.io responds once the change is done.\n\nIf you don't want to update the contents directly—you want to change the `name` or data `url` for your collection, use the [update a collection](/integrations/api/app/tag/collections/updateCollection/) endpoint.\n\n**Note**: A collection that you upload or send in an API request can be up to 10 MB. A collection that you load from files, with write requests or a sync, can be larger: each file can be up to 500 MB and 1,000,000 rows. Each top-level field in a row can hold up to 10,000 characters. The total size of all collections in your account can't exceed 5 GB. Customer.io rejects a request that would take your account over that limit.\n",
         "tags": [
           "Collections"
         ],
@@ -231369,24 +231818,35 @@
           }
         ],
         "requestBody": {
-          "description": "Your request is a free form object representing the contents of your collection. This request replaces the contents of the collection entirely, so include all contents that you want to remain in the collection—whether they change or not.",
+          "description": "The rows of your collection. This request replaces the contents of the collection entirely, so include every row that you want to keep, whether it changes or not.",
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "additionalProperties": {
-                  "x-additionalPropertiesName": "collection contents"
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "x-additionalPropertiesName": "row data"
+                  }
                 }
               },
-              "example": {
-                "eventName": "christmas",
-                "eventDate": {},
-                "presents": {
-                  "something_you_want": "toys",
-                  "something_you_need": "socks",
-                  "total": 2
+              "example": [
+                {
+                  "eventName": "christmas",
+                  "eventDate": {},
+                  "presents": {
+                    "something_you_want": "toys",
+                    "something_you_need": "socks",
+                    "total": 2
+                  }
                 }
-              }
+              ]
+            },
+            "text/csv": {
+              "schema": {
+                "type": "string"
+              },
+              "example": "eventName,eventDate\nchristmas,2021-12-25T12:00:00\n"
             }
           }
         },
@@ -231414,6 +231874,11 @@
                           "description": "The date time when the referenced ID was created.",
                           "example": 1552341937,
                           "readOnly": true
+                        },
+                        "delete_field": {
+                          "type": "string",
+                          "description": "The attribute that marks a row for deletion in a write request or a synced file. Absent when the collection has no delete field.",
+                          "example": "deleted"
                         },
                         "id": {
                           "type": "integer",
@@ -231549,7 +232014,7 @@
           {
             "lang": "json",
             "label": "JSON",
-            "source": "{\n  \"eventName\": \"christmas\",\n  \"eventDate\": {},\n  \"presents\": {\n    \"something_you_want\": \"toys\",\n    \"something_you_need\": \"socks\",\n    \"total\": 2\n  }\n}"
+            "source": "[\n  {\n    \"eventName\": \"christmas\",\n    \"eventDate\": {},\n    \"presents\": {\n      \"something_you_want\": \"toys\",\n      \"something_you_need\": \"socks\",\n      \"total\": 2\n    }\n  }\n]"
           }
         ]
       }
@@ -231574,7 +232039,7 @@
       ],
       "post": {
         "summary": "Write to a collection",
-        "description": "Queue a change to a collection's rows and get a write `id` back right away, so large writes don't time out. Customer.io applies writes to a collection one at a time, in the order it receives them. Use [look up a collection write](/integrations/api/app/tag/collections/getCollectionWrite/) to check the result.\n\nUse `mode` to choose how to change the collection:\n\n- `replace` removes every row in the collection and adds the rows you send in `data` or at a `url`. You can set the collection's `key_field` in the same request.\n- `add`, `upsert`, `update`, and `delete` change only the rows whose keys you send, so the collection needs a key field. Customer.io applies a keyed write all or nothing: if any row in the request is invalid, Customer.io doesn't change any rows.\n",
+        "description": "Add, update, or delete rows by key, without replacing the whole collection. The collection needs a [key field](/integrations/api/app/tag/collections/updateCollection/). A row whose key already exists replaces the old row, and a row with a new key is added. To replace every row instead, use [update a collection](/integrations/api/app/tag/collections/updateCollection/).\n\nTo delete rows, give the collection a `delete_field`, like `deleted`. A row that sets that field to `true` deletes the row with the same key. A row that doesn't set it to `true` is saved with the field as you sent it. One write request can save some rows and delete others.\n\nSend the rows in one of three ways: in the request as `data`, as a file at a `url`, or as a file in one of your [collection sources](/integrations/api/app/tag/collections/listCollectionSources/) with `source_id` and `path`. Customer.io reads a file when the write runs, so a file can hold far more rows than a request body can.\n\nCustomer.io queues the write and responds right away with a write `id`, so large writes don't time out. Customer.io applies writes to a collection one at a time, in the order it receives them. Use [look up a collection write](/integrations/api/app/tag/collections/getCollectionWrite/) to check the result.\n\nCustomer.io checks every row before it saves anything. If any row is invalid, Customer.io doesn't save any of them. Customer.io can handle a write of up to 500 rows all at once. If your request is larger, we apply writes 500 rows at a time. While a large write runs, a read can return some of its rows and not others. If a large write fails partway, the rows it saved stay in the collection, and you can safely send the same write again.\n",
         "tags": [
           "Collections"
         ],
@@ -231590,92 +232055,55 @@
               "schema": {
                 "oneOf": [
                   {
-                    "title": "Replace with data",
+                    "title": "Rows in the request",
                     "type": "object",
                     "required": [
-                      "mode",
                       "data"
                     ],
                     "properties": {
                       "data": {
                         "type": "array",
-                        "description": "Every row of the collection. This replaces the collection's current rows.",
+                        "description": "The rows to write. Each row is an object that holds the collection's key field.",
                         "items": {
                           "type": "object",
                           "additionalProperties": {
                             "x-additionalPropertiesName": "row data"
                           }
                         }
-                      },
-                      "mode": {
-                        "type": "string",
-                        "enum": [
-                          "replace"
-                        ]
-                      },
-                      "key_field": {
-                        "x-scalar-ignore": true,
-                        "type": "string",
-                        "description": "The attribute that holds each row's unique key, like `sku`, similar to a primary key in a database table. Set a key field to add, change, delete, or read individual rows without replacing the whole collection. Each row needs a unique, non-empty string or number in this attribute, up to 1,024 bytes.",
-                        "example": "sku"
                       }
                     }
                   },
                   {
-                    "title": "Replace from URL",
+                    "title": "Rows from a URL",
                     "type": "object",
                     "required": [
-                      "mode",
                       "url"
                     ],
                     "properties": {
-                      "mode": {
-                        "type": "string",
-                        "enum": [
-                          "replace"
-                        ]
-                      },
                       "url": {
                         "type": "string",
                         "format": "url",
-                        "description": "The URL for your CSV or JSON data. If your URL doesn't return a `Content-Type`, Customer.io uses the file extension, and otherwise assumes your data is JSON."
-                      },
-                      "key_field": {
-                        "x-scalar-ignore": true,
-                        "type": "string",
-                        "description": "The attribute that holds each row's unique key, like `sku`, similar to a primary key in a database table. Set a key field to add, change, delete, or read individual rows without replacing the whole collection. Each row needs a unique, non-empty string or number in this attribute, up to 1,024 bytes.",
-                        "example": "sku"
+                        "description": "The `http` or `https` URL of your CSV or JSON file, like a signed URL to a file in your own storage. Customer.io detects the format from the `Content-Type` that your URL returns, or from the file extension if the `Content-Type` doesn't say. JSON data can be an array of objects or one object per line. CSV data needs a header row, and Customer.io reads every CSV value as a string. A file can be up to 500 MB and 1,000,000 rows."
                       }
                     }
                   },
                   {
-                    "title": "Change rows by key",
+                    "title": "Rows from a source",
                     "type": "object",
                     "required": [
-                      "mode",
-                      "data"
+                      "source_id",
+                      "path"
                     ],
                     "properties": {
-                      "data": {
-                        "type": "array",
-                        "description": "The rows to change. Each row is an object that holds the collection's key field.",
-                        "maxItems": 500,
-                        "items": {
-                          "type": "object",
-                          "additionalProperties": {
-                            "x-additionalPropertiesName": "row data"
-                          }
-                        }
-                      },
-                      "mode": {
+                      "path": {
                         "type": "string",
-                        "description": "How to change the rows. `add` adds new rows, so each key must be new. `upsert` adds a row, or replaces the row that has the same key. `update` merges the fields you send into the row that has the same key, so each key must already exist. `delete` removes the rows with the keys you send, so each row needs only its key.\n",
-                        "enum": [
-                          "add",
-                          "upsert",
-                          "update",
-                          "delete"
-                        ]
+                        "description": "The file's path, relative to the source's `prefix`, like `daily/products.csv`. Use forward slashes. The path can't leave the prefix, so it can't contain `..` or `\\`. Customer.io reads the file the same way it reads a file from a `url`.",
+                        "example": "daily/products.csv"
+                      },
+                      "source_id": {
+                        "type": "string",
+                        "description": "The `id` of the [collection source](/integrations/api/app/tag/collections/createCollectionSource/) that holds the file.",
+                        "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
                       }
                     }
                   }
@@ -231683,7 +232111,7 @@
               },
               "examples": {
                 "upsert": {
-                  "summary": "Upsert rows by key",
+                  "summary": "Add or update rows",
                   "value": {
                     "data": [
                       {
@@ -231694,32 +232122,30 @@
                         "sku": "A-101",
                         "price": 24
                       }
-                    ],
-                    "mode": "upsert"
+                    ]
                   }
                 },
                 "delete": {
-                  "summary": "Delete rows by key",
-                  "value": {
-                    "data": [
-                      {
-                        "sku": "A-100"
-                      }
-                    ],
-                    "mode": "delete"
-                  }
-                },
-                "replace": {
-                  "summary": "Replace every row and set a key field",
+                  "summary": "Update one row and delete another",
+                  "description": "For a collection whose key field is `sku` and whose delete field is `deleted`.",
                   "value": {
                     "data": [
                       {
                         "sku": "A-100",
-                        "price": 19
+                        "price": 21
+                      },
+                      {
+                        "sku": "A-101",
+                        "deleted": true
                       }
-                    ],
-                    "mode": "replace",
-                    "key_field": "sku"
+                    ]
+                  }
+                },
+                "source": {
+                  "summary": "Write rows from a file in a source",
+                  "value": {
+                    "path": "daily/products.csv",
+                    "source_id": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
                   }
                 }
               }
@@ -231728,7 +232154,7 @@
         },
         "responses": {
           "202": {
-            "description": "Customer.io queued the write.",
+            "description": "Customer.io queued the write request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -231740,30 +232166,32 @@
                       "properties": {
                         "code": {
                           "type": "string",
-                          "description": "Why the write failed. Present only when `state` is `failed`.",
+                          "description": "If the write request's `state` is `failed`, the code explains why. A write of up to 500 rows saves nothing when it fails, and a larger write keeps the rows it saved before it failed. `source-refused` means Customer.io couldn't download the file, or the source is gone or unusable. `replace-unfinished` means an earlier replacement stopped partway, so you need to replace the collection's rows again.",
                           "enum": [
                             "storage-limit-reached",
                             "too-large",
-                            "too-large-to-key",
                             "invalid-data",
                             "no-key-field",
+                            "delete-field-is-key",
                             "items",
                             "source-unauthorized",
                             "superseded",
                             "expired",
                             "canceled",
-                            "collection-not-found"
+                            "collection-not-found",
+                            "source-refused",
+                            "replace-unfinished"
                           ],
                           "example": "items"
                         },
                         "id": {
                           "type": "string",
-                          "description": "The identifier for the write. Use it to look up the write's status.",
+                          "description": "The identifier for the write request. Use it to look up the write's status.",
                           "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
                         },
                         "items": {
                           "type": "array",
-                          "description": "For a keyed write that failed with `items`, the rows that couldn't be applied. Customer.io didn't apply any of the write's rows.",
+                          "description": "For a write request that failed with `items`, up to 500 of the rows that Customer.io rejected. Customer.io didn't save any of the rows.",
                           "items": {
                             "type": "object",
                             "properties": {
@@ -231771,8 +232199,6 @@
                                 "type": "string",
                                 "description": "Why the row failed.",
                                 "enum": [
-                                  "key-already-exists",
-                                  "item-not-found",
                                   "missing-key",
                                   "duplicate-key",
                                   "key-too-long",
@@ -231780,16 +232206,16 @@
                                   "field-too-long",
                                   "not-an-object"
                                 ],
-                                "example": "key-already-exists"
+                                "example": "duplicate-key"
                               },
                               "index": {
                                 "type": "integer",
-                                "description": "The row's position in the write's `data` array, starting at 0.",
+                                "description": "The row's position in the write request, starting at 0. For a write that sends `data`, this is the row's position in the `data` array. For a write from a file, this is the row's position among the file's rows.",
                                 "example": 0
                               },
                               "key": {
                                 "type": "string",
-                                "description": "The row's key, when it has one.",
+                                "description": "The row's key, if it has one.",
                                 "example": "A-100"
                               }
                             }
@@ -231798,11 +232224,11 @@
                         "message": {
                           "type": "string",
                           "description": "A readable explanation of the failure.",
-                          "example": "item 0 (\"A-100\"): key-already-exists"
+                          "example": "item 1 (\"A-100\"): duplicate-key"
                         },
                         "state": {
                           "type": "string",
-                          "description": "Where the write stands. `replaced` means a newer `replace` write made this one unnecessary, so Customer.io skipped it.",
+                          "description": "Where the write request stands. `replaced` means that a later replacement of the whole collection ran first, so the collection ends up as if this write ran before the replacement.",
                           "enum": [
                             "queued",
                             "applied",
@@ -231828,7 +232254,7 @@
             "description": "The collection `id` does not exist."
           },
           "422": {
-            "description": "Customer.io couldn't accept the write. The response explains what to fix. For a keyed write, each error's `source.pointer` names the failed row, like `/data/attributes/data/1`."
+            "description": "Customer.io couldn't accept the write request, and didn't queue it. The response explains what to fix. When a row in `data` is invalid, each error's `source.pointer` names the row, like `/data/attributes/data/1`. Customer.io checks the rows in a file when the write runs, so a problem in a file shows up in the write's result instead."
           },
           "429": {
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
@@ -231914,7 +232340,7 @@
           {
             "lang": "json",
             "label": "JSON",
-            "source": "{\n  \"data\": [\n    {\n      \"sku\": \"A-100\",\n      \"price\": 19\n    },\n    {\n      \"sku\": \"A-101\",\n      \"price\": 24\n    }\n  ],\n  \"mode\": \"upsert\"\n}"
+            "source": "{\n  \"data\": [\n    {\n      \"sku\": \"A-100\",\n      \"price\": 19\n    },\n    {\n      \"sku\": \"A-101\",\n      \"price\": 24\n    }\n  ]\n}"
           }
         ]
       }
@@ -231934,7 +232360,7 @@
           "name": "write_id",
           "in": "path",
           "required": true,
-          "description": "The `id` that Customer.io returned when you submitted the write.",
+          "description": "The `id` that Customer.io returned when you submitted the write request.",
           "schema": {
             "type": "string"
           }
@@ -231960,7 +232386,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Returns the status of the write operation.",
+            "description": "Returns the status of a write request.",
             "content": {
               "application/json": {
                 "schema": {
@@ -231972,30 +232398,32 @@
                       "properties": {
                         "code": {
                           "type": "string",
-                          "description": "Why the write failed. Present only when `state` is `failed`.",
+                          "description": "If the write request's `state` is `failed`, the code explains why. A write of up to 500 rows saves nothing when it fails, and a larger write keeps the rows it saved before it failed. `source-refused` means Customer.io couldn't download the file, or the source is gone or unusable. `replace-unfinished` means an earlier replacement stopped partway, so you need to replace the collection's rows again.",
                           "enum": [
                             "storage-limit-reached",
                             "too-large",
-                            "too-large-to-key",
                             "invalid-data",
                             "no-key-field",
+                            "delete-field-is-key",
                             "items",
                             "source-unauthorized",
                             "superseded",
                             "expired",
                             "canceled",
-                            "collection-not-found"
+                            "collection-not-found",
+                            "source-refused",
+                            "replace-unfinished"
                           ],
                           "example": "items"
                         },
                         "id": {
                           "type": "string",
-                          "description": "The identifier for the write. Use it to look up the write's status.",
+                          "description": "The identifier for the write request. Use it to look up the write's status.",
                           "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
                         },
                         "items": {
                           "type": "array",
-                          "description": "For a keyed write that failed with `items`, the rows that couldn't be applied. Customer.io didn't apply any of the write's rows.",
+                          "description": "For a write request that failed with `items`, up to 500 of the rows that Customer.io rejected. Customer.io didn't save any of the rows.",
                           "items": {
                             "type": "object",
                             "properties": {
@@ -232003,8 +232431,6 @@
                                 "type": "string",
                                 "description": "Why the row failed.",
                                 "enum": [
-                                  "key-already-exists",
-                                  "item-not-found",
                                   "missing-key",
                                   "duplicate-key",
                                   "key-too-long",
@@ -232012,16 +232438,16 @@
                                   "field-too-long",
                                   "not-an-object"
                                 ],
-                                "example": "key-already-exists"
+                                "example": "duplicate-key"
                               },
                               "index": {
                                 "type": "integer",
-                                "description": "The row's position in the write's `data` array, starting at 0.",
+                                "description": "The row's position in the write request, starting at 0. For a write that sends `data`, this is the row's position in the `data` array. For a write from a file, this is the row's position among the file's rows.",
                                 "example": 0
                               },
                               "key": {
                                 "type": "string",
-                                "description": "The row's key, when it has one.",
+                                "description": "The row's key, if it has one.",
                                 "example": "A-100"
                               }
                             }
@@ -232030,11 +232456,11 @@
                         "message": {
                           "type": "string",
                           "description": "A readable explanation of the failure.",
-                          "example": "item 0 (\"A-100\"): key-already-exists"
+                          "example": "item 1 (\"A-100\"): duplicate-key"
                         },
                         "state": {
                           "type": "string",
-                          "description": "Where the write stands. `replaced` means a newer `replace` write made this one unnecessary, so Customer.io skipped it.",
+                          "description": "Where the write request stands. `replaced` means that a later replacement of the whole collection ran first, so the collection ends up as if this write ran before the replacement.",
                           "enum": [
                             "queued",
                             "applied",
@@ -232053,12 +232479,12 @@
                     "id": "01JD8X4Q6R2W7N3K5M9P1T0VZC",
                     "items": [
                       {
-                        "code": "key-already-exists",
-                        "index": 0,
+                        "code": "duplicate-key",
+                        "index": 1,
                         "key": "A-100"
                       }
                     ],
-                    "message": "item 0 (\"A-100\"): key-already-exists",
+                    "message": "item 1 (\"A-100\"): duplicate-key",
                     "state": "failed"
                   }
                 }
@@ -232066,7 +232492,1817 @@
             }
           },
           "404": {
-            "description": "Customer.io doesn't have a write with this `id` for the collection, either because it never existed or because its result expired."
+            "description": "Customer.io doesn't have a write request with this `id` for the collection, either because it never existed or because its result expired."
+          },
+          "429": {
+            "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per 1s (reference a1b2c3)",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collections/{collection_id}/sync": {
+      "parameters": [
+        {
+          "name": "collection_id",
+          "description": "The identifier for a collection.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "servers": [
+        {
+          "url": "https://api.customer.io",
+          "description": "This API uses bearer authorization, requiring a [token that you generate in the UI](https://fly.customer.io/settings/api_credentials?keyType=app)."
+        }
+      ],
+      "put": {
+        "summary": "Sync a collection from a source",
+        "description": "Watch a folder in one of your [collection sources](/integrations/api/app/tag/collections/createCollectionSource/), and have Customer.io load each new file in the folder into the collection. Customer.io saves and deletes rows by key, the same way as a [write operation](/integrations/api/app/tag/collections/submitCollectionWrite/), so the collection needs a key field. A collection can have exactly one sync.\n\nEach time Customer.io checks the folder, it loads new files in alphabetical order of their paths, up to 2,000 files at a time. Customer.io remembers the last file it loaded and only loads files whose paths sort after it. Name your files so that newer files sort later, like by starting each name with the date (`2026-11-03-products.csv`). Customer.io never loads a file whose path sorts before the last file it loaded, or a file that you overwrite at a path it already loaded. To send changed rows, write a new file.\n\nCustomer.io checks each file before it saves any of the file's rows. Customer.io loads the valid rows and records rejected rows, which you can look up with [list rejected sync rows](/integrations/api/app/tag/collections/getCollectionSyncRejects/). If two rows in a file have the same key, Customer.io loads the first one and rejects the second. If Customer.io can't load a whole file, like when the file is too large or isn't JSON or CSV, the sync's `state` becomes `failed`, and Customer.io tries that file again at each later check. To get the sync going again, overwrite the file with one that Customer.io can load, or delete the file.\n\nTo change a sync, send it again. If you change only `poll_hours`, the sync keeps its place. If you change the source or the `prefix`, the sync starts over from the first file in the folder.\n",
+        "tags": [
+          "Collections"
+        ],
+        "operationId": "putCollectionSync",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "source_id"
+                ],
+                "properties": {
+                  "source_id": {
+                    "type": "string",
+                    "description": "The `id` of the source to read files from.",
+                    "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+                  },
+                  "poll_hours": {
+                    "type": "integer",
+                    "description": "How often Customer.io checks the folder for new files, in hours.",
+                    "minimum": 1,
+                    "maximum": 24,
+                    "default": 1
+                  },
+                  "prefix": {
+                    "type": "string",
+                    "description": "The folder to watch, relative to the source's own `prefix`, like `daily/`. Customer.io adds a trailing `/` if you leave it off. Leave out `prefix` to watch every file the source can read. The folder can't leave the source's prefix, so it can't contain `..` or `\\`.",
+                    "maxLength": 1024,
+                    "example": "daily/"
+                  }
+                }
+              },
+              "example": {
+                "source_id": "01JD8X4Q6R2W7N3K5M9P1T0VZC",
+                "poll_hours": 1,
+                "prefix": "daily/"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Customer.io saved the sync.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sync": {
+                      "x-scalar-ignore": true,
+                      "type": "object",
+                      "properties": {
+                        "collection_id": {
+                          "type": "integer",
+                          "example": 12
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-11-02T15:00:00Z"
+                        },
+                        "last_error": {
+                          "type": "object",
+                          "description": "The most recent error. Absent when the sync hasn't had an error.",
+                          "properties": {
+                            "at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2026-11-02T15:31:31Z"
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "could not read daily/2026-11-02.csv: fetch failed: HTTP 403 status"
+                            }
+                          }
+                        },
+                        "last_file": {
+                          "type": "object",
+                          "description": "The last file that Customer.io loaded. Absent until the first file loads.",
+                          "properties": {
+                            "applied_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2026-11-02T15:31:31Z"
+                            },
+                            "path": {
+                              "type": "string",
+                              "example": "daily/2026-11-02.csv"
+                            },
+                            "version": {
+                              "type": "string",
+                              "description": "The storage provider's version ID for the file.",
+                              "example": "1793630000123456"
+                            }
+                          }
+                        },
+                        "next_run_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "When Customer.io next checks the folder. Absent when the next check isn't scheduled yet.",
+                          "example": "2026-11-02T16:31:31Z"
+                        },
+                        "poll_hours": {
+                          "type": "integer",
+                          "description": "How often Customer.io checks the folder for new files, in hours.",
+                          "example": 1
+                        },
+                        "prefix": {
+                          "type": "string",
+                          "description": "The folder that the sync watches, relative to the source's `prefix`.",
+                          "example": "daily/"
+                        },
+                        "source_id": {
+                          "type": "string",
+                          "description": "The source bucket that the sync reads files from.",
+                          "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+                        },
+                        "state": {
+                          "type": "string",
+                          "description": "`failed` means the last check stopped at a file that Customer.io couldn't load. Customer.io tries that file again at the next check.",
+                          "enum": [
+                            "active",
+                            "failed"
+                          ],
+                          "example": "active"
+                        },
+                        "updated_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-11-02T15:31:31Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your plan doesn't include collections."
+          },
+          "404": {
+            "description": "The collection `id` does not exist."
+          },
+          "422": {
+            "description": "Customer.io couldn't accept the sync, like when the collection has no key field or the source doesn't exist."
+          },
+          "429": {
+            "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per 1s (reference a1b2c3)",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "json",
+            "label": "JSON",
+            "source": "{\n  \"source_id\": \"01JD8X4Q6R2W7N3K5M9P1T0VZC\",\n  \"poll_hours\": 1,\n  \"prefix\": \"daily/\"\n}"
+          }
+        ]
+      },
+      "get": {
+        "summary": "Look up a collection's sync",
+        "description": "Returns the collection's sync, including the last file Customer.io loaded and the last error.",
+        "tags": [
+          "Collections"
+        ],
+        "operationId": "getCollectionSync",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the sync.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sync": {
+                      "x-scalar-ignore": true,
+                      "type": "object",
+                      "properties": {
+                        "collection_id": {
+                          "type": "integer",
+                          "example": 12
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-11-02T15:00:00Z"
+                        },
+                        "last_error": {
+                          "type": "object",
+                          "description": "The most recent error. Absent when the sync hasn't had an error.",
+                          "properties": {
+                            "at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2026-11-02T15:31:31Z"
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "could not read daily/2026-11-02.csv: fetch failed: HTTP 403 status"
+                            }
+                          }
+                        },
+                        "last_file": {
+                          "type": "object",
+                          "description": "The last file that Customer.io loaded. Absent until the first file loads.",
+                          "properties": {
+                            "applied_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2026-11-02T15:31:31Z"
+                            },
+                            "path": {
+                              "type": "string",
+                              "example": "daily/2026-11-02.csv"
+                            },
+                            "version": {
+                              "type": "string",
+                              "description": "The storage provider's version ID for the file.",
+                              "example": "1793630000123456"
+                            }
+                          }
+                        },
+                        "next_run_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "When Customer.io next checks the folder. Absent when the next check isn't scheduled yet.",
+                          "example": "2026-11-02T16:31:31Z"
+                        },
+                        "poll_hours": {
+                          "type": "integer",
+                          "description": "How often Customer.io checks the folder for new files, in hours.",
+                          "example": 1
+                        },
+                        "prefix": {
+                          "type": "string",
+                          "description": "The folder that the sync watches, relative to the source's `prefix`.",
+                          "example": "daily/"
+                        },
+                        "source_id": {
+                          "type": "string",
+                          "description": "The source bucket that the sync reads files from.",
+                          "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+                        },
+                        "state": {
+                          "type": "string",
+                          "description": "`failed` means the last check stopped at a file that Customer.io couldn't load. Customer.io tries that file again at the next check.",
+                          "enum": [
+                            "active",
+                            "failed"
+                          ],
+                          "example": "active"
+                        },
+                        "updated_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-11-02T15:31:31Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The collection doesn't exist or doesn't have a sync."
+          },
+          "429": {
+            "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per 1s (reference a1b2c3)",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Stop a collection's sync",
+        "description": "Stop loading files into the collection, and delete the sync's rejected rows. Rows that the sync already loaded stay in the collection.",
+        "tags": [
+          "Collections"
+        ],
+        "operationId": "deleteCollectionSync",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The sync is deleted."
+          },
+          "404": {
+            "description": "The collection doesn't exist or doesn't have a sync."
+          },
+          "429": {
+            "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per 1s (reference a1b2c3)",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collections/{collection_id}/sync/poll": {
+      "parameters": [
+        {
+          "name": "collection_id",
+          "description": "The identifier for a collection.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "servers": [
+        {
+          "url": "https://api.customer.io",
+          "description": "This API uses bearer authorization, requiring a [token that you generate in the UI](https://fly.customer.io/settings/api_credentials?keyType=app)."
+        }
+      ],
+      "post": {
+        "summary": "Check a sync's folder now",
+        "description": "Check the sync's folder for new files now, instead of waiting for the next scheduled check. If a check is already running, Customer.io doesn't start another. Customer.io responds right away, before the check finishes. Use [look up a collection's sync](/integrations/api/app/tag/collections/getCollectionSync/) to see the result.",
+        "tags": [
+          "Collections"
+        ],
+        "operationId": "pollCollectionSync",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Customer.io started the check."
+          },
+          "400": {
+            "description": "Your plan doesn't include collections."
+          },
+          "404": {
+            "description": "The collection doesn't exist or doesn't have a sync."
+          },
+          "429": {
+            "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per 1s (reference a1b2c3)",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collections/{collection_id}/sync/rejects": {
+      "parameters": [
+        {
+          "name": "collection_id",
+          "description": "The identifier for a collection.",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "servers": [
+        {
+          "url": "https://api.customer.io",
+          "description": "This API uses bearer authorization, requiring a [token that you generate in the UI](https://fly.customer.io/settings/api_credentials?keyType=app)."
+        }
+      ],
+      "get": {
+        "summary": "List rejected sync rows",
+        "description": "Returns the rows from synced files that Customer.io couldn't load, sorted by file and then by row. Customer.io keeps rejected rows for 90 days.",
+        "tags": [
+          "Collections"
+        ],
+        "operationId": "getCollectionSyncRejects",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of rejected rows to return in a page.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 100
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "The `next_cursor` from the previous page. Leave it out to get the first page.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the rejected rows.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "next_cursor": {
+                      "type": "string",
+                      "description": "Pass this as `cursor` to get the next page. Absent on the last page."
+                    },
+                    "rejects": {
+                      "type": "array",
+                      "items": {
+                        "x-scalar-ignore": true,
+                        "type": "object",
+                        "properties": {
+                          "code": {
+                            "type": "string",
+                            "description": "Why Customer.io rejected the row.",
+                            "enum": [
+                              "missing-key",
+                              "duplicate-key",
+                              "key-too-long",
+                              "key-field-repeated",
+                              "field-too-long",
+                              "not-an-object",
+                              "too-large"
+                            ],
+                            "example": "duplicate-key"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2026-11-02T15:31:31Z"
+                          },
+                          "file": {
+                            "type": "string",
+                            "description": "The path of the file that held the row.",
+                            "example": "daily/2026-11-02.csv"
+                          },
+                          "file_version": {
+                            "type": "string",
+                            "description": "The storage provider's version ID for the file.",
+                            "example": "1793630000123456"
+                          },
+                          "key": {
+                            "type": "string",
+                            "description": "The row's key, when it has one.",
+                            "example": "A-100"
+                          },
+                          "row": {
+                            "type": "integer",
+                            "description": "The row's position in the file, starting at 1. In a CSV file, the header row doesn't count, so row 1 is the first row of data.",
+                            "example": 17
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The collection doesn't exist or doesn't have a sync."
+          },
+          "429": {
+            "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per 1s (reference a1b2c3)",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collections/sources": {
+      "servers": [
+        {
+          "url": "https://api.customer.io",
+          "description": "This API uses bearer authorization, requiring a [token that you generate in the UI](https://fly.customer.io/settings/api_credentials?keyType=app)."
+        }
+      ],
+      "get": {
+        "summary": "List collection sources",
+        "description": "Returns the cloud storage buckets that you connected to your workspace as collection sources. Customer.io never returns a source's credentials.",
+        "tags": [
+          "Collections"
+        ],
+        "operationId": "listCollectionSources",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns your workspace's sources.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sources": {
+                      "type": "array",
+                      "items": {
+                        "x-scalar-ignore": true,
+                        "type": "object",
+                        "properties": {
+                          "bucket": {
+                            "type": "string",
+                            "description": "The bucket, or for Azure, the container.",
+                            "example": "acme-exports"
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2026-11-02T15:31:31Z"
+                          },
+                          "id": {
+                            "type": "string",
+                            "description": "The identifier for the source. Send it as `source_id` when you write to a collection.",
+                            "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+                          },
+                          "name": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "description": "A name that helps you recognize the source.",
+                            "example": "exports"
+                          },
+                          "prefix": {
+                            "x-scalar-ignore": true,
+                            "type": "string",
+                            "description": "A folder in the bucket, like `imports`. When you set a prefix, Customer.io only reads files within it, and a write request's `path` is relative to it. Leave it out to read the whole bucket.",
+                            "example": "imports"
+                          },
+                          "provider": {
+                            "type": "string",
+                            "description": "The storage service that holds the bucket.",
+                            "enum": [
+                              "s3",
+                              "gcs",
+                              "azure"
+                            ],
+                            "example": "s3"
+                          },
+                          "region": {
+                            "type": "string",
+                            "description": "The AWS region of an S3 bucket.",
+                            "example": "us-east-1"
+                          },
+                          "updated_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2026-11-02T15:31:31Z"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per 1s (reference a1b2c3)",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Connect a collection source",
+        "description": "Connect a bucket in Amazon S3, Google Cloud Storage, or Azure Blob Storage so that you can load files from it into your collections. After you connect a source, send its `id` and a file `path` to [write to a collection](/integrations/api/app/tag/collections/submitCollectionWrite/), or [sync a collection](/integrations/api/app/tag/collections/putCollectionSync/) to load new files from a folder automatically.\n\nYour credentials need permission to list and read the bucket:\n\n- **S3:** `s3:ListBucket` and `s3:GetObject`.\n- **Google Cloud Storage:** the Storage Object Viewer role.\n- **Azure:** a container SAS URL that grants read and list (`sp=rl`).\n\nBefore Customer.io saves the source, it lists the bucket under your `prefix` and reads the first file it finds. If the bucket has no files under the prefix yet, Customer.io can only check that your credentials list the bucket. Customer.io encrypts your credentials and never returns them.\n",
+        "tags": [
+          "Collections"
+        ],
+        "operationId": "createCollectionSource",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "title": "Amazon S3",
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "provider",
+                      "bucket",
+                      "region",
+                      "credentials"
+                    ],
+                    "properties": {
+                      "bucket": {
+                        "type": "string",
+                        "description": "The name of your S3 bucket.",
+                        "example": "acme-exports"
+                      },
+                      "credentials": {
+                        "type": "object",
+                        "required": [
+                          "access_key_id",
+                          "secret_access_key"
+                        ],
+                        "properties": {
+                          "access_key_id": {
+                            "type": "string",
+                            "description": "The access key ID of an AWS user that can list and read the bucket.",
+                            "example": "AKIAIOSFODNN7EXAMPLE"
+                          },
+                          "secret_access_key": {
+                            "type": "string",
+                            "description": "The secret access key that goes with `access_key_id`."
+                          }
+                        }
+                      },
+                      "name": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "A name that helps you recognize the source.",
+                        "example": "exports"
+                      },
+                      "provider": {
+                        "type": "string",
+                        "enum": [
+                          "s3"
+                        ]
+                      },
+                      "region": {
+                        "type": "string",
+                        "description": "The AWS region of your bucket.",
+                        "example": "us-east-1"
+                      },
+                      "prefix": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "A folder in the bucket, like `imports`. When you set a prefix, Customer.io only reads files within it, and a write request's `path` is relative to it. Leave it out to read the whole bucket.",
+                        "example": "imports"
+                      }
+                    }
+                  },
+                  {
+                    "title": "Google Cloud Storage",
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "provider",
+                      "bucket",
+                      "credentials"
+                    ],
+                    "properties": {
+                      "bucket": {
+                        "type": "string",
+                        "description": "The name of your Cloud Storage bucket.",
+                        "example": "acme-exports"
+                      },
+                      "credentials": {
+                        "type": "object",
+                        "required": [
+                          "service_account_key"
+                        ],
+                        "properties": {
+                          "service_account_key": {
+                            "type": "string",
+                            "description": "The JSON key file that Google issues for a service account, as a string. The key's `token_uri` must be Google's own token endpoint."
+                          }
+                        }
+                      },
+                      "name": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "A name that helps you recognize the source.",
+                        "example": "exports"
+                      },
+                      "provider": {
+                        "type": "string",
+                        "enum": [
+                          "gcs"
+                        ]
+                      },
+                      "prefix": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "A folder in the bucket, like `imports`. When you set a prefix, Customer.io only reads files within it, and a write request's `path` is relative to it. Leave it out to read the whole bucket.",
+                        "example": "imports"
+                      }
+                    }
+                  },
+                  {
+                    "title": "Azure Blob Storage",
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "provider",
+                      "credentials"
+                    ],
+                    "properties": {
+                      "credentials": {
+                        "type": "object",
+                        "required": [
+                          "sas_url"
+                        ],
+                        "properties": {
+                          "sas_url": {
+                            "type": "string",
+                            "format": "url",
+                            "description": "A SAS URL for your container on `blob.core.windows.net` that grants read and list (`sp=rl`). Customer.io takes the container name from this URL, so you don't send a `bucket`."
+                          }
+                        }
+                      },
+                      "name": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "A name that helps you recognize the source.",
+                        "example": "exports"
+                      },
+                      "provider": {
+                        "type": "string",
+                        "enum": [
+                          "azure"
+                        ]
+                      },
+                      "prefix": {
+                        "x-scalar-ignore": true,
+                        "type": "string",
+                        "description": "A folder in the bucket, like `imports`. When you set a prefix, Customer.io only reads files within it, and a write request's `path` is relative to it. Leave it out to read the whole bucket.",
+                        "example": "imports"
+                      }
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "bucket": "acme-exports",
+                "credentials": {
+                  "access_key_id": "AKIAIOSFODNN7EXAMPLE",
+                  "secret_access_key": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+                },
+                "name": "exports",
+                "provider": "s3",
+                "region": "us-east-1",
+                "prefix": "imports"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Customer.io read your bucket and saved the source.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "source": {
+                      "x-scalar-ignore": true,
+                      "type": "object",
+                      "properties": {
+                        "bucket": {
+                          "type": "string",
+                          "description": "The bucket, or for Azure, the container.",
+                          "example": "acme-exports"
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-11-02T15:31:31Z"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "The identifier for the source. Send it as `source_id` when you write to a collection.",
+                          "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+                        },
+                        "name": {
+                          "x-scalar-ignore": true,
+                          "type": "string",
+                          "description": "A name that helps you recognize the source.",
+                          "example": "exports"
+                        },
+                        "prefix": {
+                          "x-scalar-ignore": true,
+                          "type": "string",
+                          "description": "A folder in the bucket, like `imports`. When you set a prefix, Customer.io only reads files within it, and a write request's `path` is relative to it. Leave it out to read the whole bucket.",
+                          "example": "imports"
+                        },
+                        "provider": {
+                          "type": "string",
+                          "description": "The storage service that holds the bucket.",
+                          "enum": [
+                            "s3",
+                            "gcs",
+                            "azure"
+                          ],
+                          "example": "s3"
+                        },
+                        "region": {
+                          "type": "string",
+                          "description": "The AWS region of an S3 bucket.",
+                          "example": "us-east-1"
+                        },
+                        "updated_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-11-02T15:31:31Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your plan doesn't include collections."
+          },
+          "422": {
+            "description": "Customer.io couldn't use the source. If your credentials are wrong, the error tells you whether Customer.io couldn't list the bucket or could list it but couldn't read its files."
+          },
+          "429": {
+            "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per 1s (reference a1b2c3)",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "json",
+            "label": "JSON",
+            "source": "{\n  \"bucket\": \"acme-exports\",\n  \"credentials\": {\n    \"access_key_id\": \"AKIAIOSFODNN7EXAMPLE\",\n    \"secret_access_key\": \"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\"\n  },\n  \"name\": \"exports\",\n  \"provider\": \"s3\",\n  \"region\": \"us-east-1\",\n  \"prefix\": \"imports\"\n}"
+          }
+        ]
+      }
+    },
+    "/v1/collections/sources/{source_id}": {
+      "parameters": [
+        {
+          "name": "source_id",
+          "description": "The identifier for a collection source (like a bucket in Amazon S3, Google Cloud Storage, or Azure Blob Storage).",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "servers": [
+        {
+          "url": "https://api.customer.io",
+          "description": "This API uses bearer authorization, requiring a [token that you generate in the UI](https://fly.customer.io/settings/api_credentials?keyType=app)."
+        }
+      ],
+      "get": {
+        "summary": "Look up a collection source",
+        "description": "Returns a collection source, without its credentials.",
+        "tags": [
+          "Collections"
+        ],
+        "operationId": "getCollectionSource",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the source.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "source": {
+                      "x-scalar-ignore": true,
+                      "type": "object",
+                      "properties": {
+                        "bucket": {
+                          "type": "string",
+                          "description": "The bucket, or for Azure, the container.",
+                          "example": "acme-exports"
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-11-02T15:31:31Z"
+                        },
+                        "id": {
+                          "type": "string",
+                          "description": "The identifier for the source. Send it as `source_id` when you write to a collection.",
+                          "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+                        },
+                        "name": {
+                          "x-scalar-ignore": true,
+                          "type": "string",
+                          "description": "A name that helps you recognize the source.",
+                          "example": "exports"
+                        },
+                        "prefix": {
+                          "x-scalar-ignore": true,
+                          "type": "string",
+                          "description": "A folder in the bucket, like `imports`. When you set a prefix, Customer.io only reads files within it, and a write request's `path` is relative to it. Leave it out to read the whole bucket.",
+                          "example": "imports"
+                        },
+                        "provider": {
+                          "type": "string",
+                          "description": "The storage service that holds the bucket.",
+                          "enum": [
+                            "s3",
+                            "gcs",
+                            "azure"
+                          ],
+                          "example": "s3"
+                        },
+                        "region": {
+                          "type": "string",
+                          "description": "The AWS region of an S3 bucket.",
+                          "example": "us-east-1"
+                        },
+                        "updated_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2026-11-02T15:31:31Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Your workspace doesn't have a source with this `id`."
+          },
+          "429": {
+            "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per 1s (reference a1b2c3)",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a collection source",
+        "description": "Disconnect a bucket from your workspace. Collections that you already wrote from the source keep their rows. After you delete a source, Customer.io responds to a new write request that names it with a `422`. A write request that you queued before you deleted the source fails with the code `source-refused`. A sync that reads from the source stops with the `state` `failed`, so delete the sync or point it at another source.",
+        "tags": [
+          "Collections"
+        ],
+        "operationId": "deleteCollectionSource",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The source is deleted."
+          },
+          "404": {
+            "description": "Your workspace doesn't have a source with this `id`."
+          },
+          "429": {
+            "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "errors": [
+                    {
+                      "detail": "rate limited to 10 requests per 1s (reference a1b2c3)",
+                      "status": "429"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collections/sources/{source_id}/check": {
+      "parameters": [
+        {
+          "name": "source_id",
+          "description": "The identifier for a collection source (like a bucket in Amazon S3, Google Cloud Storage, or Azure Blob Storage).",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "servers": [
+        {
+          "url": "https://api.customer.io",
+          "description": "This API uses bearer authorization, requiring a [token that you generate in the UI](https://fly.customer.io/settings/api_credentials?keyType=app)."
+        }
+      ],
+      "post": {
+        "summary": "Check a collection source",
+        "description": "Check that a source's credentials can still read its bucket, like after you rotate a key or change the bucket's permissions. Customer.io runs the same check as when you connect the source.",
+        "tags": [
+          "Collections"
+        ],
+        "operationId": "checkCollectionSource",
+        "security": [
+          {
+            "Bearer-Auth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer.io can read the bucket.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "readable": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Your plan doesn't include collections."
+          },
+          "404": {
+            "description": "Your workspace doesn't have a source with this `id`."
+          },
+          "422": {
+            "description": "Customer.io can't read the bucket with the source's credentials. The error tells you whether Customer.io couldn't list the bucket or could list it but couldn't read its files."
           },
           "429": {
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",

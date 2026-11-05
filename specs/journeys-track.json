@@ -65,6 +65,15 @@
           "type": "integer"
         }
       },
+      "collection_source_id": {
+        "name": "source_id",
+        "description": "The identifier for a collection source (like a bucket in Amazon S3, Google Cloud Storage, or Azure Blob Storage).",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
       "delivery_id": {
         "name": "delivery_id",
         "description": "The delivery resulting in a request to unsubscribe.",
@@ -830,6 +839,11 @@
             "example": 1552341937,
             "readOnly": true
           },
+          "delete_field": {
+            "type": "string",
+            "description": "The attribute that marks a row for deletion in a write request or a synced file. Absent when the collection has no delete field.",
+            "example": "deleted"
+          },
           "id": {
             "type": "integer",
             "description": "The identifier for the collection. This is how you'll reference the collection from the API.",
@@ -878,36 +892,45 @@
         "description": "The attribute that holds each row's unique key, like `sku`, similar to a primary key in a database table. Set a key field to add, change, delete, or read individual rows without replacing the whole collection. Each row needs a unique, non-empty string or number in this attribute, up to 1,024 bytes.",
         "example": "sku"
       },
+      "collectionDeleteField": {
+        "x-scalar-ignore": true,
+        "type": "string",
+        "description": "An attribute that marks a row for deletion, like `deleted`. When a row in a write request or a synced file sets this attribute to `true`, or to the text `true`, `1`, or `yes` in any case, Customer.io deletes the row with the same key instead of saving it. Deleting a key that doesn't exist does nothing. Customer.io never keeps a row that this attribute marks. When you create or replace a collection, Customer.io leaves marked rows out. When you set a delete field on an existing collection, Customer.io deletes the rows it already marks. A row that isn't marked keeps the attribute as you sent it. The delete field can't be the same as the key field. Send an empty string to remove it.",
+        "maxLength": 255,
+        "example": "deleted"
+      },
       "collectionWrite": {
         "x-scalar-ignore": true,
         "type": "object",
         "properties": {
           "code": {
             "type": "string",
-            "description": "Why the write failed. Present only when `state` is `failed`.",
+            "description": "If the write request's `state` is `failed`, the code explains why. A write of up to 500 rows saves nothing when it fails, and a larger write keeps the rows it saved before it failed. `source-refused` means Customer.io couldn't download the file, or the source is gone or unusable. `replace-unfinished` means an earlier replacement stopped partway, so you need to replace the collection's rows again.",
             "enum": [
               "storage-limit-reached",
               "too-large",
-              "too-large-to-key",
               "invalid-data",
               "no-key-field",
+              "delete-field-is-key",
               "items",
               "source-unauthorized",
               "superseded",
               "expired",
               "canceled",
-              "collection-not-found"
+              "collection-not-found",
+              "source-refused",
+              "replace-unfinished"
             ],
             "example": "items"
           },
           "id": {
             "type": "string",
-            "description": "The identifier for the write. Use it to look up the write's status.",
+            "description": "The identifier for the write request. Use it to look up the write's status.",
             "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
           },
           "items": {
             "type": "array",
-            "description": "For a keyed write that failed with `items`, the rows that couldn't be applied. Customer.io didn't apply any of the write's rows.",
+            "description": "For a write request that failed with `items`, up to 500 of the rows that Customer.io rejected. Customer.io didn't save any of the rows.",
             "items": {
               "type": "object",
               "properties": {
@@ -915,8 +938,6 @@
                   "type": "string",
                   "description": "Why the row failed.",
                   "enum": [
-                    "key-already-exists",
-                    "item-not-found",
                     "missing-key",
                     "duplicate-key",
                     "key-too-long",
@@ -924,16 +945,16 @@
                     "field-too-long",
                     "not-an-object"
                   ],
-                  "example": "key-already-exists"
+                  "example": "duplicate-key"
                 },
                 "index": {
                   "type": "integer",
-                  "description": "The row's position in the write's `data` array, starting at 0.",
+                  "description": "The row's position in the write request, starting at 0. For a write that sends `data`, this is the row's position in the `data` array. For a write from a file, this is the row's position among the file's rows.",
                   "example": 0
                 },
                 "key": {
                   "type": "string",
-                  "description": "The row's key, when it has one.",
+                  "description": "The row's key, if it has one.",
                   "example": "A-100"
                 }
               }
@@ -942,11 +963,11 @@
           "message": {
             "type": "string",
             "description": "A readable explanation of the failure.",
-            "example": "item 0 (\"A-100\"): key-already-exists"
+            "example": "item 1 (\"A-100\"): duplicate-key"
           },
           "state": {
             "type": "string",
-            "description": "Where the write stands. `replaced` means a newer `replace` write made this one unnecessary, so Customer.io skipped it.",
+            "description": "Where the write request stands. `replaced` means that a later replacement of the whole collection ran first, so the collection ends up as if this write ran before the replacement.",
             "enum": [
               "queued",
               "applied",
@@ -954,6 +975,201 @@
               "failed"
             ],
             "example": "failed"
+          }
+        }
+      },
+      "collectionSync": {
+        "x-scalar-ignore": true,
+        "type": "object",
+        "properties": {
+          "collection_id": {
+            "type": "integer",
+            "example": 12
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-02T15:00:00Z"
+          },
+          "last_error": {
+            "type": "object",
+            "description": "The most recent error. Absent when the sync hasn't had an error.",
+            "properties": {
+              "at": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2026-11-02T15:31:31Z"
+              },
+              "message": {
+                "type": "string",
+                "example": "could not read daily/2026-11-02.csv: fetch failed: HTTP 403 status"
+              }
+            }
+          },
+          "last_file": {
+            "type": "object",
+            "description": "The last file that Customer.io loaded. Absent until the first file loads.",
+            "properties": {
+              "applied_at": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2026-11-02T15:31:31Z"
+              },
+              "path": {
+                "type": "string",
+                "example": "daily/2026-11-02.csv"
+              },
+              "version": {
+                "type": "string",
+                "description": "The storage provider's version ID for the file.",
+                "example": "1793630000123456"
+              }
+            }
+          },
+          "next_run_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When Customer.io next checks the folder. Absent when the next check isn't scheduled yet.",
+            "example": "2026-11-02T16:31:31Z"
+          },
+          "poll_hours": {
+            "type": "integer",
+            "description": "How often Customer.io checks the folder for new files, in hours.",
+            "example": 1
+          },
+          "prefix": {
+            "type": "string",
+            "description": "The folder that the sync watches, relative to the source's `prefix`.",
+            "example": "daily/"
+          },
+          "source_id": {
+            "type": "string",
+            "description": "The source bucket that the sync reads files from.",
+            "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+          },
+          "state": {
+            "type": "string",
+            "description": "`failed` means the last check stopped at a file that Customer.io couldn't load. Customer.io tries that file again at the next check.",
+            "enum": [
+              "active",
+              "failed"
+            ],
+            "example": "active"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-02T15:31:31Z"
+          }
+        }
+      },
+      "collectionSyncReject": {
+        "x-scalar-ignore": true,
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Why Customer.io rejected the row.",
+            "enum": [
+              "missing-key",
+              "duplicate-key",
+              "key-too-long",
+              "key-field-repeated",
+              "field-too-long",
+              "not-an-object",
+              "too-large"
+            ],
+            "example": "duplicate-key"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-02T15:31:31Z"
+          },
+          "file": {
+            "type": "string",
+            "description": "The path of the file that held the row.",
+            "example": "daily/2026-11-02.csv"
+          },
+          "file_version": {
+            "type": "string",
+            "description": "The storage provider's version ID for the file.",
+            "example": "1793630000123456"
+          },
+          "key": {
+            "type": "string",
+            "description": "The row's key, when it has one.",
+            "example": "A-100"
+          },
+          "row": {
+            "type": "integer",
+            "description": "The row's position in the file, starting at 1. In a CSV file, the header row doesn't count, so row 1 is the first row of data.",
+            "example": 17
+          }
+        }
+      },
+      "collectionSourceName": {
+        "x-scalar-ignore": true,
+        "type": "string",
+        "description": "A name that helps you recognize the source.",
+        "example": "exports"
+      },
+      "collectionSourcePrefix": {
+        "x-scalar-ignore": true,
+        "type": "string",
+        "description": "A folder in the bucket, like `imports`. When you set a prefix, Customer.io only reads files within it, and a write request's `path` is relative to it. Leave it out to read the whole bucket.",
+        "example": "imports"
+      },
+      "collectionSource": {
+        "x-scalar-ignore": true,
+        "type": "object",
+        "properties": {
+          "bucket": {
+            "type": "string",
+            "description": "The bucket, or for Azure, the container.",
+            "example": "acme-exports"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-02T15:31:31Z"
+          },
+          "id": {
+            "type": "string",
+            "description": "The identifier for the source. Send it as `source_id` when you write to a collection.",
+            "example": "01JD8X4Q6R2W7N3K5M9P1T0VZC"
+          },
+          "name": {
+            "x-scalar-ignore": true,
+            "type": "string",
+            "description": "A name that helps you recognize the source.",
+            "example": "exports"
+          },
+          "prefix": {
+            "x-scalar-ignore": true,
+            "type": "string",
+            "description": "A folder in the bucket, like `imports`. When you set a prefix, Customer.io only reads files within it, and a write request's `path` is relative to it. Leave it out to read the whole bucket.",
+            "example": "imports"
+          },
+          "provider": {
+            "type": "string",
+            "description": "The storage service that holds the bucket.",
+            "enum": [
+              "s3",
+              "gcs",
+              "azure"
+            ],
+            "example": "s3"
+          },
+          "region": {
+            "type": "string",
+            "description": "The AWS region of an S3 bucket.",
+            "example": "us-east-1"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-11-02T15:31:31Z"
           }
         }
       },
@@ -59653,7 +59869,7 @@
         ],
         "operationId": "add_to_segment",
         "summary": "Add people to a manual segment",
-        "description": "Add people to a manual segment by ID. You are limited to 1000 customer IDs per request.\n\nThis endpoint lets you add people to manual segments, but a segment must exist before you can add people to it. You can create and find manual segments using the [App API](/integrations/api/app/tag/segments/createManSegment/).\n\nWhen you call this API, you can pass an `id_type` query parameter determining the type of identifier you want to use: `id`, `email`, `cio_id`, or `phone`. If you don't pass this parameter, it defaults to `id`. The request body always uses `ids`, even though it'll accept IDs, emails, `cio_id`s, or phone numbers depending on the query parameter. Everybody in the payload must use the same kind of identifier; we'll ignore values in the `ids` array that don't match the `id_type` parameter.\n\nYour workspace must support [`email` or `phone` as identifiers](/accounts/workspaces/overview/#migrate-workspace) to support these values. These are on by default in new workspaces.\n\n**NOTE**: You cannot add people to data-driven segments using the API. See [our documentation on segments](/journeys/segmentation/segments) for more information about segments.\n",
+        "description": "Add people to a manual segment by ID. You are limited to 1000 customer IDs per request.\n\nThis endpoint lets you add people to manual segments, but a segment must exist before you can add people to it. You can create and find manual segments using the [App API](/integrations/api/app/tag/segments/createManSegment/).\n\nWhen you call this API, you can pass an `id_type` query parameter to set the type of identifier you want to use: `id`, `email`, `cio_id`, or `phone`. If you don't pass this parameter, it defaults to `id`. The request body always uses `ids`, whichever type you choose, and every value in `ids` must be of that type.\n\nThis endpoint doesn't check that the people in `ids` exist before it returns a response, and it doesn't create new profiles.\n\nYour workspace must support [`email` or `phone` as identifiers](/accounts/workspaces/overview/#migrate-workspace) to support these values. These are on by default in new workspaces.\n\n**NOTE**: You cannot add people to data-driven segments using the API. See [our documentation on segments](/journeys/segmentation/segments) for more information about segments.\n",
         "servers": [
           {
             "url": "https://track.customer.io",
@@ -59680,7 +59896,7 @@
                 "properties": {
                   "ids": {
                     "type": "array",
-                    "description": "The customer IDs you want to add to the segment. The type of value you pass in the array corresponds to the `id_type` query parameter—`id`, `email`, `cio_id`, or `phone`. Pass phone numbers in E.164 format, like `+14165552368`. Entries in the array that don't match the `id_type` are ignored.",
+                    "description": "The identifiers of the people you want to add to the segment, all of the type you set in the `id_type` query parameter. Pass phone numbers in E.164 format, like `+14165552368`.",
                     "maxItems": 1000,
                     "minItems": 1,
                     "items": {
@@ -59779,7 +59995,7 @@
         ],
         "operationId": "remove_from_segment",
         "summary": "Remove people from a manual segment",
-        "description": "You can remove users from a manual segment by ID. You are limited to 1000 customer IDs per request.\n\nThis endpoint requires people to have `id` attributes. If your workspace does not use `id` as an identifier, or you have not assigned people `id` values, you cannot remove people from manual segments using the API. Our user interface does not have this limitation. You can remove people from manual segments through the UI as a part of an automation workflow.\n\n**NOTE**: You cannot remove people from data-driven segments using the API. See [our documentation on segments](/journeys/segmentation/segments) for more information about segments.\n",
+        "description": "You can remove users from a manual segment by ID. You are limited to 1000 customer IDs per request.\n\nWhen you call this API, you can pass an `id_type` query parameter to set the type of identifier you want to use: `id`, `email`, `cio_id`, or `phone`. If you don't pass this parameter, it defaults to `id`. The request body always uses `ids`, whichever type you choose, and every value in `ids` must be of that type.\n\nThis endpoint doesn't check that the people in `ids` exist before it returns a response, and it doesn't create new profiles.\n\nYour workspace must support [`email` or `phone` as identifiers](/accounts/workspaces/overview/#migrate-workspace) to support these values. These are on by default in new workspaces.\n\n**NOTE**: You cannot remove people from data-driven segments using the API. See [our documentation on segments](/journeys/segmentation/segments) for more information about segments.\n",
         "servers": [
           {
             "url": "https://track.customer.io",
@@ -59806,7 +60022,7 @@
                 "properties": {
                   "ids": {
                     "type": "array",
-                    "description": "The customer IDs you want to remove from the segment.",
+                    "description": "The identifiers of the people you want to remove from the segment, all of the type you set in the `id_type` query parameter. Pass phone numbers in E.164 format, like `+14165552368`.",
                     "maxItems": 1000,
                     "minItems": 1,
                     "items": {
