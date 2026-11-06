@@ -9299,7 +9299,7 @@
               },
               "deduped": {
                 "type": "boolean",
-                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
               },
               "expires_after": {
                 "type": "integer",
@@ -9472,7 +9472,7 @@
               },
               "deduped": {
                 "type": "boolean",
-                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
               },
               "expires_after": {
                 "type": "integer",
@@ -9625,7 +9625,7 @@
               },
               "deduped": {
                 "type": "boolean",
-                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
               },
               "expires_after": {
                 "type": "integer",
@@ -9783,7 +9783,7 @@
               },
               "deduped": {
                 "type": "boolean",
-                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
               },
               "expires_after": {
                 "type": "integer",
@@ -9951,7 +9951,7 @@
               },
               "deduped": {
                 "type": "boolean",
-                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
               },
               "expires_after": {
                 "type": "integer",
@@ -10107,7 +10107,7 @@
               },
               "deduped": {
                 "type": "boolean",
-                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
               },
               "expires_after": {
                 "type": "integer",
@@ -10245,7 +10245,7 @@
           },
           "deduped": {
             "type": "boolean",
-            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
           },
           "expires_after": {
             "type": "integer",
@@ -10420,7 +10420,7 @@
           },
           "deduped": {
             "type": "boolean",
-            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
           },
           "expires_after": {
             "type": "integer",
@@ -10593,7 +10593,7 @@
           },
           "deduped": {
             "type": "boolean",
-            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
           },
           "expires_after": {
             "type": "integer",
@@ -10746,7 +10746,7 @@
           },
           "deduped": {
             "type": "boolean",
-            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
           },
           "expires_after": {
             "type": "integer",
@@ -10904,7 +10904,7 @@
           },
           "deduped": {
             "type": "boolean",
-            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
           },
           "expires_after": {
             "type": "integer",
@@ -11070,7 +11070,7 @@
           },
           "deduped": {
             "type": "boolean",
-            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
           },
           "expires_after": {
             "type": "integer",
@@ -11238,7 +11238,7 @@
           },
           "deduped": {
             "type": "boolean",
-            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
           },
           "expires_after": {
             "type": "integer",
