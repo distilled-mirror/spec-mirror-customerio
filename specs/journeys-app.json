@@ -47,6 +47,19 @@
           ]
         }
       },
+      "suppression_type_writable": {
+        "name": "suppression_type",
+        "description": "The email service provider (ESP) suppression list you want to add the email address to or remove it from.",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "bounces",
+            "spam_reports"
+          ]
+        }
+      },
       "transactional_id": {
         "name": "transactional_id",
         "description": "The identifier of your transactional message. You'll find this in the UI or URL of your transactional message. For example, if this is the path of a transactional message URL - `/transactional/3/templates/139` - the `transactional_id` is 3.",
@@ -207321,16 +207334,14 @@
       "parameters": [
         {
           "name": "suppression_type",
-          "description": "The reason a person's email address was suppressed by the email service provider (ESP).",
+          "description": "The email service provider (ESP) suppression list you want to add the email address to or remove it from.",
           "in": "path",
           "required": true,
           "schema": {
             "type": "string",
             "enum": [
-              "blocks",
               "bounces",
-              "spam_reports",
-              "invalid_emails"
+              "spam_reports"
             ]
           }
         },
@@ -232039,7 +232050,7 @@
       ],
       "post": {
         "summary": "Write to a collection",
-        "description": "Add, update, or delete rows by key, without replacing the whole collection. The collection needs a [key field](/integrations/api/app/tag/collections/updateCollection/). A row whose key already exists replaces the old row, and a row with a new key is added. To replace every row instead, use [update a collection](/integrations/api/app/tag/collections/updateCollection/).\n\nTo delete rows, give the collection a `delete_field`, like `deleted`. A row that sets that field to `true` deletes the row with the same key. A row that doesn't set it to `true` is saved with the field as you sent it. One write request can save some rows and delete others.\n\nSend the rows in one of three ways: in the request as `data`, as a file at a `url`, or as a file in one of your [collection sources](/integrations/api/app/tag/collections/listCollectionSources/) with `source_id` and `path`. Customer.io reads a file when the write runs, so a file can hold far more rows than a request body can.\n\nCustomer.io queues the write and responds right away with a write `id`, so large writes don't time out. Customer.io applies writes to a collection one at a time, in the order it receives them. Use [look up a collection write](/integrations/api/app/tag/collections/getCollectionWrite/) to check the result.\n\nCustomer.io checks every row before it saves anything. If any row is invalid, Customer.io doesn't save any of them. Customer.io can handle a write of up to 500 rows all at once. If your request is larger, we apply writes 500 rows at a time. While a large write runs, a read can return some of its rows and not others. If a large write fails partway, the rows it saved stay in the collection, and you can safely send the same write again.\n",
+        "description": "Add, update, or delete rows by key, without replacing the whole collection. The collection needs a [key field](/messaging/objects-data/collections/#key-fields), which you can set when you [update a collection](/integrations/api/app/tag/collections/updateCollection/). A row whose key already exists replaces the old row, and a row with a new key is added. To replace every row instead, use [update a collection](/integrations/api/app/tag/collections/updateCollection/).\n\nTo delete rows, give the collection a `delete_field`, like `deleted`. A row that sets that field to `true` deletes the row with the same key. A row that doesn't set it to `true` is saved with the field as you sent it. One write request can save some rows and delete others.\n\nSend the rows in one of three ways: in the request as `data`, as a file at a `url`, or as a file in one of your [collection sources](/integrations/api/app/tag/collections/listCollectionSources/) with `source_id` and `path`. Customer.io reads a file when the write runs, so a file can hold far more rows than a request body can.\n\nCustomer.io queues the write and responds right away with a write `id`, so large writes don't time out. Customer.io applies writes to a collection one at a time, in the order it receives them. Use [look up a collection write](/integrations/api/app/tag/collections/getCollectionWrite/) to check the result.\n\nCustomer.io checks every row before it saves anything. If any row is invalid, Customer.io doesn't save any of them. Customer.io can handle a write of up to 500 rows all at once. If your request is larger, we apply writes 500 rows at a time. While a large write runs, a read can return some of its rows and not others. If a large write fails partway, the rows it saved stay in the collection, and you can safely send the same write again.\n",
         "tags": [
           "Collections"
         ],
@@ -274874,7 +274885,7 @@
     },
     {
       "name": "Collections",
-      "description": "Collections are arbitrary sets of data that you want to use in automation messages or workflows independent of attributes or events. They might represent things like upcoming events, coupons/promotions, etc.\n"
+      "description": "Collections are sets of data that you want to use in automation messages or workflows, separate from people's attributes or events. A collection might hold upcoming concerts, coupons, or available classes. Give a collection a [key field](/messaging/objects-data/collections/#key-fields) to add, update, or delete individual rows without replacing the whole collection, and a delete field so that Customer.io removes rows that your data marks as deleted.\n"
     },
     {
       "name": "ESP Suppression",

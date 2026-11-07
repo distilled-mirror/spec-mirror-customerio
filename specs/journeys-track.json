@@ -47,6 +47,19 @@
           ]
         }
       },
+      "suppression_type_writable": {
+        "name": "suppression_type",
+        "description": "The email service provider (ESP) suppression list you want to add the email address to or remove it from.",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "bounces",
+            "spam_reports"
+          ]
+        }
+      },
       "transactional_id": {
         "name": "transactional_id",
         "description": "The identifier of your transactional message. You'll find this in the UI or URL of your transactional message. For example, if this is the path of a transactional message URL - `/transactional/3/templates/139` - the `transactional_id` is 3.",
