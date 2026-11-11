@@ -8063,7 +8063,7 @@
       "attachments": {
         "x-scalar-ignore": true,
         "type": "object",
-        "description": "A dictionary of attachments where the filename is the key and the value is the base64-encoded contents. The filename must include the extension (i.e. `name.csv`). The total size of all attachments must be less than 2 MB.",
+        "description": "A dictionary of attachments where the filename is the key and the value is the base64-encoded contents. The filename must include the extension (i.e. `name.csv`). The base64-encoded contents of all your attachments can total up to 2MB.",
         "properties": {
           "<file-name>": {
             "type": "string",
@@ -8168,7 +8168,7 @@
           "attachments": {
             "x-scalar-ignore": true,
             "type": "object",
-            "description": "A dictionary of attachments where the filename is the key and the value is the base64-encoded contents. The filename must include the extension (i.e. `name.csv`). The total size of all attachments must be less than 2 MB.",
+            "description": "A dictionary of attachments where the filename is the key and the value is the base64-encoded contents. The filename must include the extension (i.e. `name.csv`). The base64-encoded contents of all your attachments can total up to 2MB.",
             "properties": {
               "<file-name>": {
                 "type": "string",
@@ -12466,7 +12466,7 @@
         "properties": {
           "data": {
             "type": "object",
-            "description": "Contains information you want to use to populate your broadcast.",
+            "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
             "additionalProperties": {
               "x-additionalPropertiesName": "Broadcast liquid data",
               "description": "Insert key-values that you want to reference in your message here."
@@ -22994,7 +22994,7 @@
             "properties": {
               "data": {
                 "type": "object",
-                "description": "Contains information you want to use to populate your broadcast.",
+                "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
                 "additionalProperties": {
                   "x-additionalPropertiesName": "Broadcast liquid data",
                   "description": "Insert key-values that you want to reference in your message here."
@@ -25036,7 +25036,7 @@
               },
               "data": {
                 "type": "object",
-                "description": "Contains information you want to use to populate your broadcast.",
+                "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
                 "additionalProperties": {
                   "x-additionalPropertiesName": "Broadcast liquid data",
                   "description": "Insert key-values that you want to reference in your message here."
@@ -28167,8 +28167,9 @@
             "description": "An array of emails you want to send the broadcast to. These addresses must already exist; your request cannot create a new person.",
             "properties": {
               "emails": {
-                "description": "An array of email addresses you want to send the broadcast to. These addresses must already exist; your request cannot create a new person.",
+                "description": "An array of email addresses you want to send the broadcast to. These addresses must already exist; your request cannot create a new person. You can list up to 10,000 emails in this field. To send to a larger audience, use `recipients` or `data_file_url`, which don't limit the size of your audience.",
                 "type": "array",
+                "maxItems": 10000,
                 "items": {
                   "type": "string",
                   "format": "email"
@@ -28180,7 +28181,7 @@
               },
               "data": {
                 "type": "object",
-                "description": "Contains information you want to use to populate your broadcast.",
+                "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
                 "additionalProperties": {
                   "x-additionalPropertiesName": "Broadcast liquid data",
                   "description": "Insert key-values that you want to reference in your message here."
@@ -31311,7 +31312,7 @@
             "description": "An array of customer ids that you want to send the broadcast to. These IDs must already exist; your request cannot create a new person.",
             "properties": {
               "ids": {
-                "description": "An array of IDs you want to send a broadcast to. **NOTE**: If your workspace identifies people by `email`, don't use this option. Identify your audience by `emails` instead.\n",
+                "description": "An array of IDs you want to send a broadcast to. To send to a larger audience, define it with `recipients` or `data_file_url` instead. **NOTE**: If your workspace identifies people by `email`, don't use this option. Identify your audience by `emails` instead.\n",
                 "type": "array",
                 "maxItems": 10000,
                 "items": {
@@ -31324,7 +31325,7 @@
               },
               "data": {
                 "type": "object",
-                "description": "Contains information you want to use to populate your broadcast.",
+                "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
                 "additionalProperties": {
                   "x-additionalPropertiesName": "Broadcast liquid data",
                   "description": "Insert key-values that you want to reference in your message here."
@@ -34455,7 +34456,7 @@
             "description": "An array of JSON objects containing `id` or `email` keys and a `data` key. Each object represents a person you want to send the broadcast to and data you want to personalize their message with using liquid.",
             "properties": {
               "per_user_data": {
-                "description": "The people you want to send a broadcast to, with custom data to personalize each message. Each person must already exist in your workspace—a broadcast trigger can't create people.",
+                "description": "The people you want to send a broadcast to, with custom data to personalize each message. Each person must already exist in your workspace—a broadcast trigger can't create people. Each entry can be up to 2MB. To personalize messages for a larger audience, use `data_file_url` instead.",
                 "type": "array",
                 "maxItems": 10000,
                 "items": {
@@ -34533,7 +34534,7 @@
               },
               "data": {
                 "type": "object",
-                "description": "Contains information you want to use to populate your broadcast.",
+                "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
                 "additionalProperties": {
                   "x-additionalPropertiesName": "Broadcast liquid data",
                   "description": "Insert key-values that you want to reference in your message here."
@@ -37664,14 +37665,14 @@
             "description": "The URL of a data file with one JSON object per line, using either `id` and `data` or `email` and `data`. The people you reference must already exist in your workspace. The file may be gzip-compressed to reduce transfer size (recommended for large files); if compressed, it must use gzip and the hosting server must return a `Content-Encoding` header set to `gzip` when the file is downloaded.",
             "properties": {
               "data_file_url": {
-                "description": "The URL of a JSON Lines file with one person per line, using `id` and `data` or `email` and `data`. The people you reference must already exist in your workspace. The file may be gzip-compressed to reduce transfer size (recommended for large files); if compressed, it must use gzip and the hosting server must return a `Content-Encoding` header set to `gzip` when the file is downloaded.",
+                "description": "The URL of a JSON Lines file with one person per line, using `id` and `data` or `email` and `data`. The people you reference must already exist in your workspace. The file can be up to 10GB, and each line can be up to 2MB. The file may be gzip-compressed to reduce transfer size (recommended for large files); if compressed, it must use gzip and the hosting server must return a `Content-Encoding` header set to `gzip` when the file is downloaded.",
                 "type": "string",
                 "format": "url",
                 "example": "https://myFile.example.com"
               },
               "data": {
                 "type": "object",
-                "description": "Contains information you want to use to populate your broadcast.",
+                "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
                 "additionalProperties": {
                   "x-additionalPropertiesName": "Broadcast liquid data",
                   "description": "Insert key-values that you want to reference in your message here."
@@ -42316,7 +42317,7 @@
           "attachments": {
             "x-scalar-ignore": true,
             "type": "object",
-            "description": "A dictionary of attachments where the filename is the key and the value is the base64-encoded contents. The filename must include the extension (i.e. `name.csv`). The total size of all attachments must be less than 2 MB.",
+            "description": "A dictionary of attachments where the filename is the key and the value is the base64-encoded contents. The filename must include the extension (i.e. `name.csv`). The base64-encoded contents of all your attachments can total up to 2MB.",
             "properties": {
               "<file-name>": {
                 "type": "string",
@@ -52706,6 +52707,11 @@
                   "description": "Custom properties that you want to set as attributes on this person."
                 }
               },
+              "bulk": {
+                "type": "boolean",
+                "default": false,
+                "description": "Set to `true` to process this identify at a lower priority than your other requests. Use it for low-importance updates, like an attribute backfill or a nightly sync from your data warehouse. Customer.io can apply a bulk identify after requests you send later, but the bulk identify never overwrites an attribute that a request with a later `timestamp` set. The field doesn't change message delivery priority. If the identify includes `cio_relationships`, Customer.io deprioritizes only the person's attribute update."
+              },
               "cio_relationships": {
                 "x-scalar-ignore": true,
                 "type": "array",
@@ -55458,6 +55464,11 @@
               "x-additionalPropertiesName": "additional attributes",
               "description": "Custom properties that you want to set as attributes on this person."
             }
+          },
+          "bulk": {
+            "type": "boolean",
+            "default": false,
+            "description": "Set to `true` to process this identify at a lower priority than your other requests. Use it for low-importance updates, like an attribute backfill or a nightly sync from your data warehouse. Customer.io can apply a bulk identify after requests you send later, but the bulk identify never overwrites an attribute that a request with a later `timestamp` set. The field doesn't change message delivery priority. If the identify includes `cio_relationships`, Customer.io deprioritizes only the person's attribute update."
           },
           "cio_relationships": {
             "x-scalar-ignore": true,
@@ -164255,7 +164266,7 @@
         "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
         "headers": {
           "Retry-After": {
-            "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+            "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -164413,7 +164424,7 @@
         "description": "Your request is over one of the limits on this endpoint. The per-second limit sets `Retry-After`. The daily quota doesn't, because the wait is until the next day. `X-RateLimit-Remaining` tells you how much of today's quota is left.",
         "headers": {
           "Retry-After": {
-            "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+            "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -164697,7 +164708,7 @@
     },
     "headers": {
       "Retry-After": {
-        "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+        "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
         "schema": {
           "type": "integer",
           "minimum": 1,
@@ -164769,7 +164780,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Trigger a broadcast and optionally provide data to populate liquid placeholders in the message. To trigger one-time send broadcasts, use the [one-time send endpoint](/integrations/api/app/tag/send-messages/sendNewsletter/).\n\nBroadcasts are optimized to send messages to a large audience and not for one-to-one interactions. Use our [transactional API](/integrations/api/app/tag/send-messages/sendEmail/) or [event-triggered automations](/journeys/send/campaigns/triggers/#event-trigger) to respond to your audience on an individual, one-to-one basis.\n\n**Define your audience**\n\n**The shape of the request depends on how you define your audience**: default (the recipients set in the UI), custom conditions, a list of emails, a list of customer IDs, a map of users, or a data file.\n\nYou can narrow any of these audiences, except the default audience, with the `filter` object. This is useful when a file or a list of people is broader than the audience you want for your broadcast.\n\n**You can only trigger broadcasts to send to people you've already added to your workspace.** A broadcast cannot add or identify new people. If you reference people who don't exist in your broadcast audience, the broadcast will fail by default. You can override this behavior by setting the `email_ignore_missing` and/or `id_ignore_missing` flags to `true`. The broadcast will skip over any people who don't exist in your workspace and send to the remaining recipients.\n\nYou can reference properties in the `data` object in your broadcast using liquid—`{{trigger.<property_in_data_obj>}}`.\n\n**Send or schedule your broadcast**\n\nBy default, we send your broadcast as soon as you trigger it. Set `scheduled_at` to send it at a future time instead. You can [cancel the trigger](/integrations/api/app/tag/send-messages/cancelBroadcastTrigger/) to stop a scheduled send before it starts sending. You can't change a trigger's `scheduled_at` value later; if you need to reschedule your broadcast, you must cancel the trigger and re-trigger the broadcast with the new timestamp.\n\nIf your broadcast produces a `422` error, you can [get more information about the errors](/integrations/api/app/tag/broadcasts/broadcastErrors/) to see what went wrong.\n\n**This endpoint is rate-limited to one request every 10 seconds.** After exceeding this, you'll receive a status of `429`. Learn more about [API-triggered broadcast limits](/integrations/api/app/tag/send-messages/) above. If you need to trigger broadcasts more often, contact us to talk through your use case.\n",
+        "description": "Trigger a broadcast and optionally provide data to populate liquid placeholders in the message. To trigger one-time send broadcasts, use the [one-time send endpoint](/integrations/api/app/tag/send-messages/sendNewsletter/).\n\nBroadcasts are optimized to send messages to a large audience and not for one-to-one interactions. Use our [transactional API](/integrations/api/app/tag/send-messages/sendEmail/) or [event-triggered automations](/journeys/send/campaigns/triggers/#event-trigger) to respond to your audience on an individual, one-to-one basis.\n\n**Define your audience**\n\n**The shape of the request depends on how you define your audience**: default (the recipients set in the UI), custom conditions, a list of emails, a list of customer IDs, a map of users, or a data file.\n\nYou can narrow any of these audiences, except the default audience, with the `filter` object. This is useful when a file or a list of people is broader than the audience you want for your broadcast.\n\n**You can only trigger broadcasts to send to people you've already added to your workspace.** A broadcast cannot add or identify new people. If you reference people who don't exist in your broadcast audience, the broadcast will fail by default. You can override this behavior by setting the `email_ignore_missing` and/or `id_ignore_missing` flags to `true`. The broadcast will skip over any people who don't exist in your workspace and send to the remaining recipients.\n\nYou can reference properties in the `data` object in your broadcast using liquid—`{{trigger.<property_in_data_obj>}}`.\n\n**Send or schedule your broadcast**\n\nBy default, we send your broadcast as soon as you trigger it. Set `scheduled_at` to send it at a future time instead. You can [cancel the trigger](/integrations/api/app/tag/send-messages/cancelBroadcastTrigger/) to stop a scheduled send before it starts sending. You can't change a trigger's `scheduled_at` value later; if you need to reschedule your broadcast, you must cancel the trigger and re-trigger the broadcast with the new timestamp.\n\nIf your broadcast produces a `422` error, you can [get more information about the errors](/integrations/api/app/tag/broadcasts/broadcastErrors/) to see what went wrong.\n\n**Limits**\n\nYou can send 1 trigger request every 10 seconds. The limit covers all the broadcasts in your workspace, so triggering two different broadcasts within 10 seconds also returns a `429`. Each broadcast can have up to 5 [queued](/messaging/send/broadcasts/api-triggered-broadcasts/#what-does-queueing-mean) triggers at a time. If you need to trigger broadcasts more often, contact us to talk through your use case.\n\nA broadcast can send to everyone in its audience, with no limit on the number of people, when you use the broadcast's default audience, a `recipients` filter, or a `data_file_url` file. If you define recipients manually with `ids`, `emails`, or `per_user_data`, you can include up to 10,000 people in each request. Each trigger request can be up to 25MB.\n",
         "requestBody": {
           "content": {
             "application/json": {
@@ -164783,7 +164794,7 @@
                     "properties": {
                       "data": {
                         "type": "object",
-                        "description": "Contains information you want to use to populate your broadcast.",
+                        "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
                         "additionalProperties": {
                           "x-additionalPropertiesName": "Broadcast liquid data",
                           "description": "Insert key-values that you want to reference in your message here."
@@ -166825,7 +166836,7 @@
                       },
                       "data": {
                         "type": "object",
-                        "description": "Contains information you want to use to populate your broadcast.",
+                        "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
                         "additionalProperties": {
                           "x-additionalPropertiesName": "Broadcast liquid data",
                           "description": "Insert key-values that you want to reference in your message here."
@@ -169956,8 +169967,9 @@
                     "description": "An array of emails you want to send the broadcast to. These addresses must already exist; your request cannot create a new person.",
                     "properties": {
                       "emails": {
-                        "description": "An array of email addresses you want to send the broadcast to. These addresses must already exist; your request cannot create a new person.",
+                        "description": "An array of email addresses you want to send the broadcast to. These addresses must already exist; your request cannot create a new person. You can list up to 10,000 emails in this field. To send to a larger audience, use `recipients` or `data_file_url`, which don't limit the size of your audience.",
                         "type": "array",
+                        "maxItems": 10000,
                         "items": {
                           "type": "string",
                           "format": "email"
@@ -169969,7 +169981,7 @@
                       },
                       "data": {
                         "type": "object",
-                        "description": "Contains information you want to use to populate your broadcast.",
+                        "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
                         "additionalProperties": {
                           "x-additionalPropertiesName": "Broadcast liquid data",
                           "description": "Insert key-values that you want to reference in your message here."
@@ -173100,7 +173112,7 @@
                     "description": "An array of customer ids that you want to send the broadcast to. These IDs must already exist; your request cannot create a new person.",
                     "properties": {
                       "ids": {
-                        "description": "An array of IDs you want to send a broadcast to. **NOTE**: If your workspace identifies people by `email`, don't use this option. Identify your audience by `emails` instead.\n",
+                        "description": "An array of IDs you want to send a broadcast to. To send to a larger audience, define it with `recipients` or `data_file_url` instead. **NOTE**: If your workspace identifies people by `email`, don't use this option. Identify your audience by `emails` instead.\n",
                         "type": "array",
                         "maxItems": 10000,
                         "items": {
@@ -173113,7 +173125,7 @@
                       },
                       "data": {
                         "type": "object",
-                        "description": "Contains information you want to use to populate your broadcast.",
+                        "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
                         "additionalProperties": {
                           "x-additionalPropertiesName": "Broadcast liquid data",
                           "description": "Insert key-values that you want to reference in your message here."
@@ -176244,7 +176256,7 @@
                     "description": "An array of JSON objects containing `id` or `email` keys and a `data` key. Each object represents a person you want to send the broadcast to and data you want to personalize their message with using liquid.",
                     "properties": {
                       "per_user_data": {
-                        "description": "The people you want to send a broadcast to, with custom data to personalize each message. Each person must already exist in your workspace—a broadcast trigger can't create people.",
+                        "description": "The people you want to send a broadcast to, with custom data to personalize each message. Each person must already exist in your workspace—a broadcast trigger can't create people. Each entry can be up to 2MB. To personalize messages for a larger audience, use `data_file_url` instead.",
                         "type": "array",
                         "maxItems": 10000,
                         "items": {
@@ -176322,7 +176334,7 @@
                       },
                       "data": {
                         "type": "object",
-                        "description": "Contains information you want to use to populate your broadcast.",
+                        "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
                         "additionalProperties": {
                           "x-additionalPropertiesName": "Broadcast liquid data",
                           "description": "Insert key-values that you want to reference in your message here."
@@ -179453,14 +179465,14 @@
                     "description": "The URL of a data file with one JSON object per line, using either `id` and `data` or `email` and `data`. The people you reference must already exist in your workspace. The file may be gzip-compressed to reduce transfer size (recommended for large files); if compressed, it must use gzip and the hosting server must return a `Content-Encoding` header set to `gzip` when the file is downloaded.",
                     "properties": {
                       "data_file_url": {
-                        "description": "The URL of a JSON Lines file with one person per line, using `id` and `data` or `email` and `data`. The people you reference must already exist in your workspace. The file may be gzip-compressed to reduce transfer size (recommended for large files); if compressed, it must use gzip and the hosting server must return a `Content-Encoding` header set to `gzip` when the file is downloaded.",
+                        "description": "The URL of a JSON Lines file with one person per line, using `id` and `data` or `email` and `data`. The people you reference must already exist in your workspace. The file can be up to 10GB, and each line can be up to 2MB. The file may be gzip-compressed to reduce transfer size (recommended for large files); if compressed, it must use gzip and the hosting server must return a `Content-Encoding` header set to `gzip` when the file is downloaded.",
                         "type": "string",
                         "format": "url",
                         "example": "https://myFile.example.com"
                       },
                       "data": {
                         "type": "object",
-                        "description": "Contains information you want to use to populate your broadcast.",
+                        "description": "Contains information you want to use to populate your broadcast. The `data` object can be up to 50KB. If you need more personalization data, you can send it per person with `per_user_data` or `data_file_url`.",
                         "additionalProperties": {
                           "x-additionalPropertiesName": "Broadcast liquid data",
                           "description": "Insert key-values that you want to reference in your message here."
@@ -182658,6 +182670,101 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Customer.io didn't accept the trigger. This happens when you sent a trigger request in the last 10 seconds, for this broadcast or any other in your workspace, or when this broadcast already has 5 queued triggers. For the 10-second limit, `Retry-After` tells you how many seconds to wait before you send the request again. A full queue doesn't set `Retry-After`. Scheduled triggers count toward the 5, so you can send the request again after Customer.io processes a queued trigger or after you cancel one.",
+            "headers": {
+              "Retry-After": {
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "example": 1
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "x-scalar-ignore": true,
+                  "type": "object",
+                  "description": "An array/list of failures where each entry is a separate failure reason.",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "description": "One entry for each reason the request failed.",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "detail": {
+                            "type": "string",
+                            "description": "What went wrong, in plain text. Most messages end with a support reference you can use if you need to contact support.",
+                            "example": "bad request (reference a1b2c3)"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "The HTTP status code as a string.",
+                            "example": "400"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "A stable identifier for the failure, on the errors that carry one. Use this rather than the text in `detail` if you need to identify the error programmatically.",
+                            "example": "invalid_credentials"
+                          },
+                          "meta": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "description": "Extra context (if available)."
+                          },
+                          "source": {
+                            "type": "object",
+                            "description": "The part of the request that the error refers to.",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "A JSON pointer to the part of the request body that the error refers to.",
+                                "example": "/data/attributes/email"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "rateLimited": {
+                    "summary": "Over the 10-second limit",
+                    "value": {
+                      "errors": [
+                        {
+                          "detail": "rate limited to 1 requests per 10s (reference a1b2c3)",
+                          "status": "429"
+                        }
+                      ]
+                    }
+                  },
+                  "queueFull": {
+                    "summary": "Too many queued triggers",
+                    "value": {
+                      "errors": [
+                        {
+                          "detail": "There are already 5 triggers queued for campaign 3 (reference a1b2c3)",
+                          "status": "429"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "x-codeSamples": [
@@ -182949,7 +183056,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -184111,7 +184218,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -184569,7 +184676,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -184672,7 +184779,7 @@
             "ServiceAccount-Auth": []
           }
         ],
-        "description": "Send a transactional email. While not strictly required, we recommend that you include a `transactional_message_id` in your request. If you don't, Customer.io attributes metrics to `\"transactional_message_id\": 1`, so multiple messages can roll up under the same ID.\n\nIf this is the first time you send a message with the API, you can include the `auto_create` parameter along with a `transactional_message_id` string to create a record for you.\n\nYou can also include a `body`, `subject`, and `from` values to override the message template. Or, if you create your message entirely through the API, you *must* include these values because your `transactional_message_id` won't have any content. See [Examples and API parameters](/journeys/send/transactional/email/#auto-create-transactional-message-records) for more details.\n",
+        "description": "Send a transactional email. While not strictly required, we recommend that you include a `transactional_message_id` in your request. If you don't, Customer.io attributes metrics to `\"transactional_message_id\": 1`, so multiple messages can roll up under the same ID.\n\nIf this is the first time you send a message with the API, you can include the `auto_create` parameter along with a `transactional_message_id` string to create a record for you.\n\nYou can also include a `body`, `subject`, and `from` values to override the message template. Or, if you create your message entirely through the API, you *must* include these values because your `transactional_message_id` won't have any content. See [Examples and API parameters](/journeys/send/transactional/email/#auto-create-transactional-message-records) for more details.\n\n**Limits**: A request can be up to 2,548KB in total, which is 500KB plus the 2MB attachment limit. Attachments can total up to 2MB, measured on their base64-encoded content. You can send to up to 15 recipients across `to`, `cc`, and `bcc`.\n",
         "tags": [
           "Send Messages"
         ],
@@ -184729,7 +184836,7 @@
                   "attachments": {
                     "x-scalar-ignore": true,
                     "type": "object",
-                    "description": "A dictionary of attachments where the filename is the key and the value is the base64-encoded contents. The filename must include the extension (i.e. `name.csv`). The total size of all attachments must be less than 2 MB.",
+                    "description": "A dictionary of attachments where the filename is the key and the value is the base64-encoded contents. The filename must include the extension (i.e. `name.csv`). The base64-encoded contents of all your attachments can total up to 2MB.",
                     "properties": {
                       "<file-name>": {
                         "type": "string",
@@ -185041,7 +185148,7 @@
             "ServiceAccount-Auth": []
           }
         ],
-        "description": "Send a transactional in-app message. In-app messages render in your application through the Customer.io SDK to the devices associated with the person you target by `identifiers`.\n\nYou send a message using a `transactional_message_id` for an in-app message template that you've set up in the user interface. The `transactional_message_id` can be either the numerical ID for the template or the *Trigger Name* that you assigned the template.\n\nYou can find your `transactional_message_id` from the code sample in the **Overview** tab for your transactional message in the user interface, or you can look up a list of your transactional messages through the [App API](/integrations/api/app/tag/transactional/).\n\n**Note**: Your workspace must have in-app messaging enabled. Requests sent to a workspace without the in-app capability return `403`.\n",
+        "description": "Send a transactional in-app message. In-app messages render in your application through the Customer.io SDK to the devices associated with the person you target by `identifiers`.\n\nYou send a message using a `transactional_message_id` for an in-app message template that you've set up in the user interface. The `transactional_message_id` can be either the numerical ID for the template or the *Trigger Name* that you assigned the template.\n\nYou can find your `transactional_message_id` from the code sample in the **Overview** tab for your transactional message in the user interface, or you can look up a list of your transactional messages through the [App API](/integrations/api/app/tag/transactional/).\n\n**Note**: Your workspace must have in-app messaging enabled. Requests sent to a workspace without the in-app capability return `403`.\n\n**Limits**: A request can be up to 500KB.\n",
         "tags": [
           "Send Messages"
         ],
@@ -185277,7 +185384,7 @@
             "ServiceAccount-Auth": []
           }
         ],
-        "description": "Send a transactional inbox message. Inbox messages deliver raw JSON payloads to your application through our JavaScript SDK, allowing you to build custom notification centers, message feeds, and other UI components.\n\nYou send a message using a `transactional_message_id` for an inbox message template created in the user interface. The `transactional_message_id` can be either the numerical ID for the template or the *Trigger Name* that you assigned the template.\n\nYou can find your `transactional_message_id` from the code sample in the **Overview** tab for your transactional message in the user interface, or you can look up a list of your transactional messages through the [App API](/integrations/api/app/tag/transactional/).\n\n**Note**: Inbox messages are currently available for web platforms only and require the Customer.io In-App Plugin to be installed.\n",
+        "description": "Send a transactional inbox message. Inbox messages deliver raw JSON payloads to your application through our JavaScript SDK, allowing you to build custom notification centers, message feeds, and other UI components.\n\nYou send a message using a `transactional_message_id` for an inbox message template created in the user interface. The `transactional_message_id` can be either the numerical ID for the template or the *Trigger Name* that you assigned the template.\n\nYou can find your `transactional_message_id` from the code sample in the **Overview** tab for your transactional message in the user interface, or you can look up a list of your transactional messages through the [App API](/integrations/api/app/tag/transactional/).\n\n**Note**: Inbox messages are currently available for web platforms only and require the Customer.io In-App Plugin to be installed.\n\n**Limits**: A request can be up to 500KB.\n",
         "tags": [
           "Send Messages"
         ],
@@ -185519,7 +185626,7 @@
             "ServiceAccount-Auth": []
           }
         ],
-        "description": "Send a transactional push. You send a message using a `transactional_message_id` for a transactional push message template composed in the user interface. You can optionally override any of the template values at send time. The `transactional_message_id` can be either the numerical ID for the template or the *Trigger Name* that you assigned the template.\n\nYou can find your `transactional_message_id` from the code sample in the **Overview** tab for your transactional message in the user interface, or you can look up a list of your transactional messages through the [App API](/integrations/api/app/tag/transactional/).\n",
+        "description": "Send a transactional push. You send a message using a `transactional_message_id` for a transactional push message template composed in the user interface. You can optionally override any of the template values at send time. The `transactional_message_id` can be either the numerical ID for the template or the *Trigger Name* that you assigned the template.\n\nYou can find your `transactional_message_id` from the code sample in the **Overview** tab for your transactional message in the user interface, or you can look up a list of your transactional messages through the [App API](/integrations/api/app/tag/transactional/).\n\n**Limits**: A request can be up to 500KB.\n",
         "tags": [
           "Send Messages"
         ],
@@ -186383,7 +186490,7 @@
             "ServiceAccount-Auth": []
           }
         ],
-        "description": "Send a transactional SMS message. To send a message, you'll need to provide a `transactional_message_id`. This is either the numerical ID of your transactional message template or the *Trigger Name* that you assigned the template.\n\nYou can find your `transactional_message_id` from the code sample in the **Overview** tab for your transactional message in the user interface, or you can look up a list of your transactional messages through the [App API](/integrations/api/app/tag/transactional/).\n",
+        "description": "Send a transactional SMS message. To send a message, you'll need to provide a `transactional_message_id`. This is either the numerical ID of your transactional message template or the *Trigger Name* that you assigned the template.\n\nYou can find your `transactional_message_id` from the code sample in the **Overview** tab for your transactional message in the user interface, or you can look up a list of your transactional messages through the [App API](/integrations/api/app/tag/transactional/).\n\n**Limits**: A request can be up to 500KB.\n",
         "tags": [
           "Send Messages"
         ],
@@ -186650,7 +186757,7 @@
             "ServiceAccount-Auth": []
           }
         ],
-        "description": "Send a transactional WhatsApp message. To use this endpoint, you must be integrated with [WhatsApp Business](/messaging/send/transactional/whatsapp/#before-you-begin), not Twilio. Then you need to [create the template in the UI and have it approved by WhatsApp/Meta](/messaging/design-studio/whatsapp-design-studio/) before sending it.\n\nTo send a message, you need to provide a `transactional_message_id`. This is either the numerical ID of your transactional message template or the *Trigger Name* that you assigned the template.\n\nYou can find your `transactional_message_id` from the code sample in the **Overview** tab for your transactional message in the user interface, or you can look up a list of your transactional messages through the [App API](/integrations/api/app/tag/transactional/listTransactional/).\n",
+        "description": "Send a transactional WhatsApp message. To use this endpoint, you must be integrated with [WhatsApp Business](/messaging/send/transactional/whatsapp/#before-you-begin), not Twilio. Then you need to [create the template in the UI and have it approved by WhatsApp/Meta](/messaging/design-studio/whatsapp-design-studio/) before sending it.\n\nTo send a message, you need to provide a `transactional_message_id`. This is either the numerical ID of your transactional message template or the *Trigger Name* that you assigned the template.\n\nYou can find your `transactional_message_id` from the code sample in the **Overview** tab for your transactional message in the user interface, or you can look up a list of your transactional messages through the [App API](/integrations/api/app/tag/transactional/listTransactional/).\n\n**Limits**: A request can be up to 500KB.\n",
         "tags": [
           "Send Messages"
         ],
@@ -187938,7 +188045,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -189071,7 +189178,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -189580,7 +189687,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -189821,7 +189928,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -190498,7 +190605,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -191121,7 +191228,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -191788,7 +191895,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -192947,7 +193054,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -193630,7 +193737,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -194789,7 +194896,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -195496,7 +195603,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -195766,7 +195873,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -195992,7 +196099,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -196698,7 +196805,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -199401,7 +199508,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -199679,7 +199786,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -199891,7 +199998,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -200260,7 +200367,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -200500,7 +200607,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -201126,7 +201233,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -201752,7 +201859,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -202384,7 +202491,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -203475,7 +203582,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -204123,7 +204230,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -205214,7 +205321,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -205808,7 +205915,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -206067,7 +206174,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -206273,7 +206380,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -206826,7 +206933,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -207031,7 +207138,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -207246,7 +207353,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -207375,7 +207482,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -207479,7 +207586,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -207695,7 +207802,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -207922,7 +208029,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -208055,7 +208162,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -210244,7 +210351,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -210745,7 +210852,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -211317,7 +211424,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -211623,7 +211730,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -211752,7 +211859,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -212385,7 +212492,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -212902,7 +213009,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -213146,7 +213253,7 @@
             "description": "Your request is over one of the limits on this endpoint. The per-second limit sets `Retry-After`. The daily quota doesn't, because the wait is until the next day. `X-RateLimit-Remaining` tells you how much of today's quota is left.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -214845,7 +214952,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -215211,7 +215318,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -215611,7 +215718,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -215848,7 +215955,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -216127,7 +216234,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -216682,7 +216789,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -216967,7 +217074,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -217473,7 +217580,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -217917,7 +218024,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -218212,7 +218319,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -218718,7 +218825,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -218828,7 +218935,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -219012,7 +219119,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -219297,7 +219404,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -219750,7 +219857,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -220054,7 +220161,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -220560,7 +220667,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -220670,7 +220777,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -221058,7 +221165,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -221312,7 +221419,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -221474,7 +221581,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -221916,7 +222023,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -222157,7 +222264,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -222367,7 +222474,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -222584,7 +222691,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -222998,7 +223105,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -223262,7 +223369,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -223533,7 +223640,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -223942,7 +224049,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -224049,7 +224156,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -224326,7 +224433,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -224568,7 +224675,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -224823,7 +224930,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -224926,7 +225033,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -225087,7 +225194,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -225226,7 +225333,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -225486,7 +225593,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -225709,7 +225816,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -225896,7 +226003,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -226045,7 +226152,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -226407,7 +226514,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -226586,7 +226693,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -226743,7 +226850,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -226890,7 +226997,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -227132,7 +227239,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -227307,7 +227414,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -227493,7 +227600,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -228397,7 +228504,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -228680,7 +228787,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -229388,7 +229495,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -229625,7 +229732,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -230229,7 +230336,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -230592,7 +230699,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -230772,7 +230879,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -230964,7 +231071,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -231067,7 +231174,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -231513,7 +231620,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -231739,7 +231846,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -231945,7 +232052,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -232271,7 +232378,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -232509,7 +232616,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -232765,7 +232872,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -232966,7 +233073,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -233066,7 +233173,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -233188,7 +233295,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -233389,7 +233496,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -233559,7 +233666,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -233893,7 +234000,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -234081,7 +234188,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -234181,7 +234288,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -234319,7 +234426,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -234485,7 +234592,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -236633,7 +236740,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -237061,7 +237168,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -237271,7 +237378,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -237708,7 +237815,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -237879,7 +237986,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -238170,7 +238277,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -238840,7 +238947,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -239191,7 +239298,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -239371,7 +239478,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -239530,7 +239637,7 @@
             "description": "Your request is over the 10-per-second limit. `Retry-After` tells you how many seconds you must wait before you send the next request.",
             "headers": {
               "Retry-After": {
-                "description": "How many seconds you must wait before you send another request. This header is present when you are rate limited by a per-second limit. If you hit a daily quota, this header is not set.",
+                "description": "How many seconds you must wait before you send another request. Customer.io sets this header when you're over an endpoint's request-rate limit. Customer.io doesn't set it when you reach a daily quota.",
                 "schema": {
                   "type": "integer",
                   "minimum": 1,
@@ -274796,12 +274903,12 @@
   "info": {
     "version": "1.0.0",
     "title": "Customer.io App API",
-    "description": "Our App API provides ways to trigger messages and retrieve information about people, automations, broadcasts, and more.\n\n# Overview\n\nThe App API provides methods to send newsletters, transactional messages, and API-triggered broadcasts. You can create newsletters from scratch and update transactional messages and API-triggered broadcasts.\n\nFor transactional messages and API-triggered broadcasts, your payload acts as a message \"trigger\" and can contain `data` that you reference in your messages using liquid—`{{trigger.<data>}}`.\n\nThe other endpoints help you retrieve information about people, segments, automations, broadcasts, etc; it also lets you update automation actions, messages, newsletter variants, etc. Aside from the [API-triggered broadcast](/integrations/api/app/tag/send-messages/triggerBroadcast/) endpoint (1 per 10 seconds), requests are limited to 10 per second. [Transactional](/integrations/api/app/tag/send-messages/sendEmail/) messages aren't rate limited.\n\n# We may add to these APIs\n\nAs we release new features, we add endpoints and we may even add fields to existing endpoints. We don't announce these additions in advance. Fields we add will be backward compatible: existing fields keep their names and types.\n\nBuild your integration to ignore fields it doesn't recognize. If you validate responses against a schema, make sure the schema accepts unknown keys. In JSON Schema, for example, don't set `additionalProperties: false`.\n\n# Use our Postman collection\n\nWe've generated a Postman collection to help you get started with our APIs.\n\nIf you fork this collection, you might want to disable the *Watch original collection* option. We automatically update our Postman collection whenever we release changes to our documentation, even if we don't change our APIs—which happens daily! Rather than being flooded with Postman notifications, you can check out our [Release Notes](/release-notes/) for updates to our APIs.\n\n**NOTE**: Postman endpoints default to our US APIs. If you're in our European (EU) region, you'll need to add `-eu` to the server variables (`track_api_url` and `app_api_url`).\n\n[<img src=\"https://run.pstmn.io/button.svg\" alt=\"Run In Postman\" style=\"width: 128px; height: 32px;\">](https://god.gw.postman.com/run-collection/23697545-2931c004-e63d-4cdc-bf4b-e685ba6da42d?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D23697545-2931c004-e63d-4cdc-bf4b-e685ba6da42d%26entityType%3Dcollection%26workspaceId%3Db886877f-fc09-475f-84fe-6221a98f4d18#?env%5BCustomer.io%20API%20Environment%5D=W3sia2V5IjoidHJhY2tfYXBpX3VybCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiJ0cmFjay5jdXN0b21lci5pbyIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBwX2FwaV91cmwiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiYXBpLmN1c3RvbWVyLmlvIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzaXRlX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBpX2tleSIsInR5cGUiOiJzZWNyZXQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYmVhcmVyIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYnJvYWRjYXN0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaW1wb3J0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiZW1haWxfYWRkcmVzcyIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InN1cHByZXNzaW9uX3R5cGUiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjb2xsZWN0aW9uX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoic25pcHBldF9uYW1lIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoid2ViaG9va19pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InNlbmRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImV4cG9ydF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6Im1lc3NhZ2VfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzZWdtZW50X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoibmV3c2xldHRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImNvbnRlbnRfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjYW1wYWlnbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImFjdGlvbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImN1c3RvbWVyX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoidHJhbnNhY3Rpb25hbF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRyaWdnZXJfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJmb3JtX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaWRlbnRpZmllciIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRldmljZV9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRlbGl2ZXJ5X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9XQ==)\n\n# Server addresses: US and EU\n\nCustomer.io hosts services in the United States (US) and European Union. Select the appropriate server address for your region.\n\n| Region | Server Address |\n| :-- | :-- |\n| US | https://api.customer.io |\n| EU | https://api-eu.customer.io |\n\n# Authentication\n\nAll requests to the Customer.io App API use a private key (`sk_`) as a bearer token in the HTTP `Authorization` header: `Authorization: Bearer <key>`.\n\nCreate a private key on the [API Credentials page](https://fly.customer.io/settings/api_credentials?keyType=app). [Learn more about public and private keys](/accounts/settings/managing-credentials/#public-and-private-keys).\n\nIf you already use an App API key, you can keep using it with bearer authentication.\n\n# Rate Limits\n\nMost endpoints on this page are limited to 10 requests per second. The exceptions are:\n* [Transactional messages](/integrations/api/app/tag/send-messages/sendEmail/) aren't rate limited.\n* The [API-triggered broadcast endpoint](/integrations/api/app/tag/send-messages/triggerBroadcast/) is limited to 1 request every 10 seconds. If you need to trigger broadcasts more often, contact us to talk through your use case.\n\n**Rate limits are subject to change. We may adjust these thresholds to ensure stable performance for all customers.**\n"
+    "description": "Our App API provides ways to trigger messages and retrieve information about people, automations, broadcasts, and more.\n\n# Overview\n\nThe App API provides methods to send newsletters, transactional messages, and API-triggered broadcasts. You can create newsletters from scratch and update transactional messages and API-triggered broadcasts.\n\nFor transactional messages and API-triggered broadcasts, your payload acts as a message \"trigger\" and can contain `data` that you reference in your messages using liquid—`{{trigger.<data>}}`.\n\nThe other endpoints help you retrieve information about people, segments, automations, broadcasts, etc; it also lets you update automation actions, messages, newsletter variants, etc. Aside from the [API-triggered broadcast](/integrations/api/app/tag/send-messages/triggerBroadcast/) endpoint (1 per 10 seconds for each workspace), requests are limited to 10 per second. [Transactional](/integrations/api/app/tag/send-messages/sendEmail/) messages aren't rate limited.\n\n# We may add to these APIs\n\nAs we release new features, we add endpoints and we may even add fields to existing endpoints. We don't announce these additions in advance. Fields we add will be backward compatible: existing fields keep their names and types.\n\nBuild your integration to ignore fields it doesn't recognize. If you validate responses against a schema, make sure the schema accepts unknown keys. In JSON Schema, for example, don't set `additionalProperties: false`.\n\n# Use our Postman collection\n\nWe've generated a Postman collection to help you get started with our APIs.\n\nIf you fork this collection, you might want to disable the *Watch original collection* option. We automatically update our Postman collection whenever we release changes to our documentation, even if we don't change our APIs—which happens daily! Rather than being flooded with Postman notifications, you can check out our [Release Notes](/release-notes/) for updates to our APIs.\n\n**NOTE**: Postman endpoints default to our US APIs. If you're in our European (EU) region, you'll need to add `-eu` to the server variables (`track_api_url` and `app_api_url`).\n\n[<img src=\"https://run.pstmn.io/button.svg\" alt=\"Run In Postman\" style=\"width: 128px; height: 32px;\">](https://god.gw.postman.com/run-collection/23697545-2931c004-e63d-4cdc-bf4b-e685ba6da42d?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D23697545-2931c004-e63d-4cdc-bf4b-e685ba6da42d%26entityType%3Dcollection%26workspaceId%3Db886877f-fc09-475f-84fe-6221a98f4d18#?env%5BCustomer.io%20API%20Environment%5D=W3sia2V5IjoidHJhY2tfYXBpX3VybCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiJ0cmFjay5jdXN0b21lci5pbyIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBwX2FwaV91cmwiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiYXBpLmN1c3RvbWVyLmlvIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzaXRlX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYXBpX2tleSIsInR5cGUiOiJzZWNyZXQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYmVhcmVyIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiYnJvYWRjYXN0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaW1wb3J0X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiZW1haWxfYWRkcmVzcyIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InN1cHByZXNzaW9uX3R5cGUiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjb2xsZWN0aW9uX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoic25pcHBldF9uYW1lIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5Ijoid2ViaG9va19pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InNlbmRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImV4cG9ydF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6Im1lc3NhZ2VfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJzZWdtZW50X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoibmV3c2xldHRlcl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImNvbnRlbnRfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJjYW1wYWlnbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImFjdGlvbl9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImN1c3RvbWVyX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoidHJhbnNhY3Rpb25hbF9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRyaWdnZXJfaWQiLCJ0eXBlIjoiZGVmYXVsdCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJmb3JtX2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9LHsia2V5IjoiaWRlbnRpZmllciIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRldmljZV9pZCIsInR5cGUiOiJkZWZhdWx0IiwidmFsdWUiOiIiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImRlbGl2ZXJ5X2lkIiwidHlwZSI6ImRlZmF1bHQiLCJ2YWx1ZSI6IiIsImVuYWJsZWQiOnRydWV9XQ==)\n\n# Server addresses: US and EU\n\nCustomer.io hosts services in the United States (US) and European Union. Select the appropriate server address for your region.\n\n| Region | Server Address |\n| :-- | :-- |\n| US | https://api.customer.io |\n| EU | https://api-eu.customer.io |\n\n# Authentication\n\nAll requests to the Customer.io App API use a private key (`sk_`) as a bearer token in the HTTP `Authorization` header: `Authorization: Bearer <key>`.\n\nCreate a private key on the [API Credentials page](https://fly.customer.io/settings/api_credentials?keyType=app). [Learn more about public and private keys](/accounts/settings/managing-credentials/#public-and-private-keys).\n\nIf you already use an App API key, you can keep using it with bearer authentication.\n\n# Rate Limits\n\nMost endpoints on this page are limited to 10 requests per second. The exceptions are:\n* [Transactional messages](/integrations/api/app/tag/send-messages/sendEmail/) aren't rate limited.\n* The [API-triggered broadcast endpoint](/integrations/api/app/tag/send-messages/triggerBroadcast/) is limited to 1 request every 10 seconds across all the broadcasts in a workspace. If you need to trigger broadcasts more often, contact us to talk through your use case.\n\n**Rate limits are subject to change. We may adjust these thresholds to ensure stable performance for all customers.**\n"
   },
   "tags": [
     {
       "name": "Send Messages",
-      "description": "Use these endpoints to send broadcasts or transactional messages to your audience. They use the same authentication method, but review the limits for both types of workflows to make sure you'll successfully trigger your messages.\n\nYou can't trigger automations through our APIs.\n\n## API triggered broadcast limits\n\nWhile [API triggered broadcasts](/integrations/api/app/tag/send-messages/triggerBroadcast/) are limited to 1 request every 10 seconds, they're also limited by the number of triggers you can have queued at a time, as shown in the table below.\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Trigger Payload | 25MB | Max length of the entire Trigger call, larger calls are typically to support `per_user_data` |\n| Trigger Data | 50000 bytes | Max length of the data section in the Trigger call |\n| Recipient List<sup>1</sup> | 10000 recipients | Max number of ids or emails included in the Trigger call |\n| Custom Per User Data<sup>1</sup> | 10000 entries | Max number of entries in `per_user_data` |\n| Custom Per User Data<sup>1</sup> | 2MB | Max length per user in the file referenced by `data_file_url`. |\n| Custom Per User Data<sup>1</sup> | 10GB | Max length of the entire size of the file referenced by `data_file_url` |\n| Trigger Queue | 5 triggers | Max number of triggers waiting to be processed consecutively |\n\n<sup>1</sup>For larger data sets, use `data_file_url` to supply a link to a file that contains your merge data. Attempting to send too much data in a single API call will fail.\n\n## Transactional Message Limits\n\n| Data Type | Limit | Description |\n| -- | -- | -- |\n| Payload | 1MB | Max length of the payload, excepting attachments |\n| Attachments (email) | 2MB | Maximum size of attachments |\n| Recipients | 15 | Total number of recipients across the `to`, `cc`, and `bcc` fields. |\n"
+      "description": "Use these endpoints to send broadcasts or transactional messages to your audience. They use the same authentication method. Each endpoint lists its own limits, like the [trigger endpoint](/integrations/api/app/tag/send-messages/triggerBroadcast/) for API-triggered broadcasts.\n\nYou can't trigger automations through our APIs.\n"
     },
     {
       "name": "Broadcasts",
