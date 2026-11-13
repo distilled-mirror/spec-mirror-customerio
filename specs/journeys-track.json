@@ -8922,7 +8922,7 @@
           },
           "value": {
             "type": "string",
-            "description": "The contents of the snippet (plain text or Liquid). Trimmed of leading and trailing whitespace before storage. Max length is environment-specific (default 16000)."
+            "description": "The contents of the snippet, in plain text or Liquid. Customer.io trims leading and trailing whitespace before storing it. A snippet can be up to 16,000 characters by default, and all of the snippets in a workspace can total up to 5 MB."
           }
         },
         "example": {

@@ -8954,7 +8954,7 @@
           },
           "value": {
             "type": "string",
-            "description": "The contents of the snippet (plain text or Liquid). Trimmed of leading and trailing whitespace before storage. Max length is environment-specific (default 16000)."
+            "description": "The contents of the snippet, in plain text or Liquid. Customer.io trims leading and trailing whitespace before storing it. A snippet can be up to 16,000 characters by default, and all of the snippets in a workspace can total up to 5 MB."
           }
         },
         "example": {
@@ -190811,7 +190811,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Returns information about the deliveries (instances of messages sent to individual people) sent from an automation. Provide query parameters to refine the metrics you want to return.\nUse the `start_ts` and `end_ts` to find messages within a time range. If your request doesn't include `start_ts` and `end_ts` parameters, we'll return the most recent 6 months of messages. If your `start_ts` and `end_ts` range is more than 12 months, we'll return 12 months of data from the most recent timestamp in your request. Timestamps reflect when deliveries were created in our system, not when they were actually sent to recipients. There may be a delay between creation and sending.",
+        "description": "Returns information about the deliveries (instances of messages sent to individual people) sent from an automation. Provide query parameters to refine the metrics you want to return.\nUse the `start_ts` and `end_ts` to find messages within a time range. If your request doesn't include `start_ts` and `end_ts` parameters, we'll return the most recent 6 months of messages. If your `start_ts` and `end_ts` range is more than 6 months, we'll return 6 months of data from the most recent timestamp in your request. Timestamps reflect when deliveries were created in our system, not when they were actually sent to recipients. There may be a delay between creation and sending.",
         "tags": [
           "Automations"
         ],
@@ -201442,7 +201442,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Returns information about the deliveries (instances of messages sent to individual people) sent from an API-triggered broadcast. Provide query parameters to refine the metrics you want to return.\n\nUse the `start_ts` and `end_ts` to find messages within a time range. If your request doesn't include `start_ts` and `end_ts` parameters, we'll return results for the 1 month period after the first trigger. If your `start_ts` and `end_ts` range is more than 12 months, we'll return 12 months of data from the most recent timestamp in your request. Timestamps reflect when deliveries were created in our system, not when they were actually sent to recipients. There may be a delay between creation and sending.\n",
+        "description": "Returns information about the deliveries (instances of messages sent to individual people) sent from an API-triggered broadcast. Provide query parameters to refine the metrics you want to return.\n\nUse the `start_ts` and `end_ts` to find messages within a time range. If your request doesn't include `start_ts` and `end_ts` parameters, we'll return results for the 1 month period after the first trigger. If your `start_ts` and `end_ts` range is more than 6 months, we'll return 6 months of data from the most recent timestamp in your request. Timestamps reflect when deliveries were created in our system, not when they were actually sent to recipients. There may be a delay between creation and sending.\n",
         "tags": [
           "Broadcasts"
         ],
@@ -210451,7 +210451,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Provide filters for the one-time send, automation, or action you want to return delivery information from. This endpoint starts an export, but you cannot download your export from this endpoint. Use the `/exports/{export_id}` endpoint to download your export.\n\nUse the `start` and `end` to find messages within a time range. If your request doesn't include `start` and `end` parameters, we'll return the most recent 6 months of messages. If your `start` and `end` range is more than 12 months, we'll return 12 months of data from the most recent timestamp in your request. Timestamps reflect when deliveries were created in our system, not when they were actually sent to recipients. There may be a delay between creation and sending.\n",
+        "description": "Provide filters for the one-time send, automation, or action you want to return delivery information from. This endpoint starts an export, but you cannot download your export from this endpoint. Use the `/exports/{export_id}` endpoint to download your export.\n\nUse the `start` and `end` to find messages within a time range. If your request doesn't include `start` and `end` parameters, we'll return the most recent 6 months of messages. If you filter by a one-time send, we return every delivery from that send instead. If your `start` and `end` range is more than 1 year, we reject the request with a `400` error. Timestamps reflect when deliveries were created in our system, not when they were actually sent to recipients. There may be a delay between creation and sending.\n",
         "tags": [
           "Exports"
         ],
@@ -216409,7 +216409,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Returns information about the \"deliveries\" (rendered messages) sent to your recipients for a specific one-time send (referred to as a \"newsletter\" in our APIs).\n\nProvide query parameters to refine the metrics you want to return. Use `start_ts` and `end_ts` to find messages within a time range. If your request doesn't include `start_ts` and `end_ts` parameters, we'll return up to 6 months of results beginning with the first delivery generated from the one-time send. If your `start_ts` and `end_ts` range is more than 12 months, we'll return 12 months of data from the most recent timestamp in your request.\n\nTimestamps reflect when deliveries were created in our system, not when they were actually sent to recipients. There may be a delay between creation and sending.\n",
+        "description": "Returns information about the \"deliveries\" (rendered messages) sent to your recipients for a specific one-time send (referred to as a \"newsletter\" in our APIs).\n\nProvide query parameters to refine the metrics you want to return. Use `start_ts` and `end_ts` to find messages within a time range. If your request doesn't include `start_ts` and `end_ts` parameters, we'll return up to 6 months of results beginning with the first delivery generated from the one-time send. If your `start_ts` and `end_ts` range is more than 6 months, we'll return 6 months of data from the most recent timestamp in your request.\n\nTimestamps reflect when deliveries were created in our system, not when they were actually sent to recipients. There may be a delay between creation and sending.\n",
         "tags": [
           "Newsletter Metrics"
         ],
@@ -226328,7 +226328,7 @@
                   },
                   "value": {
                     "type": "string",
-                    "description": "The contents of the snippet (plain text or Liquid). Trimmed of leading and trailing whitespace before storage. Max length is environment-specific (default 16000)."
+                    "description": "The contents of the snippet, in plain text or Liquid. Customer.io trims leading and trailing whitespace before storing it. A snippet can be up to 16,000 characters by default, and all of the snippets in a workspace can total up to 5 MB."
                   }
                 },
                 "example": {
@@ -226632,7 +226632,7 @@
                   },
                   "value": {
                     "type": "string",
-                    "description": "The contents of the snippet (plain text or Liquid). Trimmed of leading and trailing whitespace before storage. Max length is environment-specific (default 16000)."
+                    "description": "The contents of the snippet, in plain text or Liquid. Customer.io trims leading and trailing whitespace before storing it. A snippet can be up to 16,000 characters by default, and all of the snippets in a workspace can total up to 5 MB."
                   }
                 },
                 "example": {
@@ -229922,7 +229922,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Returns information about the deliveries (instances of messages sent to individual people) from a transactional message. Provide query parameters to refine the metrics you want to return.\n\nUse the `start_ts` and `end_ts` to find messages within a time range. If your request doesn't include `start_ts` and `end_ts` parameters, we'll return the most recent 6 months of messages. If your `start_ts` and `end_ts` range is more than 12 months, we'll return 12 months of data from the most recent timestamp in your request. Timestamps reflect when deliveries were created in our system, not when they were actually sent to recipients. There may be a delay between creation and sending.\n",
+        "description": "Returns information about the deliveries (instances of messages sent to individual people) from a transactional message. Provide query parameters to refine the metrics you want to return.\n\nUse the `start_ts` and `end_ts` to find messages within a time range. If your request doesn't include `start_ts` and `end_ts` parameters, we'll return the most recent 6 months of messages. If your `start_ts` and `end_ts` range is more than 6 months, we'll return 6 months of data from the most recent timestamp in your request. Timestamps reflect when deliveries were created in our system, not when they were actually sent to recipients. There may be a delay between creation and sending.\n",
         "tags": [
           "Transactional"
         ],
