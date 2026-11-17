@@ -1047,7 +1047,7 @@
           },
           "poll_hours": {
             "type": "integer",
-            "description": "How often Customer.io checks the folder for new files, in hours.",
+            "description": "How often Customer.io checks the folder for new or changed files, in hours.",
             "example": 1
           },
           "prefix": {
