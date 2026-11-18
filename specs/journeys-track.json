@@ -8165,11 +8165,15 @@
             "description": "If true, rather than sending true copies to BCC addresses, Customer.io sends a copy of the message with the subject line containing the recipient address(es).\n"
           },
           "headers": {
-            "x-scalar-ignore": true,
-            "description": "A JSON string containing header objects with `name` and `value`. Names and values must be strings, with no non-ASCII characters or spaces. You can't overwrite reserved headers.",
-            "type": "string",
-            "format": "json",
-            "example": "[{\"name\":\"X-Mailgun-Tag\",\"value\":\"my-cool-tag\"},{\"name\":\"X-Custom-Header\",\"value\":\"custom-value\"}]"
+            "type": "object",
+            "description": "Custom headers to add to the email, as an object of header names and string values. Names can contain only letters, numbers, hyphens, and underscores. You can't overwrite reserved headers.",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {
+              "X-Mailgun-Tag": "my-cool-tag",
+              "X-Custom-Header": "custom-value"
+            }
           },
           "preheader": {
             "x-scalar-ignore": true,
@@ -42344,11 +42348,15 @@
             "example": "support@example.com"
           },
           "headers": {
-            "x-scalar-ignore": true,
-            "description": "A JSON string containing header objects with `name` and `value`. Names and values must be strings, with no non-ASCII characters or spaces. You can't overwrite reserved headers.",
-            "type": "string",
-            "format": "json",
-            "example": "[{\"name\":\"X-Mailgun-Tag\",\"value\":\"my-cool-tag\"},{\"name\":\"X-Custom-Header\",\"value\":\"custom-value\"}]"
+            "type": "object",
+            "description": "Custom headers to add to the email, as an object of header names and string values. Names can contain only letters, numbers, hyphens, and underscores. You can't overwrite reserved headers.",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {
+              "X-Mailgun-Tag": "my-cool-tag",
+              "X-Custom-Header": "custom-value"
+            }
           },
           "identifiers": {
             "description": "Identifies the person represented by your transactional message by one of, and only one of, `id`, `email`, or `cio_id`.",
