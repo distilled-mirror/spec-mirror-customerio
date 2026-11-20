@@ -46502,7 +46502,7 @@
         "x-scalar-ignore": true,
         "oneOf": [
           {
-            "title": "Email / message",
+            "title": "Email",
             "properties": {
               "bcc": {
                 "x-scalar-ignore": true,

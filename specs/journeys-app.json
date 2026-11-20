@@ -46647,7 +46647,7 @@
         "x-scalar-ignore": true,
         "oneOf": [
           {
-            "title": "Email / message",
+            "title": "Email",
             "properties": {
               "bcc": {
                 "x-scalar-ignore": true,
@@ -196344,7 +196344,7 @@
             "Bearer-Auth": []
           }
         ],
-        "description": "Update the contents of an automation action, including the body of messages and HTTP requests.\n\n**NOTE**: You can't manage content made with Design Studio with this endpoint. Use the [Design Studio APIs](/integrations/api/design-studio/) instead.\n",
+        "description": "Update a *Send and receive data* action (webhook) or one of these message blocks: email, SMS, or WhatsApp.\n\n**NOTE: You can't manage messages made with Design Studio using this endpoint.** Use the [Design Studio APIs](/integrations/api/design-studio/) instead.\n",
         "tags": [
           "Automations"
         ],
@@ -196355,7 +196355,7 @@
                 "x-scalar-ignore": true,
                 "oneOf": [
                   {
-                    "title": "Email / message",
+                    "title": "Email",
                     "properties": {
                       "bcc": {
                         "x-scalar-ignore": true,
@@ -198197,7 +198197,7 @@
                 "x-scalar-ignore": true,
                 "oneOf": [
                   {
-                    "title": "Email / message",
+                    "title": "Email",
                     "properties": {
                       "bcc": {
                         "x-scalar-ignore": true,
@@ -211600,16 +211600,14 @@
         },
         {
           "name": "suppression_type",
-          "description": "The reason a person's email address was suppressed by the email service provider (ESP).",
           "in": "path",
           "required": true,
+          "description": "The reason the email service provider (ESP) suppressed the addresses.",
           "schema": {
             "type": "string",
             "enum": [
-              "blocks",
               "bounces",
-              "spam_reports",
-              "invalid_emails"
+              "spam_reports"
             ]
           }
         }
@@ -211670,7 +211668,7 @@
                       "description": "The reason the addresses are suppressed.",
                       "enum": [
                         "bounces",
-                        "spam"
+                        "spam_reports"
                       ],
                       "example": "bounces"
                     },
@@ -280212,7 +280210,7 @@
     {
       "name": "Automations",
       "x-displayName": "Automations/Campaigns",
-      "description": "An automation, sometimes referred to as a campaign, is a workflow that people in your audience trigger and traverse. The items that happen within the workflow—messages, attribute changes, webhooks, etc that your audience triggers—are called actions.\n\nThese endpoints return information about automations including metrics and the actions included in automations. You can update individual automation actions from these endpoints, but you must perform all other create, update, and/or delete operations through the UI.\n"
+      "description": "An automation, sometimes referred to as a campaign, is a workflow that people in your audience trigger and traverse. The items that happen within the workflow—messages, attribute changes, webhooks, etc that your audience triggers—are called actions.\n\nThese endpoints return information about automations including metrics and the actions included in automations. You can update individual automation actions from these endpoints, but you must perform create and delete operations through the UI.\n\nHowever, to manage messages created in Design Studio, you have to use the [Design Studio endpoints](/integrations/api/design-studio/). You can't update a message made in Design Studio through the Update an automation action endpoint.\n"
     },
     {
       "name": "Newsletters",
