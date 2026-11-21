@@ -52903,8 +52903,23 @@
               },
               "timestamp": {
                 "type": "integer",
-                "description": "The Unix timestamp for when the attribute update occurred. This can be used to control the order of attribute updates when multiple requests are sent in rapid succession.",
+                "description": "The Unix timestamp, in seconds, for when the attribute update occurred. Customer.io uses it to order attribute updates when you send multiple requests in rapid succession. If two updates to the same attribute have the same `timestamp`, Customer.io keeps the one it processes last. To order updates that happen within the same second, send `timestamp_ms` instead.",
                 "example": 1772013598
+              },
+              "timestamp_ms": {
+                "oneOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 1000000000000,
+                    "maximum": 9999999999999
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]{12}$"
+                  }
+                ],
+                "example": 1772013598123,
+                "description": "The Unix timestamp, in milliseconds, for when the attribute update occurred, like the value of `Date.now()` in JavaScript. A valid `timestamp_ms` takes precedence over `timestamp`. Customer.io orders two updates to the same attribute by milliseconds only when both include `timestamp_ms`, so send it on every identify request for a person whose updates can happen within the same second. Customer.io ignores an invalid value and processes the request as if you hadn't sent one. If you've [edited your workspace's actions](/integrations/data-in/connections/classic-api/cio-journeys-api/) to transform Track API calls before Customer.io processes them, Customer.io orders your identify calls by whole seconds and ignores `timestamp_ms`."
               }
             },
             "required": [
@@ -55661,8 +55676,23 @@
           },
           "timestamp": {
             "type": "integer",
-            "description": "The Unix timestamp for when the attribute update occurred. This can be used to control the order of attribute updates when multiple requests are sent in rapid succession.",
+            "description": "The Unix timestamp, in seconds, for when the attribute update occurred. Customer.io uses it to order attribute updates when you send multiple requests in rapid succession. If two updates to the same attribute have the same `timestamp`, Customer.io keeps the one it processes last. To order updates that happen within the same second, send `timestamp_ms` instead.",
             "example": 1772013598
+          },
+          "timestamp_ms": {
+            "oneOf": [
+              {
+                "type": "integer",
+                "minimum": 1000000000000,
+                "maximum": 9999999999999
+              },
+              {
+                "type": "string",
+                "pattern": "^[1-9][0-9]{12}$"
+              }
+            ],
+            "example": 1772013598123,
+            "description": "The Unix timestamp, in milliseconds, for when the attribute update occurred, like the value of `Date.now()` in JavaScript. A valid `timestamp_ms` takes precedence over `timestamp`. Customer.io orders two updates to the same attribute by milliseconds only when both include `timestamp_ms`, so send it on every identify request for a person whose updates can happen within the same second. Customer.io ignores an invalid value and processes the request as if you hadn't sent one. If you've [edited your workspace's actions](/integrations/data-in/connections/classic-api/cio-journeys-api/) to transform Track API calls before Customer.io processes them, Customer.io orders your identify calls by whole seconds and ignores `timestamp_ms`."
           }
         },
         "required": [
