@@ -1731,6 +1731,7 @@
                       "one_click_unsubscribe",
                       "operator",
                       "sender_optout_migration",
+                      "sms_opt_out_link",
                       "subscription_center",
                       "subscription_preference_migration",
                       "unsubscribe_link"
@@ -42909,8 +42910,8 @@
               },
               "body": {
                 "type": "string",
-                "description": "The body of the SMS message.",
-                "example": "Hi {{ customer.first_name }}, check out our latest deals!"
+                "description": "The body of the SMS message, as plain text or `<x-sms>` markup. The first time you update `body` on an SMS that isn't linked to Design Studio yet, Customer.io copies it into Design Studio as a new SMS and links the two, and from then on `body` returns as `<x-sms>` markup. See [SMS markup](/messaging/channels/sms/send-messages/#sms-building-blocks) for the format. A one-time send with translations stays plain text.",
+                "example": "<x-sms><x-sms-media type=\"image\" href=\"https://example.com/order.png\"></x-sms-media><x-sms-body>Hi {{customer.first_name}}, your order has shipped.</x-sms-body></x-sms>"
               },
               "deduplicate_id": {
                 "x-scalar-ignore": true,
@@ -42918,6 +42919,10 @@
                 "readOnly": true,
                 "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
                 "example": "15:1492548073"
+              },
+              "image_url": {
+                "type": "string",
+                "description": "The URL of the image in your SMS (MMS) message. For an SMS linked to Design Studio, send `image_url` together with `body`, and send an empty `image_url` to remove the image."
               }
             }
           },
@@ -43164,8 +43169,8 @@
         "properties": {
           "body": {
             "type": "string",
-            "description": "The body of the SMS message.",
-            "example": "Hi {{ customer.first_name }}, check out our latest deals!"
+            "description": "The body of the SMS message, as plain text or `<x-sms>` markup. The first time you update `body` on an SMS that isn't linked to Design Studio yet, Customer.io copies it into Design Studio as a new SMS and links the two, and from then on `body` returns as `<x-sms>` markup. See [SMS markup](/messaging/channels/sms/send-messages/#sms-building-blocks) for the format. A one-time send with translations stays plain text.",
+            "example": "<x-sms><x-sms-media type=\"image\" href=\"https://example.com/order.png\"></x-sms-media><x-sms-body>Hi {{customer.first_name}}, your order has shipped.</x-sms-body></x-sms>"
           },
           "deduplicate_id": {
             "x-scalar-ignore": true,
@@ -43173,6 +43178,10 @@
             "readOnly": true,
             "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
             "example": "15:1492548073"
+          },
+          "image_url": {
+            "type": "string",
+            "description": "The URL of the image in your SMS (MMS) message. For an SMS linked to Design Studio, send `image_url` together with `body`, and send an empty `image_url` to remove the image."
           },
           "type": {
             "x-scalar-ignore": true,
@@ -43332,7 +43341,7 @@
           },
           "body": {
             "type": "string",
-            "description": "The body of the variant. You cannot modify the body if you created it with our drag-and-drop editor.",
+            "description": "The body of the variant. You cannot modify the body if you created it with our drag-and-drop editor. For an SMS linked to Design Studio, the body returns as [SMS markup](/messaging/channels/sms/send-messages/#sms-building-blocks).",
             "example": "<strong>Hello from the API</strong>"
           },
           "body_amp": {
@@ -43384,6 +43393,10 @@
             "type": "integer",
             "description": "The identifier of a one-time send variant—a language in a multi-language one-time send or a test in an A/B test.",
             "readOnly": true
+          },
+          "image_url": {
+            "type": "string",
+            "description": "For an SMS, the URL of the image that turns it into an MMS. For an SMS linked to Design Studio, this field returns empty because the image is part of `body`. To change that image, send `image_url` together with `body`, and send an empty `image_url` to remove the image."
           },
           "language": {
             "x-scalar-ignore": true,
@@ -43481,7 +43494,7 @@
           },
           "body": {
             "type": "string",
-            "description": "The body of the variant. You cannot modify the body if you created it with our drag-and-drop editor.",
+            "description": "The body of the variant. You cannot modify the body if you created it with our drag-and-drop editor. For an SMS linked to Design Studio, the body returns as [SMS markup](/messaging/channels/sms/send-messages/#sms-building-blocks).",
             "example": "<strong>Hello from the API</strong>"
           },
           "body_amp": {
@@ -43526,6 +43539,10 @@
             "type": "integer",
             "description": "The identifier of a one-time send variant—a language in a multi-language one-time send or a test in an A/B test.",
             "readOnly": true
+          },
+          "image_url": {
+            "type": "string",
+            "description": "For an SMS, the URL of the image that turns it into an MMS. For an SMS linked to Design Studio, this field returns empty because the image is part of `body`. To change that image, send `image_url` together with `body`, and send an empty `image_url` to remove the image."
           },
           "language": {
             "x-scalar-ignore": true,
@@ -45113,7 +45130,8 @@
             "properties": {
               "body": {
                 "type": "string",
-                "description": "The body of your SMS."
+                "description": "The body of your SMS, as plain text or `<x-sms>` markup. The first time you update `body` on an SMS that isn't linked to Design Studio yet, Customer.io copies it into Design Studio as a new SMS and links the two, and from then on `body` returns as `<x-sms>` markup. See [SMS markup](/messaging/channels/sms/send-messages/#sms-building-blocks) for the format. When you send plain text to an SMS that's already linked to Design Studio, Customer.io replaces the message text and keeps the image. An SMS with translations, or one in a multi-language branch, stays plain text.",
+                "example": "<x-sms><x-sms-media type=\"image\" href=\"https://example.com/order.png\"></x-sms-media><x-sms-body>Hi {{customer.first_name}}, your order has shipped.</x-sms-body></x-sms>"
               },
               "broadcast_id": {
                 "x-scalar-ignore": true,
@@ -45145,7 +45163,7 @@
               },
               "image_url": {
                 "type": "string",
-                "description": "The URL of the image in your SMS (MMS) message."
+                "description": "The URL of the image in your SMS (MMS) message. Once an SMS is linked to Design Studio, this field returns empty because the image is part of the `<x-sms>` markup in `body`. To change the image of a linked SMS, send `image_url` together with `body`, and send an empty `image_url` to remove the image."
               },
               "language": {
                 "x-scalar-ignore": true,
@@ -45584,7 +45602,8 @@
             "properties": {
               "body": {
                 "type": "string",
-                "description": "The body of your SMS."
+                "description": "The body of your SMS, as plain text or `<x-sms>` markup. The first time you update `body` on an SMS that isn't linked to Design Studio yet, Customer.io copies it into Design Studio as a new SMS and links the two, and from then on `body` returns as `<x-sms>` markup. See [SMS markup](/messaging/channels/sms/send-messages/#sms-building-blocks) for the format. When you send plain text to an SMS that's already linked to Design Studio, Customer.io replaces the message text and keeps the image. An SMS with translations, or one in a multi-language branch, stays plain text.",
+                "example": "<x-sms><x-sms-media type=\"image\" href=\"https://example.com/order.png\"></x-sms-media><x-sms-body>Hi {{customer.first_name}}, your order has shipped.</x-sms-body></x-sms>"
               },
               "broadcast_id": {
                 "x-scalar-ignore": true,
@@ -45616,7 +45635,7 @@
               },
               "image_url": {
                 "type": "string",
-                "description": "The URL of the image in your SMS (MMS) message."
+                "description": "The URL of the image in your SMS (MMS) message. Once an SMS is linked to Design Studio, this field returns empty because the image is part of the `<x-sms>` markup in `body`. To change the image of a linked SMS, send `image_url` together with `body`, and send an empty `image_url` to remove the image."
               },
               "language": {
                 "x-scalar-ignore": true,
@@ -45901,7 +45920,7 @@
           },
           "body": {
             "type": "string",
-            "description": "The body of the transactional message. You cannot modify the body if you created it with our drag-and-drop editor."
+            "description": "The body of the transactional message. You cannot modify the body if you created it with our drag-and-drop editor. For an SMS linked to Design Studio, the body returns as [SMS markup](/messaging/channels/sms/send-messages/#sms-building-blocks)."
           },
           "body_amp": {
             "x-scalar-ignore": true,
@@ -45971,6 +45990,10 @@
             "type": "integer",
             "readOnly": true,
             "example": 96
+          },
+          "image_url": {
+            "type": "string",
+            "description": "For an SMS, the URL of the image that turns it into an MMS. For an SMS linked to Design Studio, this field returns empty because the image is part of `body`. To change that image, send `image_url` together with `body`, and send an empty `image_url` to remove the image."
           },
           "language": {
             "x-scalar-ignore": true,
@@ -46057,7 +46080,7 @@
           },
           "body": {
             "type": "string",
-            "description": "The body of the transactional message. You cannot modify the body if you created it with our drag-and-drop editor."
+            "description": "The body of the transactional message. You cannot modify the body if you created it with our drag-and-drop editor. For an SMS linked to Design Studio, the body returns as [SMS markup](/messaging/channels/sms/send-messages/#sms-building-blocks)."
           },
           "body_amp": {
             "x-scalar-ignore": true,
@@ -46110,6 +46133,10 @@
             "type": "integer",
             "readOnly": true,
             "example": 96
+          },
+          "image_url": {
+            "type": "string",
+            "description": "For an SMS, the URL of the image that turns it into an MMS. For an SMS linked to Design Studio, this field returns empty because the image is part of `body`. To change that image, send `image_url` together with `body`, and send an empty `image_url` to remove the image."
           },
           "language": {
             "x-scalar-ignore": true,
@@ -46197,7 +46224,7 @@
           },
           "body": {
             "type": "string",
-            "description": "The body of the transactional message. You cannot modify the body if you created it with our drag-and-drop editor."
+            "description": "The body of the transactional message. You cannot modify the body if you created it with our drag-and-drop editor. For an SMS linked to Design Studio, the body returns as [SMS markup](/messaging/channels/sms/send-messages/#sms-building-blocks)."
           },
           "body_amp": {
             "x-scalar-ignore": true,
@@ -46243,6 +46270,10 @@
             "type": "integer",
             "readOnly": true,
             "example": 96
+          },
+          "image_url": {
+            "type": "string",
+            "description": "For an SMS, the URL of the image that turns it into an MMS. For an SMS linked to Design Studio, this field returns empty because the image is part of `body`. To change that image, send `image_url` together with `body`, and send an empty `image_url` to remove the image."
           },
           "language": {
             "x-scalar-ignore": true,
@@ -46338,7 +46369,8 @@
         "properties": {
           "body": {
             "type": "string",
-            "description": "The body of your SMS."
+            "description": "The body of your SMS, as plain text or `<x-sms>` markup. The first time you update `body` on an SMS that isn't linked to Design Studio yet, Customer.io copies it into Design Studio as a new SMS and links the two, and from then on `body` returns as `<x-sms>` markup. See [SMS markup](/messaging/channels/sms/send-messages/#sms-building-blocks) for the format. When you send plain text to an SMS that's already linked to Design Studio, Customer.io replaces the message text and keeps the image. An SMS with translations, or one in a multi-language branch, stays plain text.",
+            "example": "<x-sms><x-sms-media type=\"image\" href=\"https://example.com/order.png\"></x-sms-media><x-sms-body>Hi {{customer.first_name}}, your order has shipped.</x-sms-body></x-sms>"
           },
           "created": {
             "x-scalar-ignore": true,
@@ -46357,7 +46389,7 @@
           },
           "image_url": {
             "type": "string",
-            "description": "The URL of the image in your SMS (MMS) message."
+            "description": "The URL of the image in your SMS (MMS) message. Once an SMS is linked to Design Studio, this field returns empty because the image is part of the `<x-sms>` markup in `body`. To change the image of a linked SMS, send `image_url` together with `body`, and send an empty `image_url` to remove the image."
           },
           "language": {
             "x-scalar-ignore": true,
@@ -46707,7 +46739,8 @@
             "properties": {
               "body": {
                 "type": "string",
-                "description": "The body of your SMS."
+                "description": "The body of your SMS, as plain text or `<x-sms>` markup. The first time you update `body` on an SMS that isn't linked to Design Studio yet, Customer.io copies it into Design Studio as a new SMS and links the two, and from then on `body` returns as `<x-sms>` markup. See [SMS markup](/messaging/channels/sms/send-messages/#sms-building-blocks) for the format. When you send plain text to an SMS that's already linked to Design Studio, Customer.io replaces the message text and keeps the image. An SMS with translations, or one in a multi-language branch, stays plain text.",
+                "example": "<x-sms><x-sms-media type=\"image\" href=\"https://example.com/order.png\"></x-sms-media><x-sms-body>Hi {{customer.first_name}}, your order has shipped.</x-sms-body></x-sms>"
               },
               "campaign_id": {
                 "x-scalar-ignore": true,
@@ -46739,7 +46772,7 @@
               },
               "image_url": {
                 "type": "string",
-                "description": "The URL of the image in your SMS (MMS) message."
+                "description": "The URL of the image in your SMS (MMS) message. Once an SMS is linked to Design Studio, this field returns empty because the image is part of the `<x-sms>` markup in `body`. To change the image of a linked SMS, send `image_url` together with `body`, and send an empty `image_url` to remove the image."
               },
               "language": {
                 "x-scalar-ignore": true,
@@ -47212,7 +47245,8 @@
             "properties": {
               "body": {
                 "type": "string",
-                "description": "The body of your SMS."
+                "description": "The body of your SMS, as plain text or `<x-sms>` markup. The first time you update `body` on an SMS that isn't linked to Design Studio yet, Customer.io copies it into Design Studio as a new SMS and links the two, and from then on `body` returns as `<x-sms>` markup. See [SMS markup](/messaging/channels/sms/send-messages/#sms-building-blocks) for the format. When you send plain text to an SMS that's already linked to Design Studio, Customer.io replaces the message text and keeps the image. An SMS with translations, or one in a multi-language branch, stays plain text.",
+                "example": "<x-sms><x-sms-media type=\"image\" href=\"https://example.com/order.png\"></x-sms-media><x-sms-body>Hi {{customer.first_name}}, your order has shipped.</x-sms-body></x-sms>"
               },
               "campaign_id": {
                 "x-scalar-ignore": true,
@@ -47244,7 +47278,7 @@
               },
               "image_url": {
                 "type": "string",
-                "description": "The URL of the image in your SMS (MMS) message."
+                "description": "The URL of the image in your SMS (MMS) message. Once an SMS is linked to Design Studio, this field returns empty because the image is part of the `<x-sms>` markup in `body`. To change the image of a linked SMS, send `image_url` together with `body`, and send an empty `image_url` to remove the image."
               },
               "language": {
                 "x-scalar-ignore": true,
