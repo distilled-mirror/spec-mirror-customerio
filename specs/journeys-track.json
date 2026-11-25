@@ -651,6 +651,7 @@
             "whatsapp",
             "slack",
             "push",
+            "web_push",
             "in_app",
             "live_notification"
           ]
@@ -6914,9 +6915,10 @@
             "type": "string",
             "enum": [
               "ios",
-              "android"
+              "android",
+              "web"
             ],
-            "description": "The device/messaging platform."
+            "description": "The device/messaging platform. Use `web` for a browser that subscribed to web push, and set its `webpush_p256dh` and `webpush_auth` attributes. Customer.io accepts `web` only after you [generate web push keys](/messaging/channels/web-push/set-up/#generate-keys) for the workspace."
           },
           "attributes": {
             "type": "object",
@@ -6957,6 +6959,10 @@
                 "type": "string",
                 "description": "The operating system, including the version, on the device."
               },
+              "origin": {
+                "type": "string",
+                "description": "For a `web` device, the website the browser subscribed on, like `https://www.example.com`. A web push message with a **Website** reaches only browsers with that `origin`."
+              },
               "push_enabled": {
                 "type": "string",
                 "description": "If `\"true\"`, the device is opted-in and can receive push notifications.",
@@ -6964,6 +6970,14 @@
                   "true",
                   "false"
                 ]
+              },
+              "webpush_auth": {
+                "type": "string",
+                "description": "For a `web` device, the subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes."
+              },
+              "webpush_p256dh": {
+                "type": "string",
+                "description": "For a `web` device, the subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key."
               }
             },
             "additionalProperties": {
@@ -6991,9 +7005,10 @@
             "type": "string",
             "enum": [
               "ios",
-              "android"
+              "android",
+              "web"
             ],
-            "description": "The device/messaging platform."
+            "description": "The device/messaging platform. Use `web` for a browser that subscribed to web push, and set its `webpush_p256dh` and `webpush_auth` attributes. Customer.io accepts `web` only after you [generate web push keys](/messaging/channels/web-push/set-up/#generate-keys) for the workspace."
           },
           "attributes": {
             "type": "object",
@@ -7046,6 +7061,10 @@
                 "type": "boolean",
                 "description": "If `true`, the device's WiFi connection is on."
               },
+              "origin": {
+                "type": "string",
+                "description": "For a `web` device, the website the browser subscribed on, like `https://www.example.com`. A web push message with a **Website** reaches only browsers with that `origin`."
+              },
               "push_enabled": {
                 "type": "string",
                 "description": "If `\"true\"`, the device is opted-in and can receive push notifications.",
@@ -7065,6 +7084,14 @@
               "timezone": {
                 "type": "string",
                 "description": "The time zone of the device."
+              },
+              "webpush_auth": {
+                "type": "string",
+                "description": "For a `web` device, the subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes."
+              },
+              "webpush_p256dh": {
+                "type": "string",
+                "description": "For a `web` device, the subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key."
               }
             },
             "additionalProperties": {
@@ -7085,16 +7112,18 @@
         "description": "Device properties collected by [Customer.io SDKs](/integrations/sdk/) unless `autoTrackDeviceAttributes` is disabled. You can use these properties in segments and Liquid.",
         "properties": {
           "id": {
-            "description": "The unique device identifier. This is an APNs token, an FCM registration token, or a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids).",
-            "type": "string"
+            "description": "The unique device identifier. This is an APNs token, an FCM registration token, a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids), or, for a `web` device, the browser's push subscription endpoint, an absolute `https://` URL.",
+            "type": "string",
+            "maxLength": 512
           },
           "platform": {
             "type": "string",
             "enum": [
               "ios",
-              "android"
+              "android",
+              "web"
             ],
-            "description": "The device/messaging platform."
+            "description": "The device/messaging platform. Use `web` for a browser that subscribed to web push, and set its `webpush_p256dh` and `webpush_auth` attributes. Customer.io accepts `web` only after you [generate web push keys](/messaging/channels/web-push/set-up/#generate-keys) for the workspace."
           },
           "attributes": {
             "type": "object",
@@ -7135,6 +7164,10 @@
                 "type": "string",
                 "description": "The operating system, including the version, on the device."
               },
+              "origin": {
+                "type": "string",
+                "description": "For a `web` device, the website the browser subscribed on, like `https://www.example.com`. A web push message with a **Website** reaches only browsers with that `origin`."
+              },
               "push_enabled": {
                 "type": "string",
                 "description": "If `\"true\"`, the device is opted-in and can receive push notifications.",
@@ -7142,6 +7175,14 @@
                   "true",
                   "false"
                 ]
+              },
+              "webpush_auth": {
+                "type": "string",
+                "description": "For a `web` device, the subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes."
+              },
+              "webpush_p256dh": {
+                "type": "string",
+                "description": "For a `web` device, the subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key."
               }
             },
             "additionalProperties": {
@@ -7166,16 +7207,18 @@
         "description": "Device properties for Journeys profiles sent from a [Pipelines-enabled SDK](/integrations/sdk/). SDKs collect these automatically unless `autoTrackDeviceAttributes` is disabled.",
         "properties": {
           "id": {
-            "description": "The unique device identifier. This is an APNs token, an FCM registration token, or a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids).",
-            "type": "string"
+            "description": "The unique device identifier. This is an APNs token, an FCM registration token, a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids), or, for a `web` device, the browser's push subscription endpoint, an absolute `https://` URL.",
+            "type": "string",
+            "maxLength": 512
           },
           "platform": {
             "type": "string",
             "enum": [
               "ios",
-              "android"
+              "android",
+              "web"
             ],
-            "description": "The device/messaging platform."
+            "description": "The device/messaging platform. Use `web` for a browser that subscribed to web push, and set its `webpush_p256dh` and `webpush_auth` attributes. Customer.io accepts `web` only after you [generate web push keys](/messaging/channels/web-push/set-up/#generate-keys) for the workspace."
           },
           "attributes": {
             "type": "object",
@@ -7228,6 +7271,10 @@
                 "type": "boolean",
                 "description": "If `true`, the device's WiFi connection is on."
               },
+              "origin": {
+                "type": "string",
+                "description": "For a `web` device, the website the browser subscribed on, like `https://www.example.com`. A web push message with a **Website** reaches only browsers with that `origin`."
+              },
               "push_enabled": {
                 "type": "string",
                 "description": "If `\"true\"`, the device is opted-in and can receive push notifications.",
@@ -7247,6 +7294,14 @@
               "timezone": {
                 "type": "string",
                 "description": "The time zone of the device."
+              },
+              "webpush_auth": {
+                "type": "string",
+                "description": "For a `web` device, the subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes."
+              },
+              "webpush_p256dh": {
+                "type": "string",
+                "description": "For a `web` device, the subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key."
               }
             },
             "additionalProperties": {
@@ -7799,16 +7854,18 @@
                 "items": {
                   "properties": {
                     "id": {
-                      "description": "The unique device identifier. This is an APNs token, an FCM registration token, or a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids).",
-                      "type": "string"
+                      "description": "The unique device identifier. This is an APNs token, an FCM registration token, a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids), or, for a `web` device, the browser's push subscription endpoint, an absolute `https://` URL.",
+                      "type": "string",
+                      "maxLength": 512
                     },
                     "platform": {
                       "type": "string",
                       "enum": [
                         "ios",
-                        "android"
+                        "android",
+                        "web"
                       ],
-                      "description": "The device/messaging platform."
+                      "description": "The device/messaging platform. Use `web` for a browser that subscribed to web push, and set its `webpush_p256dh` and `webpush_auth` attributes. Customer.io accepts `web` only after you [generate web push keys](/messaging/channels/web-push/set-up/#generate-keys) for the workspace."
                     },
                     "attributes": {
                       "type": "object",
@@ -7849,6 +7906,10 @@
                           "type": "string",
                           "description": "The operating system, including the version, on the device."
                         },
+                        "origin": {
+                          "type": "string",
+                          "description": "For a `web` device, the website the browser subscribed on, like `https://www.example.com`. A web push message with a **Website** reaches only browsers with that `origin`."
+                        },
                         "push_enabled": {
                           "type": "string",
                           "description": "If `\"true\"`, the device is opted-in and can receive push notifications.",
@@ -7856,6 +7917,14 @@
                             "true",
                             "false"
                           ]
+                        },
+                        "webpush_auth": {
+                          "type": "string",
+                          "description": "For a `web` device, the subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes."
+                        },
+                        "webpush_p256dh": {
+                          "type": "string",
+                          "description": "For a `web` device, the subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key."
                         }
                       },
                       "additionalProperties": {
@@ -8214,9 +8283,10 @@
                 "type": "string",
                 "enum": [
                   "ios",
-                  "android"
+                  "android",
+                  "web"
                 ],
-                "description": "The device/messaging platform."
+                "description": "The device/messaging platform. Use `web` for a browser that subscribed to web push, and set its `webpush_p256dh` and `webpush_auth` attributes. Customer.io accepts `web` only after you [generate web push keys](/messaging/channels/web-push/set-up/#generate-keys) for the workspace."
               },
               "token": {
                 "description": "The device token.",
@@ -8261,6 +8331,10 @@
                     "type": "string",
                     "description": "The operating system, including the version, on the device."
                   },
+                  "origin": {
+                    "type": "string",
+                    "description": "For a `web` device, the website the browser subscribed on, like `https://www.example.com`. A web push message with a **Website** reaches only browsers with that `origin`."
+                  },
                   "push_enabled": {
                     "type": "string",
                     "description": "If `\"true\"`, the device is opted-in and can receive push notifications.",
@@ -8268,6 +8342,14 @@
                       "true",
                       "false"
                     ]
+                  },
+                  "webpush_auth": {
+                    "type": "string",
+                    "description": "For a `web` device, the subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes."
+                  },
+                  "webpush_p256dh": {
+                    "type": "string",
+                    "description": "For a `web` device, the subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key."
                   }
                 },
                 "additionalProperties": {
@@ -8790,6 +8872,7 @@
           },
           "platform": {
             "type": "string",
+            "deprecated": true,
             "enum": [
               "all",
               "ios",
@@ -8797,7 +8880,7 @@
               "web",
               "all_and_web"
             ],
-            "description": "The devices this send goes to, overriding the platform saved on the transactional message for this request only. `all` is iOS and Android, `web` is browsers only, and `all_and_web` is iOS, Android, and browsers. If you leave it out, the send uses the message's platform; with `auto_create`, a new message keeps the platform of its first request. Values other than `all` require [web push](/messaging/channels/web-push/transactional/) for your account; without it, the request fails with `400`."
+            "description": "The devices this send goes to, overriding the platform saved on the transactional message for this request only. `all` is iOS and Android, `web` is browsers only, and `all_and_web` is iOS, Android, and browsers. If you leave it out, the send uses the message's platform; with `auto_create`, a new message keeps the platform of its first request. Values other than `all` require web push keys for the workspace; without them, the request fails with `400`. We're retiring `web` and `all_and_web` for this endpoint. To send to browsers, use a web push message and [`POST /v1/send/web_push`](/integrations/api/app/tag/send-messages/sendWebPush/). **Sunsetting on December 31, 2026**"
           },
           "sound": {
             "type": "string",
@@ -9763,6 +9846,170 @@
             "required": [
               "name",
               "type"
+            ]
+          },
+          {
+            "x-scalar-ignore": true,
+            "title": "Web push",
+            "description": "For web push notifications, you must provide `body`. Requires web push to be set up for the workspace.",
+            "allOf": [
+              {
+                "x-scalar-ignore": true,
+                "type": "object",
+                "example": {
+                  "rate_limit_email_rate": 500,
+                  "rate_limit_spread": true,
+                  "rate_limit_time_period": 60
+                }
+              }
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "description": "The channel type for the one-time send.",
+                "enum": [
+                  "web_push"
+                ]
+              },
+              "body": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The text of the web push notification. Browsers don't show a notification without text, so it can't be blank.",
+                "example": "Get 30% off everything. Click to shop now."
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 190,
+                "description": "The name of the one-time send."
+              },
+              "deduped": {
+                "type": "boolean",
+                "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+              },
+              "expires_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2592000,
+                "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+              },
+              "rate_limit_email_rate": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+              },
+              "rate_limit_spread": {
+                "type": "boolean",
+                "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+              },
+              "rate_limit_time_period": {
+                "type": "integer",
+                "enum": [
+                  60,
+                  3600,
+                  86400
+                ],
+                "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+              },
+              "recipient_file_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+              },
+              "recipients": {
+                "type": "object",
+                "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+                "properties": {
+                  "and": {
+                    "type": "array",
+                    "description": "An array of conditions that must all be true.",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "attribute": {
+                    "type": "object",
+                    "description": "A customer attribute condition.",
+                    "properties": {
+                      "field": {
+                        "type": "string",
+                        "description": "The attribute name."
+                      },
+                      "inverse": {
+                        "type": "boolean",
+                        "description": "Set to `true` for \"is not equal\" or \"does not exist\"."
+                      },
+                      "operator": {
+                        "type": "string",
+                        "description": "The comparison operator.",
+                        "enum": [
+                          "eq",
+                          "exists"
+                        ]
+                      },
+                      "value": {
+                        "type": "string",
+                        "description": "The value to compare against. Required when `operator` is `eq`."
+                      }
+                    }
+                  },
+                  "not": {
+                    "type": "object",
+                    "description": "A condition or group of conditions to exclude. On this endpoint, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array. An object with both `and` and `not` keys is rejected with an \"Invalid filter spec\" error."
+                  },
+                  "or": {
+                    "type": "array",
+                    "description": "An array of conditions where at least one must be true. On this endpoint, `or` arrays can contain only segment conditions.",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "segment": {
+                    "type": "object",
+                    "description": "A segment condition.",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "The ID of a segment."
+                      }
+                    }
+                  }
+                }
+              },
+              "scheduled_at": {
+                "type": "integer",
+                "format": "unix timestamp",
+                "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+              },
+              "send_now": {
+                "type": "boolean",
+                "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+              },
+              "subject": {
+                "type": "string",
+                "description": "The title of the web push notification.",
+                "example": "24-hour flash sale!"
+              },
+              "subscription_topic_id": {
+                "type": "integer",
+                "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+              },
+              "tag_ids": {
+                "type": "array",
+                "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "web_origin": {
+                "type": "string",
+                "description": "The website whose subscribed browsers receive the one-time send, like `https://shop.example.com`, without a path. Leave it out to send to browsers on all of your websites.",
+                "example": "https://shop.example.com"
+              }
+            },
+            "required": [
+              "name",
+              "type",
+              "body"
             ]
           },
           {
@@ -10886,6 +11133,170 @@
           "type"
         ]
       },
+      "createWebPushNewsletter": {
+        "x-scalar-ignore": true,
+        "title": "Web push",
+        "description": "For web push notifications, you must provide `body`. Requires web push to be set up for the workspace.",
+        "allOf": [
+          {
+            "x-scalar-ignore": true,
+            "type": "object",
+            "example": {
+              "rate_limit_email_rate": 500,
+              "rate_limit_spread": true,
+              "rate_limit_time_period": 60
+            }
+          }
+        ],
+        "properties": {
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The text of the web push notification. Browsers don't show a notification without text, so it can't be blank.",
+            "example": "Get 30% off everything. Click to shop now."
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 190,
+            "description": "The name of the one-time send."
+          },
+          "type": {
+            "type": "string",
+            "description": "The channel type for the one-time send.",
+            "enum": [
+              "web_push"
+            ]
+          },
+          "deduped": {
+            "type": "boolean",
+            "description": "When `true`, Customer.io sends only one message per email address or phone number, even when several profiles share it. Supported on `email`, `twilio`, and `sms` one-time sends. If the send's address is an identifier in your workspace (email for `email` sends, phone number for `twilio` and `sms` sends), Customer.io returns a 422 when you set `deduped` to `true`, because no two profiles can share an identifier and there's nothing to dedupe. Leave it out to use the default for your workspace's identifier configuration. No endpoint changes this later, so set it here if you don't want the default.\n"
+          },
+          "expires_after": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2592000,
+            "description": "A send window in seconds, or `0` for no expiry. Customer.io stops delivering the one-time send once the window closes, so a delayed message doesn't arrive when it's no longer useful. Set it here only alongside `send_now` or `scheduled_at`, because the window runs from the send. On a plain draft, set it on the [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/) call instead.\n"
+          },
+          "rate_limit_email_rate": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum number of messages per time period. **NOTE:** Though this states `email_rate`, you can use this for other message channels. Only fixed rate limits are supported, not [daily ramp limits](/messaging/send/broadcasts/one-time-sends/#daily-ramp).\n"
+          },
+          "rate_limit_spread": {
+            "type": "boolean",
+            "description": "When `true`, spreads messages evenly across the time period. Otherwise, it sends as fast as possible up to the limit in each period."
+          },
+          "rate_limit_time_period": {
+            "type": "integer",
+            "enum": [
+              60,
+              3600,
+              86400
+            ],
+            "description": "Time period in seconds for rate limiting. Must be one of 60 (minute), 3600 (hour), or 86400 (day)."
+          },
+          "recipient_file_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A URL pointing to a CSV of recipients, used instead of the `recipients` filter. Customer.io resolves the file in the background, so this request can't also send or schedule. Poll [Get a one-time send](/integrations/api/app/tag/newsletters/getNewsletters/) until `recipient_file_status` is `done`, then call [send](/integrations/api/app/tag/send-messages/sendNewsletter/) or [schedule](/integrations/api/app/tag/send-messages/scheduleNewsletter/).\n"
+          },
+          "recipients": {
+            "type": "object",
+            "description": "Filter conditions that define the one-time send's recipients. In `recipients`, you can combine `segment` and `attribute` conditions with `and`, `or`, and `not` operators.\n\nThis endpoint enforces a strict shape:\n\n* The outermost object must be a single `and` array.\n* Every operator or condition object takes exactly **one** key: `and`, `or`, `not`, `segment`, or `attribute`. An object with two keys—like `not` alongside `and`—is rejected with an \"Invalid filter spec\" error.\n* Segment conditions must be wrapped in an `or` array, even for a single segment—and `or` arrays can contain only segment conditions.\n* To exclude segments, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array.\n* Attribute conditions sit directly in the `and` array, unwrapped. To negate an attribute condition, set `inverse: true` on the attribute itself—`not` can't contain attribute conditions.\n\nThe email example on this operation shows or-wrapped segments combined with a negated attribute; for the common \"include segment A, exclude segment B\" pattern, see the **include one segment, exclude another** request example. See [Format API-triggered broadcasts](/messaging/send/broadcasts/api-triggered-data-format/#overriding-recipients) for general operator behavior.\n",
+            "properties": {
+              "and": {
+                "type": "array",
+                "description": "An array of conditions that must all be true.",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "attribute": {
+                "type": "object",
+                "description": "A customer attribute condition.",
+                "properties": {
+                  "field": {
+                    "type": "string",
+                    "description": "The attribute name."
+                  },
+                  "inverse": {
+                    "type": "boolean",
+                    "description": "Set to `true` for \"is not equal\" or \"does not exist\"."
+                  },
+                  "operator": {
+                    "type": "string",
+                    "description": "The comparison operator.",
+                    "enum": [
+                      "eq",
+                      "exists"
+                    ]
+                  },
+                  "value": {
+                    "type": "string",
+                    "description": "The value to compare against. Required when `operator` is `eq`."
+                  }
+                }
+              },
+              "not": {
+                "type": "object",
+                "description": "A condition or group of conditions to exclude. On this endpoint, `not` must contain an `or` of segment conditions and sit as its own item inside the `and` array. An object with both `and` and `not` keys is rejected with an \"Invalid filter spec\" error."
+              },
+              "or": {
+                "type": "array",
+                "description": "An array of conditions where at least one must be true. On this endpoint, `or` arrays can contain only segment conditions.",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "segment": {
+                "type": "object",
+                "description": "A segment condition.",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "The ID of a segment."
+                  }
+                }
+              }
+            }
+          },
+          "scheduled_at": {
+            "type": "integer",
+            "format": "unix timestamp",
+            "description": "A Unix timestamp indicating when to send the one-time send. The time must be in the future. You cannot set both `send_now` and `scheduled_at`."
+          },
+          "send_now": {
+            "type": "boolean",
+            "description": "If `true`, the one-time send is sent immediately after creation. You cannot set both `send_now` and `scheduled_at`."
+          },
+          "subject": {
+            "type": "string",
+            "description": "The title of the web push notification.",
+            "example": "24-hour flash sale!"
+          },
+          "subscription_topic_id": {
+            "type": "integer",
+            "description": "The one-time send audience's subscription topic ID. Required when [subscription center](/journeys/channels/subscriptions/center/#enable-sub-center) is enabled; otherwise sends to globally subscribed profiles."
+          },
+          "tag_ids": {
+            "type": "array",
+            "description": "The IDs of the tags you want to apply to the one-time send. Each tag must already exist.",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "web_origin": {
+            "type": "string",
+            "description": "The website whose subscribed browsers receive the one-time send, like `https://shop.example.com`, without a path. Leave it out to send to browsers on all of your websites.",
+            "example": "https://shop.example.com"
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "body"
+        ]
+      },
       "createInAppNewsletter": {
         "x-scalar-ignore": true,
         "title": "In-App",
@@ -11887,6 +12298,7 @@
               "webhook",
               "twilio",
               "push",
+              "web_push",
               "in_app",
               "inbox"
             ],
@@ -12227,6 +12639,16 @@
                 "push_dropped",
                 "push_failed",
                 "push_undeliverable",
+                "web_push_drafted",
+                "web_push_attempted",
+                "web_push_sent",
+                "web_push_delivered",
+                "web_push_opened",
+                "web_push_converted",
+                "web_push_bounced",
+                "web_push_dropped",
+                "web_push_failed",
+                "web_push_undeliverable",
                 "slack_drafted",
                 "slack_attempted",
                 "slack_sent",
@@ -41371,9 +41793,10 @@
                 "type": "string",
                 "enum": [
                   "ios",
-                  "android"
+                  "android",
+                  "web"
                 ],
-                "description": "The device/messaging platform."
+                "description": "The device/messaging platform. Use `web` for a browser that subscribed to web push, and set its `webpush_p256dh` and `webpush_auth` attributes. Customer.io accepts `web` only after you [generate web push keys](/messaging/channels/web-push/set-up/#generate-keys) for the workspace."
               },
               "token": {
                 "description": "The device token.",
@@ -41418,6 +41841,10 @@
                     "type": "string",
                     "description": "The operating system, including the version, on the device."
                   },
+                  "origin": {
+                    "type": "string",
+                    "description": "For a `web` device, the website the browser subscribed on, like `https://www.example.com`. A web push message with a **Website** reaches only browsers with that `origin`."
+                  },
                   "push_enabled": {
                     "type": "string",
                     "description": "If `\"true\"`, the device is opted-in and can receive push notifications.",
@@ -41425,6 +41852,14 @@
                       "true",
                       "false"
                     ]
+                  },
+                  "webpush_auth": {
+                    "type": "string",
+                    "description": "For a `web` device, the subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes."
+                  },
+                  "webpush_p256dh": {
+                    "type": "string",
+                    "description": "For a `web` device, the subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key."
                   }
                 },
                 "additionalProperties": {
@@ -41965,6 +42400,7 @@
           },
           "platform": {
             "type": "string",
+            "deprecated": true,
             "enum": [
               "all",
               "ios",
@@ -41972,7 +42408,7 @@
               "web",
               "all_and_web"
             ],
-            "description": "The devices this send goes to, overriding the platform saved on the transactional message for this request only. `all` is iOS and Android, `web` is browsers only, and `all_and_web` is iOS, Android, and browsers. If you leave it out, the send uses the message's platform; with `auto_create`, a new message keeps the platform of its first request. Values other than `all` require [web push](/messaging/channels/web-push/transactional/) for your account; without it, the request fails with `400`."
+            "description": "The devices this send goes to, overriding the platform saved on the transactional message for this request only. `all` is iOS and Android, `web` is browsers only, and `all_and_web` is iOS, Android, and browsers. If you leave it out, the send uses the message's platform; with `auto_create`, a new message keeps the platform of its first request. Values other than `all` require web push keys for the workspace; without them, the request fails with `400`. We're retiring `web` and `all_and_web` for this endpoint. To send to browsers, use a web push message and [`POST /v1/send/web_push`](/integrations/api/app/tag/send-messages/sendWebPush/). **Sunsetting on December 31, 2026**"
           },
           "queue_draft": {
             "x-scalar-ignore": true,
@@ -42012,6 +42448,216 @@
               "$device_token"
             ],
             "default": "all"
+          }
+        },
+        "required": [
+          "transactional_message_id",
+          "identifiers"
+        ]
+      },
+      "sendwebpush": {
+        "x-scalar-ignore": true,
+        "properties": {
+          "identifiers": {
+            "description": "Identifies the person represented by your transactional message by one of, and only one of, `id`, `email`, or `cio_id`.",
+            "oneOf": [
+              {
+                "title": "id",
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The identifier for the person represented by the transactional message. **NOTE**: If your workspace identifies people by email, use the `email` identifier instead.\n",
+                    "example": 12345
+                  }
+                }
+              },
+              {
+                "title": "email",
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "The identifier for the person represented by the transactional message. Use this option if your workspace identifies people by email rather than by `id`.",
+                    "example": "cool.person@example.com"
+                  }
+                }
+              },
+              {
+                "title": "cio_id",
+                "type": "object",
+                "required": [
+                  "cio_id"
+                ],
+                "properties": {
+                  "cio_id": {
+                    "type": "string",
+                    "description": "A unique, immutable identifier for a person, set by Customer.io when you add a person.",
+                    "example": 3000001
+                  }
+                }
+              }
+            ]
+          },
+          "transactional_message_id": {
+            "description": "The transactional web push message that you want to send. You can call the message by its numerical ID or by the *Trigger Name* that you assigned to the message in the UI (case insensitive). The message must be a web push message.",
+            "oneOf": [
+              {
+                "title": "ID (integer)",
+                "type": "integer",
+                "description": "The ID of the transactional message you want to send.",
+                "example": 72
+              },
+              {
+                "title": "Trigger Name (string)",
+                "type": "string",
+                "description": "The name of trigger for the transactional message you want to send; you set the trigger name in the *Configure Settings* step when setting up your message. This is case insensitive.",
+                "example": "booking_confirmed"
+              }
+            ]
+          },
+          "auto_create": {
+            "type": "boolean",
+            "default": false,
+            "description": "If `true` and your `transactional_message_id` doesn't match a message, Customer.io creates a web push message using that value as the *Trigger Name*. The ID must be a string. A new message sends to all of the person's eligible browsers until you change its **Browsers** (or **To**) setting."
+          },
+          "custom_data": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Key-value pairs to deliver with the notification, which your website can read. This overrides the custom data of the transactional message. If you send `null`, Customer.io uses the message's own custom data.",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {
+              "order_id": "5521"
+            }
+          },
+          "custom_device": {
+            "type": "object",
+            "description": "A browser to add or update on the person's profile before the send. `to` still chooses which browsers receive the message, so set `to` to the same endpoint to send only to this browser.",
+            "required": [
+              "token",
+              "platform",
+              "attributes"
+            ],
+            "properties": {
+              "attributes": {
+                "type": "object",
+                "description": "The browser's subscription keys, plus any other attributes you want to set on the device.",
+                "required": [
+                  "webpush_p256dh",
+                  "webpush_auth"
+                ],
+                "properties": {
+                  "webpush_auth": {
+                    "type": "string",
+                    "description": "The subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes.",
+                    "example": "tBHItJI5svbpez7KI4CCXg"
+                  },
+                  "webpush_p256dh": {
+                    "type": "string",
+                    "description": "The subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key.",
+                    "example": "BNcRdreALRFXTkOOUHK1EtK2wtaz5Ry4YfYCA_0QTpQtUbVlUls0VJXg7A8u-Ts1XbjhazAkj7I99e8QcYP7DkM"
+                  },
+                  "origin": {
+                    "type": "string",
+                    "description": "The website the browser subscribed on, like `https://www.example.com`. A message with a **Website** reaches only browsers with that `origin`."
+                  }
+                },
+                "additionalProperties": {
+                  "x-additionalPropertiesName": "Custom Device Attributes",
+                  "description": "Custom properties that you want to associate with the device.",
+                  "type": "string"
+                }
+              },
+              "platform": {
+                "type": "string",
+                "enum": [
+                  "web"
+                ],
+                "description": "The device platform. A browser's platform is `web`."
+              },
+              "token": {
+                "type": "string",
+                "format": "uri",
+                "maxLength": 512,
+                "description": "The browser's push subscription endpoint, an absolute `https://` URL.",
+                "example": "https://fcm.googleapis.com/fcm/send/eXaMpLe-EnDpOiNt:APA91bH1x2y3z"
+              },
+              "last_used": {
+                "type": "integer",
+                "format": "unix timestamp",
+                "description": "The `timestamp` when the person last used this browser. If you leave it out, Customer.io uses the time of the request."
+              }
+            }
+          },
+          "disable_message_retention": {
+            "x-scalar-ignore": true,
+            "type": "boolean",
+            "default": false,
+            "description": "If true, the message body is not retained in delivery history. Setting this value overrides the value set in the settings of your `transactional_message_id`."
+          },
+          "image_url": {
+            "type": "string",
+            "description": "The URL of an image to show in the notification. This overrides the image of the transactional message for this send."
+          },
+          "language": {
+            "type": "string",
+            "description": "Overrides language preferences for the person you want to send your transactional message to. Use one of our [supported two- or four-letter language codes](/journeys/channels/localization/getting-started/#supported-languages)."
+          },
+          "link": {
+            "type": "string",
+            "description": "The URL to open when the person clicks the notification. This overrides the link of the transactional message for this send."
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The notification text. This replaces the text of the transactional message for this send, so it can't be blank or only spaces."
+          },
+          "message_data": {
+            "type": "object",
+            "description": "An object containing the key-value pairs referenced using liquid in your message.",
+            "additionalProperties": {
+              "x-additionalPropertiesName": "Liquid Data",
+              "description": "Insert key-values that you want to reference in your message here."
+            },
+            "example": {
+              "password_reset_token": "abcde-12345-fghij-d888",
+              "account_id": "123dj"
+            }
+          },
+          "queue_draft": {
+            "x-scalar-ignore": true,
+            "type": "boolean",
+            "description": "If true, your transactional message is held as a draft in Customer.io and not sent directly to your audience. You must go to the Deliveries and Drafts page to send your message.",
+            "default": false
+          },
+          "send_at": {
+            "type": "integer",
+            "description": "A unix timestamp (seconds since epoch) determining when the message will be sent. The timestamp can be up to 90 days in the future. If this value is in the past, your message is sent immediately."
+          },
+          "send_to_unsubscribed": {
+            "x-scalar-ignore": true,
+            "type": "boolean",
+            "default": true,
+            "description": "If false, your message is not sent to unsubscribed recipients. Setting this value overrides the value set in the settings of your `transactional_message_id`."
+          },
+          "title": {
+            "type": "string",
+            "description": "The notification title. This overrides the title of the transactional message for this send."
+          },
+          "to": {
+            "type": "string",
+            "description": "Which of the person's eligible browsers receive the message, overriding the message's **Browsers** (or **To**) setting for this send. Use `all` for every eligible browser, `last_used` for the most recently used one, or a browser's subscription endpoint to send to that browser. If you leave it out, the send uses the message's setting. If the endpoint isn't one of the person's eligible browsers, the request still returns `200`, and the delivery is undeliverable.",
+            "example": "last_used"
           }
         },
         "required": [
@@ -42962,6 +43608,41 @@
           },
           {
             "x-scalar-ignore": true,
+            "title": "Web push",
+            "description": "Update the contents of a web push notification one-time send variant.",
+            "properties": {
+              "type": {
+                "x-scalar-ignore": true,
+                "description": "Channel type for a one-time send or one-time send content variant.",
+                "type": "string",
+                "enum": [
+                  "web_push"
+                ],
+                "readOnly": true,
+                "example": "email"
+              },
+              "body": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The text of the web push notification. Browsers don't show a notification without text, so it can't be blank.",
+                "example": "Get 30% off everything. Click to shop now."
+              },
+              "deduplicate_id": {
+                "x-scalar-ignore": true,
+                "type": "string",
+                "readOnly": true,
+                "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
+                "example": "15:1492548073"
+              },
+              "subject": {
+                "type": "string",
+                "description": "The title of the web push notification.",
+                "example": "24-hour flash sale!"
+              }
+            }
+          },
+          {
+            "x-scalar-ignore": true,
             "title": "Webhook",
             "description": "Update the contents of a webhook one-time send variant.",
             "properties": {
@@ -43086,6 +43767,7 @@
               "webhook",
               "twilio",
               "push",
+              "web_push",
               "in_app",
               "inbox"
             ],
@@ -43223,6 +43905,41 @@
             "type": "string",
             "enum": [
               "push"
+            ],
+            "readOnly": true,
+            "example": "email"
+          }
+        }
+      },
+      "updateWebPushContent": {
+        "x-scalar-ignore": true,
+        "title": "Web push",
+        "description": "Update the contents of a web push notification one-time send variant.",
+        "properties": {
+          "body": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The text of the web push notification. Browsers don't show a notification without text, so it can't be blank.",
+            "example": "Get 30% off everything. Click to shop now."
+          },
+          "deduplicate_id": {
+            "x-scalar-ignore": true,
+            "type": "string",
+            "readOnly": true,
+            "description": "An identifier in the format `id:timestamp` where the id is for the object you're working with (Automations, Deliveries, Exports, Identities, One-time sends, Segments, and Templates), and the timestamp is the last time the object was updated.",
+            "example": "15:1492548073"
+          },
+          "subject": {
+            "type": "string",
+            "description": "The title of the web push notification.",
+            "example": "24-hour flash sale!"
+          },
+          "type": {
+            "x-scalar-ignore": true,
+            "description": "Channel type for a one-time send or one-time send content variant.",
+            "type": "string",
+            "enum": [
+              "web_push"
             ],
             "readOnly": true,
             "example": "email"
@@ -43474,6 +44191,7 @@
               "webhook",
               "twilio",
               "push",
+              "web_push",
               "in_app",
               "inbox"
             ],
@@ -43620,6 +44338,7 @@
               "webhook",
               "twilio",
               "push",
+              "web_push",
               "in_app",
               "inbox"
             ],
@@ -43695,6 +44414,7 @@
           "webhook",
           "twilio",
           "push",
+          "web_push",
           "in_app",
           "inbox"
         ],
@@ -43710,6 +44430,7 @@
           "webhook",
           "twilio",
           "push",
+          "web_push",
           "in_app",
           "slack",
           "whatsapp",
@@ -44386,6 +45107,7 @@
               "webhook",
               "twilio",
               "push",
+              "web_push",
               "in_app",
               "slack",
               "whatsapp",
@@ -44675,6 +45397,7 @@
               "webhook",
               "twilio",
               "push",
+              "web_push",
               "in_app",
               "inbox"
             ],
@@ -44918,6 +45641,7 @@
               "email",
               "in_app",
               "push",
+              "web_push",
               "twilio",
               "slack",
               "whatsapp"
@@ -45109,6 +45833,7 @@
                   "email",
                   "in_app",
                   "push",
+                  "web_push",
                   "twilio",
                   "slack",
                   "whatsapp"
@@ -45581,6 +46306,7 @@
                   "email",
                   "in_app",
                   "push",
+                  "web_push",
                   "twilio",
                   "slack",
                   "whatsapp"
@@ -46055,7 +46781,8 @@
             "description": "The type of message.",
             "enum": [
               "email",
-              "push"
+              "push",
+              "web_push"
             ],
             "readOnly": true
           },
@@ -46198,7 +46925,8 @@
             "description": "The type of message.",
             "enum": [
               "email",
-              "push"
+              "push",
+              "web_push"
             ],
             "readOnly": true
           },
@@ -46335,7 +47063,8 @@
             "description": "The type of message.",
             "enum": [
               "email",
-              "push"
+              "push",
+              "web_push"
             ],
             "readOnly": true
           },
@@ -46718,6 +47447,7 @@
                   "email",
                   "in_app",
                   "push",
+                  "web_push",
                   "twilio",
                   "slack",
                   "whatsapp"
@@ -47224,6 +47954,7 @@
                   "email",
                   "in_app",
                   "push",
+                  "web_push",
                   "twilio",
                   "slack",
                   "whatsapp"
@@ -53677,7 +54408,7 @@
             "properties": {
               "action": {
                 "type": "string",
-                "description": "Add a mobile device to a person's profile.",
+                "description": "Add a mobile device, or a browser that subscribed to web push, to a person's profile.",
                 "enum": [
                   "add_device"
                 ]
@@ -53689,13 +54420,15 @@
                     "type": "string",
                     "enum": [
                       "ios",
-                      "android"
+                      "android",
+                      "web"
                     ],
-                    "description": "The device/messaging platform."
+                    "description": "The device/messaging platform. Use `web` for a browser that subscribed to web push, and set its `webpush_p256dh` and `webpush_auth` attributes. Customer.io accepts `web` only after you [generate web push keys](/messaging/channels/web-push/set-up/#generate-keys) for the workspace."
                   },
                   "token": {
-                    "description": "The device token.",
-                    "type": "string"
+                    "description": "The device token. For a `web` device, this is the browser's push subscription endpoint, an absolute `https://` URL.",
+                    "type": "string",
+                    "maxLength": 512
                   },
                   "attributes": {
                     "type": "object",
@@ -53736,6 +54469,10 @@
                         "type": "string",
                         "description": "The operating system, including the version, on the device."
                       },
+                      "origin": {
+                        "type": "string",
+                        "description": "For a `web` device, the website the browser subscribed on, like `https://www.example.com`. A web push message with a **Website** reaches only browsers with that `origin`."
+                      },
                       "push_enabled": {
                         "type": "string",
                         "description": "If `\"true\"`, the device is opted-in and can receive push notifications.",
@@ -53743,6 +54480,14 @@
                           "true",
                           "false"
                         ]
+                      },
+                      "webpush_auth": {
+                        "type": "string",
+                        "description": "For a `web` device, the subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes."
+                      },
+                      "webpush_p256dh": {
+                        "type": "string",
+                        "description": "For a `web` device, the subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key."
                       }
                     },
                     "additionalProperties": {
@@ -56450,7 +57195,7 @@
         "properties": {
           "action": {
             "type": "string",
-            "description": "Add a mobile device to a person's profile.",
+            "description": "Add a mobile device, or a browser that subscribed to web push, to a person's profile.",
             "enum": [
               "add_device"
             ]
@@ -56462,13 +57207,15 @@
                 "type": "string",
                 "enum": [
                   "ios",
-                  "android"
+                  "android",
+                  "web"
                 ],
-                "description": "The device/messaging platform."
+                "description": "The device/messaging platform. Use `web` for a browser that subscribed to web push, and set its `webpush_p256dh` and `webpush_auth` attributes. Customer.io accepts `web` only after you [generate web push keys](/messaging/channels/web-push/set-up/#generate-keys) for the workspace."
               },
               "token": {
-                "description": "The device token.",
-                "type": "string"
+                "description": "The device token. For a `web` device, this is the browser's push subscription endpoint, an absolute `https://` URL.",
+                "type": "string",
+                "maxLength": 512
               },
               "attributes": {
                 "type": "object",
@@ -56509,6 +57256,10 @@
                     "type": "string",
                     "description": "The operating system, including the version, on the device."
                   },
+                  "origin": {
+                    "type": "string",
+                    "description": "For a `web` device, the website the browser subscribed on, like `https://www.example.com`. A web push message with a **Website** reaches only browsers with that `origin`."
+                  },
                   "push_enabled": {
                     "type": "string",
                     "description": "If `\"true\"`, the device is opted-in and can receive push notifications.",
@@ -56516,6 +57267,14 @@
                       "true",
                       "false"
                     ]
+                  },
+                  "webpush_auth": {
+                    "type": "string",
+                    "description": "For a `web` device, the subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes."
+                  },
+                  "webpush_p256dh": {
+                    "type": "string",
+                    "description": "For a `web` device, the subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key."
                   }
                 },
                 "additionalProperties": {
@@ -58195,7 +58954,7 @@
       "put": {
         "operationId": "add_device",
         "summary": "Add or update a customer device",
-        "description": "Customers can have more than one device. Use this method to add iOS and Android devices to, or update devices for, a customer profile.",
+        "description": "Customers can have more than one device. Use this method to add or update a customer's iOS and Android devices, and browsers that subscribed to web push.",
         "tags": [
           "Track Customers"
         ],
@@ -58228,16 +58987,18 @@
                     "description": "Device properties collected by [Customer.io SDKs](/integrations/sdk/) unless `autoTrackDeviceAttributes` is disabled. You can use these properties in segments and Liquid.",
                     "properties": {
                       "id": {
-                        "description": "The unique device identifier. This is an APNs token, an FCM registration token, or a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids).",
-                        "type": "string"
+                        "description": "The unique device identifier. This is an APNs token, an FCM registration token, a [Firebase Installation ID (FID)](/messaging/channels/push/developer-guide/#device-ids), or, for a `web` device, the browser's push subscription endpoint, an absolute `https://` URL.",
+                        "type": "string",
+                        "maxLength": 512
                       },
                       "platform": {
                         "type": "string",
                         "enum": [
                           "ios",
-                          "android"
+                          "android",
+                          "web"
                         ],
-                        "description": "The device/messaging platform."
+                        "description": "The device/messaging platform. Use `web` for a browser that subscribed to web push, and set its `webpush_p256dh` and `webpush_auth` attributes. Customer.io accepts `web` only after you [generate web push keys](/messaging/channels/web-push/set-up/#generate-keys) for the workspace."
                       },
                       "attributes": {
                         "type": "object",
@@ -58278,6 +59039,10 @@
                             "type": "string",
                             "description": "The operating system, including the version, on the device."
                           },
+                          "origin": {
+                            "type": "string",
+                            "description": "For a `web` device, the website the browser subscribed on, like `https://www.example.com`. A web push message with a **Website** reaches only browsers with that `origin`."
+                          },
                           "push_enabled": {
                             "type": "string",
                             "description": "If `\"true\"`, the device is opted-in and can receive push notifications.",
@@ -58285,6 +59050,14 @@
                               "true",
                               "false"
                             ]
+                          },
+                          "webpush_auth": {
+                            "type": "string",
+                            "description": "For a `web` device, the subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes."
+                          },
+                          "webpush_p256dh": {
+                            "type": "string",
+                            "description": "For a `web` device, the subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key."
                           }
                         },
                         "additionalProperties": {
@@ -58346,7 +59119,7 @@
           {
             "lang": "json",
             "label": "JSON",
-            "source": "{\n  \"device\": {\n    \"id\": \"\",\n    \"platform\": \"ios\",\n    \"attributes\": {\n      \"app_identifier\": \"\",\n      \"app_version\": \"\",\n      \"cio_sdk_version\": \"\",\n      \"device_locale\": \"\",\n      \"device_model\": \"\",\n      \"device_os\": \"\",\n      \"push_enabled\": \"true\",\n      \"Custom Device Attributes\": \"\"\n    },\n    \"last_used\": 1\n  }\n}"
+            "source": "{\n  \"device\": {\n    \"id\": \"\",\n    \"platform\": \"ios\",\n    \"attributes\": {\n      \"app_identifier\": \"\",\n      \"app_version\": \"\",\n      \"cio_sdk_version\": \"\",\n      \"device_locale\": \"\",\n      \"device_model\": \"\",\n      \"device_os\": \"\",\n      \"origin\": \"\",\n      \"push_enabled\": \"true\",\n      \"webpush_auth\": \"\",\n      \"webpush_p256dh\": \"\",\n      \"Custom Device Attributes\": \"\"\n    },\n    \"last_used\": 1\n  }\n}"
           },
           {
             "label": "Node.js (SDK)",
@@ -61322,7 +62095,7 @@
                         "properties": {
                           "action": {
                             "type": "string",
-                            "description": "Add a mobile device to a person's profile.",
+                            "description": "Add a mobile device, or a browser that subscribed to web push, to a person's profile.",
                             "enum": [
                               "add_device"
                             ]
@@ -61334,13 +62107,15 @@
                                 "type": "string",
                                 "enum": [
                                   "ios",
-                                  "android"
+                                  "android",
+                                  "web"
                                 ],
-                                "description": "The device/messaging platform."
+                                "description": "The device/messaging platform. Use `web` for a browser that subscribed to web push, and set its `webpush_p256dh` and `webpush_auth` attributes. Customer.io accepts `web` only after you [generate web push keys](/messaging/channels/web-push/set-up/#generate-keys) for the workspace."
                               },
                               "token": {
-                                "description": "The device token.",
-                                "type": "string"
+                                "description": "The device token. For a `web` device, this is the browser's push subscription endpoint, an absolute `https://` URL.",
+                                "type": "string",
+                                "maxLength": 512
                               },
                               "attributes": {
                                 "type": "object",
@@ -61381,6 +62156,10 @@
                                     "type": "string",
                                     "description": "The operating system, including the version, on the device."
                                   },
+                                  "origin": {
+                                    "type": "string",
+                                    "description": "For a `web` device, the website the browser subscribed on, like `https://www.example.com`. A web push message with a **Website** reaches only browsers with that `origin`."
+                                  },
                                   "push_enabled": {
                                     "type": "string",
                                     "description": "If `\"true\"`, the device is opted-in and can receive push notifications.",
@@ -61388,6 +62167,14 @@
                                       "true",
                                       "false"
                                     ]
+                                  },
+                                  "webpush_auth": {
+                                    "type": "string",
+                                    "description": "For a `web` device, the subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes."
+                                  },
+                                  "webpush_p256dh": {
+                                    "type": "string",
+                                    "description": "For a `web` device, the subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key."
                                   }
                                 },
                                 "additionalProperties": {
@@ -63864,7 +64651,7 @@
                               "properties": {
                                 "action": {
                                   "type": "string",
-                                  "description": "Add a mobile device to a person's profile.",
+                                  "description": "Add a mobile device, or a browser that subscribed to web push, to a person's profile.",
                                   "enum": [
                                     "add_device"
                                   ]
@@ -63876,13 +64663,15 @@
                                       "type": "string",
                                       "enum": [
                                         "ios",
-                                        "android"
+                                        "android",
+                                        "web"
                                       ],
-                                      "description": "The device/messaging platform."
+                                      "description": "The device/messaging platform. Use `web` for a browser that subscribed to web push, and set its `webpush_p256dh` and `webpush_auth` attributes. Customer.io accepts `web` only after you [generate web push keys](/messaging/channels/web-push/set-up/#generate-keys) for the workspace."
                                     },
                                     "token": {
-                                      "description": "The device token.",
-                                      "type": "string"
+                                      "description": "The device token. For a `web` device, this is the browser's push subscription endpoint, an absolute `https://` URL.",
+                                      "type": "string",
+                                      "maxLength": 512
                                     },
                                     "attributes": {
                                       "type": "object",
@@ -63923,6 +64712,10 @@
                                           "type": "string",
                                           "description": "The operating system, including the version, on the device."
                                         },
+                                        "origin": {
+                                          "type": "string",
+                                          "description": "For a `web` device, the website the browser subscribed on, like `https://www.example.com`. A web push message with a **Website** reaches only browsers with that `origin`."
+                                        },
                                         "push_enabled": {
                                           "type": "string",
                                           "description": "If `\"true\"`, the device is opted-in and can receive push notifications.",
@@ -63930,6 +64723,14 @@
                                             "true",
                                             "false"
                                           ]
+                                        },
+                                        "webpush_auth": {
+                                          "type": "string",
+                                          "description": "For a `web` device, the subscription's `auth` secret, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of 16 bytes."
+                                        },
+                                        "webpush_p256dh": {
+                                          "type": "string",
+                                          "description": "For a `web` device, the subscription's `p256dh` key, as the browser gives it in `subscription.toJSON()`. This is the base64url encoding of a 65-byte uncompressed P-256 public key."
                                         }
                                       },
                                       "additionalProperties": {
