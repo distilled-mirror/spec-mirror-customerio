@@ -1875,6 +1875,7 @@
                     "description": "Where the change came from, like your subscription center or an SMS reply. The `subscription_preference_migration` and `sender_optout_migration` values mark records that Customer.io imported from preferences and opt-outs that existed before your account recorded consent.",
                     "enum": [
                       "api",
+                      "automation",
                       "carrier_report",
                       "double_opt_in_confirmation",
                       "form",
@@ -217863,6 +217864,7 @@
                                     "description": "Where the change came from, like your subscription center or an SMS reply. The `subscription_preference_migration` and `sender_optout_migration` values mark records that Customer.io imported from preferences and opt-outs that existed before your account recorded consent.",
                                     "enum": [
                                       "api",
+                                      "automation",
                                       "carrier_report",
                                       "double_opt_in_confirmation",
                                       "form",
@@ -260494,6 +260496,7 @@
                                     "description": "Where the change came from, like your subscription center or an SMS reply. The `subscription_preference_migration` and `sender_optout_migration` values mark records that Customer.io imported from preferences and opt-outs that existed before your account recorded consent.",
                                     "enum": [
                                       "api",
+                                      "automation",
                                       "carrier_report",
                                       "double_opt_in_confirmation",
                                       "form",
